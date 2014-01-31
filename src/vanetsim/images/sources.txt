@@ -1,0 +1,31 @@
+Sources and licences for the used images:
+
+appicon.gif	http://www-sec.uni-regensburg.de/favicon.ico , unknown licence ;)
+shutdown.png	http://www.webappers.com/2008/02/12/webappers-released-free-web-application-icons-set/ , free for personal and commercial use (modified Exit.png))
+down.png	http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized Arrow-Down.png)
+up.png		http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized Arrow-Up.png)
+left.png	http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized Arrow-Left.png)
+right.png	http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized Arrow-Right.png)
+refresh.png	http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized Refresh.png)
+clipboard.png	http://www.vistaicons.com/icon/i141s0/vistaico_toolbar_icons.htm , Creative Commons Attribution 3.0 License (resized and changed brightness of Paste.png)
+ok.png		http://jrdn88.deviantart.com/art/All-Final-Vista-PNGs-RTM-48227438 , no licence mentioned (resized Vista (151).png)
+delete.png	http://jrdn88.deviantart.com/art/All-Final-Vista-PNGs-RTM-48227438 , no licence mentioned (resized Vista (132).png)
+start.png	http://icons-land.com/productvistamultimediaicons.php , free for Non-Commercial use (modified Play1Hot.png)
+pause.png	http://icons-land.com/vista-play-stop-pause-icons.php , free for Non-Commercial use (modified PauseHot.png)
+onestep.png	mixture between start.png and pause.png
+addEvent.png	http://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/clock-icon.html , LGPL
+delEvent.png	http://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/clock-icon.html , LGPL
+randomVehicles.png	mixture between http://commons.wikimedia.org/wiki/Image:Two_red_dice_01.svg , Public Domain and http://www.icons-land.com/vista-icons-transport-icon-set.php , free for Non-Commercial use (CabrioletRed.png)
+savestreet.png	http://commons.wikimedia.org/wiki/Image:Isimple_system_icons_save_as.png , GPL (modified with own created "street")
+blocking.png	http://de.wikipedia.org/w/index.php?title=Bild:Zeichen_267.svg&filetimestamp=20060507203221 , GPL
+
+Images for save, load and edit scenarios are created from LoadSaveImportNew.pspimage (PaintShopPro Photo XI) which consists of these layers:
+background 	http://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/mime-icon.html , LGPL
+clock		http://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/clock-icon.html , LGPL
+car		http://www.icons-land.com/vista-icons-transport-icon-set.php , free for Non-Commercial use (CabrioletRed.png)
+streets		own work derived from program screenshot
+save		http://commons.wikimedia.org/wiki/Image:Isimple_system_icons_save_as.png , GPL
+open		http://commons.wikimedia.org/wiki/Vista_icons , GPL, collage of folder icons on this page so that icon inside folder is removed
+new		http://commons.wikimedia.org/wiki/Image:Vista-keditbookmarks.png , GPL
+settings	http://commons.wikimedia.org/wiki/Image:Vista-advancedsettings.png , GPL
+OpenStreetMapLogo	http://openstreetmap.ca/map/images/mag_map-120x120.png , no licence mentioned
