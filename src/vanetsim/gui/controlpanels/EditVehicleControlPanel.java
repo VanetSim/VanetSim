@@ -31,7 +31,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
-import java16.util.ArrayDeque;
+import java.util.ArrayDeque;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;

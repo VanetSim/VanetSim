@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.CyclicBarrier;
-import java16.util.ArrayDeque;
+import java.util.ArrayDeque;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -98,7 +98,6 @@ public final class OSMLoader{
 			int i=0, id, maxspeed, isOneway, lanes;
 			double latitude, longitude, minLatitude=Double.MAX_VALUE, maxLatitude=-Double.MAX_VALUE, minLongitude=Double.MAX_VALUE, maxLongitude=-Double.MAX_VALUE;
 			
-			//System.out.println("initialized max lati:" + maxLatitude);
 			
 			boolean maxspeedSet, onewaySet, isRoundabout, laneSet, correctionSet = false, hasTrafficSignal;
 			Node lastNode, node;
@@ -137,13 +136,10 @@ public final class OSMLoader{
 								longitude = Double.parseDouble(childCrsr.getAttrValue("lon")); //$NON-NLS-1$
 								if(latitude < minLatitude){
 									minLatitude = latitude;
-									//System.out.println("new min lati:" + latitude);
 								}
 								
-								System.out.println(latitude + ">" + maxLatitude + (latitude > maxLatitude));
 								if(latitude > maxLatitude){
 									maxLatitude = latitude;
-								//	System.out.println("new max lati:" + latitude);
 								}
 								if(longitude < minLongitude) minLongitude = longitude;
 								if(longitude > maxLongitude) maxLongitude = longitude;
@@ -183,7 +179,6 @@ public final class OSMLoader{
 									// all combinations to surely get min and max
 									WGS84toUTM(result1, maxLongitude, minLatitude, false, longitudeMiddle, false);	
 									
-									//System.out.println("maxlati:" + maxLatitude);
 									WGS84toUTM(result2, minLongitude, maxLatitude, false, longitudeMiddle, false); //error
 									WGS84toUTM(result3, minLongitude, minLatitude, false, longitudeMiddle, false);
 									WGS84toUTM(result4, maxLongitude, maxLatitude, false, longitudeMiddle, false); //error
@@ -478,7 +473,6 @@ public final class OSMLoader{
 			term1 = 5 - t + 9*c + 4*c*c;
 			term2 = 61 - (58 * t) + (t * t) + (600 * c) - (330 * ECC2_SQUARED) + g3;
 			result[1] = 0.9996 * (m + n * latitudeTangens * (a*a/2 + term1 * Math.pow(a, 4.0)/24 + term2 * Math.pow(a, 6.0)/720) + g4);
-		//	System.out.println("latitude: " + latitude + ":longitude: " + longitude);
 			if (latitude < 0) result[1] = result[1] + 10000000.0;	// Adjustment for the southern hemisphere (false northing of 10.000.000 meters)
 			return true;
 		} else return false;

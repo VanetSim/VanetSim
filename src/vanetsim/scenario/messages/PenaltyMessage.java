@@ -56,6 +56,8 @@ public class PenaltyMessage extends Message{
 	/** the vehicle object (used to compare routes of emergency vehicle) */
 	private Vehicle penaltySourceVehicle_ = null;
 	
+	private boolean logData_ = false;
+	
 	/** The type of penalty. Emergency Electronic Brake lights (EEBL, 1), Post Crash Notification (PCN, 2), Road Hazard Condition Notification (RHCN, 3), Road Feature Notification (RFN, 4), 
 Stopped/Slow Vehicle Advisor (SVA, 5), Cooperative Collision Warning (CCW, 6), Cooperative Violation Warning (CVW, 7), Congested Road Notification(CRN, 8),
 Change of Lanes (CL, 9), Emergency Vehicle approaching (EVA, 10). */
@@ -95,6 +97,12 @@ Change of Lanes (CL, 9), Emergency Vehicle approaching (EVA, 10). */
 		lane_ = lane;
 		createBlocking_ = createBlocking;
 		penaltySourceVehicle_ = penaltySourceVehicle;
+		
+		if(logData_ && penaltyType.equals("HUANG_PCN")){
+			penaltySourceVehicle.setLogBeaconsAfterEvent_(true);
+			penaltySourceVehicle.setBeaconString_(penaltyType + "," + isFake);
+			penaltySourceVehicle.setAmountOfLoggedBeacons_(0);
+		}
 	}
 
 	

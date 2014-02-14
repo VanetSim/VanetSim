@@ -30,7 +30,8 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import java16.util.ArrayDeque;
+
+import java.util.ArrayDeque;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -62,6 +63,7 @@ import vanetsim.scenario.events.EventSpot;
 import vanetsim.scenario.events.EventSpotList;
 import vanetsim.scenario.events.StartBlocking;
 import vanetsim.scenario.events.StopBlocking;
+import vanetsim.simulation.WorkerThread;
 
 /**
  * A scenario saves the vehicles and events.
@@ -504,6 +506,12 @@ public final class Scenario{
 									int tmp = Integer.parseInt(settingsCrsr.collectDescendantText(false));
 									KnownEventSource.setSpammingTimeThreshold_(tmp);
 									if(!Renderer.getInstance().isConsoleStart())VanetSimStart.getMainControlPanel().getEditPanel().getEditIDSControlPanel_().getSpamTimeThreshold_().setValue(tmp);
+								} catch (Exception e) {}
+
+							} else if(settingsCrsr.getLocalName().toLowerCase().equals("trafficmodel")){ //$NON-NLS-1$
+								try{
+									int tmp = Integer.parseInt(settingsCrsr.collectDescendantText(false));
+									WorkerThread.setSimulationMode_(tmp);
 								} catch (Exception e) {}
 
 							}
@@ -978,6 +986,8 @@ public final class Scenario{
 			settings.addElement("SpamDetection").addValue(KnownEventSource.isSpamcheck());
 			settings.addElement("SpamMessageThreshold").addCharacters(KnownEventSource.getSpammingthreshold() + "");
 			settings.addElement("SpamTimeThreshold").addCharacters(KnownEventSource.getSpammingtimethreshold() + "");
+
+			settings.addElement("TrafficModel").addValue(WorkerThread.getSimulationMode_());
 
 			
 			String activatedRules = "";
