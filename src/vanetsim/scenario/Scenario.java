@@ -241,6 +241,11 @@ public final class Scenario{
 									if(!Renderer.getInstance().isConsoleStart())VanetSimStart.getMainControlPanel().getEditPanel().getEditSettingsPanel().setMixZoneRadius(tmp);
 									Vehicle.setMixZoneRadius(tmp);
 								} catch (Exception e) {}
+							} else if(settingsCrsr.getLocalName().toLowerCase().equals("autoaddmixzones")){ //$NON-NLS-1$
+								if(settingsCrsr.collectDescendantText(false).equals("true")) tmpBoolean = true;	//$NON-NLS-1$
+								else tmpBoolean = false;
+								if(!Renderer.getInstance().isConsoleStart())VanetSimStart.getMainControlPanel().getEditPanel().getEditMixZonePanel_().getAutoAddMixZones().setEnabled(tmpBoolean);
+								Renderer.getInstance().setAutoAddMixZones(tmpBoolean);
 							} else if(settingsCrsr.getLocalName().toLowerCase().equals("routingmode")){ //$NON-NLS-1$
 								try{
 									int tmp = Integer.parseInt(settingsCrsr.collectDescendantText(false));
@@ -937,6 +942,7 @@ public final class Scenario{
 			settings.addElement("BeaconsInterval").addValue(Vehicle.getBeaconInterval()); //$NON-NLS-1$
 			settings.addElement("MixZonesEnabled").addValue(Vehicle.getMixZonesEnabled()); //$NON-NLS-1$
 			settings.addElement("MixZoneRadius").addValue(Vehicle.getMixZoneRadius()); //$NON-NLS-1$
+			settings.addElement("AutoAddMixZones").addValue(Renderer.getInstance().isAutoAddMixZones()); //$NON-NLS-1$
 			settings.addElement("RoutingMode").addValue(Vehicle.getRoutingMode()); //$NON-NLS-1$
 			settings.addElement("VehicleRecyclingEnabled").addValue(Vehicle.getRecyclingEnabled()); //$NON-NLS-1$
 			settings.addElement("FallBackInMixZonesEnabled").addValue(Vehicle.getMixZonesFallbackEnabled());	//$NON-NLS-1$

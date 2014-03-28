@@ -123,6 +123,12 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** The control panel to edit the traffic model. */
 	private final EditTrafficModelControlPanel editTrafficModelControlPanel_ = new EditTrafficModelControlPanel();
 	
+	/** The control panel to edit the data analysis panel. */
+	private final EditDataAnalysisControlPanel editDataAnalysisControlPanel_ = new EditDataAnalysisControlPanel();
+	
+	/** The control panel to edit the traffic model. */
+	private final EditPresentationModeControlPanel editPresentationModeControlPanel_ = new EditPresentationModeControlPanel();
+	
 	/** If edit mode is currently enabled or not. */
 	private boolean editMode_ = true;
 	
@@ -186,8 +192,8 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		// A Panel containing all edit controls. The controls for editing streets, vehicles and events are outsourced into separate classes
 		editPanel_ = new JPanel();
 		editPanel_.setLayout(new BorderLayout(0,5));
-		//String[] choices = { Messages.getString("EditControlPanel.settings"),Messages.getString("EditControlPanel.trafficModel"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		String[] choices = { Messages.getString("EditControlPanel.settings"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String[] choices = { Messages.getString("EditControlPanel.settings"),Messages.getString("EditControlPanel.trafficModel"),Messages.getString("EditControlPanel.dataAnalysis"),Messages.getString("EditControlPanel.presentationMode"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		//String[] choices = { Messages.getString("EditControlPanel.settings"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		editChoice_ = new JComboBox<String>(choices);
 		editChoice_.setSelectedIndex(0);
@@ -200,6 +206,10 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		editSettingsPanel_.setOpaque(false);
 		editCardPanel_.add(editTrafficModelControlPanel_, "trafficmodel"); //$NON-NLS-1$
 		editTrafficModelControlPanel_.setOpaque(false);
+		editCardPanel_.add(editDataAnalysisControlPanel_, "dataanalysis"); //$NON-NLS-1$
+		editDataAnalysisControlPanel_.setOpaque(false);
+		editCardPanel_.add(editPresentationModeControlPanel_, "presentationmode"); //$NON-NLS-1$
+		editPresentationModeControlPanel_.setOpaque(false);
 		editCardPanel_.add(editStreetPanel_, "street"); //$NON-NLS-1$
 		editStreetPanel_.setOpaque(false);
 		editCardPanel_.add(editTrafficLightsPanel_, "trafficLights"); //$NON-NLS-1$
@@ -368,6 +378,10 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.trafficmodel"))){ //$NON-NLS-1$
 					Renderer.getInstance().ReRender(true, false);
+				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.dataAnalysis"))){ //$NON-NLS-1$
+					Renderer.getInstance().ReRender(true, false);
+				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.presentationMode"))){ //$NON-NLS-1$
+					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.privacy"))){ //$NON-NLS-1$
 					Renderer.getInstance().setShowMixZones(true);
 					Renderer.getInstance().setHighlightNodes(true);
@@ -413,6 +427,7 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			Renderer.getInstance().setMarkedVehicle(null);
 			Renderer.getInstance().setMarkedJunction_(null);
 			Renderer.getInstance().ReRender(true, false);
+			editMixZonePanel_.updateMixRadius();
 			setMaxMixZoneRadius();
 			editSilentPeriodPanel_.saveAttributes();
 			editIDSControlPanel_.saveAttributes();
@@ -457,6 +472,12 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	        	editSlowPanel_.loadAttributes();
 	        } else if(Messages.getString("EditControlPanel.trafficModel").equals(item)){	//$NON-NLS-1$
 	        	cl.show(editCardPanel_, "trafficmodel"); //$NON-NLS-1$
+	        	Renderer.getInstance().ReRender(true, false);
+	        } else if(Messages.getString("EditControlPanel.dataAnalysis").equals(item)){	//$NON-NLS-1$
+	        	cl.show(editCardPanel_, "dataanalysis"); //$NON-NLS-1$
+	        	Renderer.getInstance().ReRender(true, false);
+	        } else if(Messages.getString("EditControlPanel.presentationMode").equals(item)){	//$NON-NLS-1$
+	        	cl.show(editCardPanel_, "presentationmode"); //$NON-NLS-1$
 	        	Renderer.getInstance().ReRender(true, false);
 	        } else if(Messages.getString("EditControlPanel.rsus").equals(item)){	//$NON-NLS-1$
 	        	cl.show(editCardPanel_, "rsus"); //$NON-NLS-1$

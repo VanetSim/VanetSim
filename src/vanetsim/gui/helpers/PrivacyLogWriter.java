@@ -118,6 +118,7 @@ public final class PrivacyLogWriter {
 	public static void setLogPath(String logPath) {
 		setParameters(logPath + "/", "log");
 		PrivacyLogWriter.logPath = logPath;
+		System.out.println("log is:" + logPath); 
 	}
 
 	public static String getLogPath() {

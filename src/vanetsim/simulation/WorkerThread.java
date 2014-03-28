@@ -21,9 +21,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+
 import vanetsim.ErrorLog;
 import vanetsim.gui.Renderer;
 import vanetsim.localization.Messages;
+import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.scenario.Vehicle;
 import vanetsim.scenario.RSU;
@@ -253,7 +255,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 4b: IDS calculations
 				// ================================= 
-			
+				
 				if(idsEnabled){	
 					try{
 					for(i = 0; i < ourRegionsLength; ++i){
@@ -357,12 +359,12 @@ public final class WorkerThread extends Thread {
 					
 					// Wait for all concurrent threads to synchronize	
 					
-					barrierFinish_.await();
+						barrierDuringWork_.await();
 				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 				} catch (Exception e){
 					//e.printStackTrace();
 					try{
-						barrierFinish_.await();	//need to wait again...
+						barrierDuringWork_.await();	//need to wait again...
 					}catch (Exception e2){}
 				}		
 
@@ -370,7 +372,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 7: Check the states of all traffic lights and change if necessary
 				// ================================= 
-			/*
+				try{
 				Node[] tmpNodes = null;
 				for(i = 0; i < ourRegions_.length; i++){
 					tmpNodes = ourRegions_[i].getNodes();
@@ -380,8 +382,18 @@ public final class WorkerThread extends Thread {
 						}
 					}
 				}
-
-				*/
+				
+					// Wait for all concurrent threads to synchronize	
+				
+					barrierFinish_.await();
+				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+				} catch (Exception e){
+					//e.printStackTrace();
+					try{
+						barrierFinish_.await();	//need to wait again...
+					}catch (Exception e2){}
+				}	
+				
 				
 			}
 		}
@@ -415,7 +427,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 3: Adjust speed, do message cleanup and create jam messages
 				// ================================= 
-				try{
+				
 					//vehicles: adjustSpeed()
 					for(i = 0; i < ourRegionsLength; ++i){
 						vehicleSubarray = vehicles[i];
@@ -436,7 +448,7 @@ public final class WorkerThread extends Thread {
 
 					
 					// Wait for all concurrent threads to synchronize			
-					
+					try{	
 					barrierDuringWork_.await();
 				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 				} catch (Exception e){
@@ -450,7 +462,7 @@ public final class WorkerThread extends Thread {
 				// Step 4: Send messages.
 				// ================================= 
 				if(communicationEnabled){
-					try{
+					
 						//vehicles send messages
 					
 						for(i = 0; i < ourRegionsLength; ++i){
@@ -477,7 +489,7 @@ public final class WorkerThread extends Thread {
 						}
 						
 						// Wait for all concurrent threads to synchronize
-						
+						try{
 						barrierDuringWork_.await();
 					} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 					} catch (Exception e){
@@ -493,7 +505,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 			
 				if(idsEnabled){	
-					try{
+				
 					for(i = 0; i < ourRegionsLength; ++i){
 						vehicleSubarray = vehicles[i];
 						length = vehicleSubarray.length;
@@ -506,7 +518,7 @@ public final class WorkerThread extends Thread {
 					}
 						
 						// Wait for all concurrent threads to synchronize
-					
+					try{
 						barrierDuringWork_.await();
 					} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 					} catch (Exception e){
@@ -522,7 +534,7 @@ public final class WorkerThread extends Thread {
 				//          Putting this in the movement step is not possible!
 				// ================================= 
 				if(communicationEnabled && beaconsEnabled){
-					try{
+				
 					//handle silent periods
 					if(Vehicle.isSilentPeriodsOn()){
 						tmpTimePassed = Renderer.getInstance().getTimePassed();
@@ -560,7 +572,7 @@ public final class WorkerThread extends Thread {
 						}
 						
 						// Wait for all concurrent threads to synchronize
-						
+						try{
 						barrierDuringWork_.await();
 					} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 					} catch (Exception e){
@@ -582,7 +594,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 6: Move all vehicles one step further
 				// ================================= 
-				try{
+				
 					for(i = 0; i < ourRegionsLength; ++i){
 						vehicleSubarray = vehicles[i];
 						length = vehicleSubarray.length;
@@ -594,7 +606,7 @@ public final class WorkerThread extends Thread {
 					}
 					
 					// Wait for all concurrent threads to synchronize	
-					
+					try{
 					barrierFinish_.await();
 				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 				} catch (Exception e){
@@ -1084,17 +1096,28 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 7: Check the states of all traffic lights and change if necessary
 				// ================================= 
-			/*
-				Node[] tmpNodes = null;
-				for(i = 0; i < ourRegions_.length; i++){
-					tmpNodes = ourRegions_[i].getNodes();
-					for(j = 0; j < tmpNodes.length; j++){
-						if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
-							tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
+				/*
+				try{
+					
+					Node[] tmpNodes = null;
+					for(i = 0; i < ourRegions_.length; i++){
+						tmpNodes = ourRegions_[i].getNodes();
+						for(j = 0; j < tmpNodes.length; j++){
+							if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
+								tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
 						}
 					}
 				}
 
+
+					barrierFinish_.await();
+				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+				} catch (Exception e){
+				//e.printStackTrace();
+					try{
+						barrierFinish_.await();	//need to wait again...
+					}catch (Exception e2){}
+				}
 				*/
 				
 			}

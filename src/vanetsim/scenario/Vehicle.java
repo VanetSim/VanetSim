@@ -622,7 +622,7 @@ public class Vehicle extends LaneObject{
 			curSpeed_ = brakingRate_/2;
 			newSpeed_ = curSpeed_;
 			if(curStreet_.isOneway()){
-				while(!destinations_.isEmpty() && (destinations_.peekFirst().getStreet() == curStreet_ || !calculateRoute(false, false))){
+				while(!destinations_.isEmpty() && (destinations_.peekFirst().getStreet() == curStreet_ || !calculateRoute(true, false))){
 					curWaitTime_ = destinations_.pollFirst().getWaittime();
 				}
 			} else {
@@ -768,18 +768,24 @@ public class Vehicle extends LaneObject{
 	
 	public void adjustSpeedWithIDM(int timePerStep){
 		// start vehicle
-
-		//needs to be set for vehicle to start driving
-		active_ = true;
-		
-		//the time the vehicle will wait until it starts driving
-		curWaitTime_ = 0;
-		
-		//add the vehicle to the current lane object
-		curStreet_.addLaneObject(this, curDirection_);
-
-		//as a result of this method a newSpeed_ must be set
-		newSpeed_ = 1800;	
+		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
+			if(curWaitTime_ <= timePerStep){
+				//the time the vehicle will wait until it starts driving
+				curWaitTime_ = 0;
+				//needs to be set for vehicle to start driving
+				active_ = true;
+				brakeForDestination_ = false;
+				//add the vehicle to the current lane object
+				curStreet_.addLaneObject(this, curDirection_);
+			} else curWaitTime_ -= timePerStep;
+		}
+		if(active_){
+			if(curWaitTime_ == 0 && curStreet_ != null){
+				//as a result of this method a newSpeed_ must be set
+				newSpeed_ = 270;	
+				if(this.getCurStreet().getName().contains("Mittelweg")) newSpeed_ = 27000;		
+			}
+		}
 	}
 	
 	/**
@@ -2454,6 +2460,7 @@ public class Vehicle extends LaneObject{
 				if(tmpDirection) junctionNode = tmpStreet.getEndNode();
 				else junctionNode = tmpStreet.getStartNode();
 				if(junctionNode.getJunction() != null){
+	
 					if(junctionAllowed_ != junctionNode){
 						if(routeDirections_[i+1]) nextNode = routeStreets_[i+1].getEndNode();
 						else nextNode = routeStreets_[i+1].getStartNode();
@@ -3115,6 +3122,8 @@ public class Vehicle extends LaneObject{
 				}
 			}
 				
+			GeneralLogWriter.log(ID_ + ":" + curX_ + ":" +  curY_ + ":" +  curSpeed_); 
+			
 			
 			if(logBeaconsAfterEvent_){
 				amountOfLoggedBeacons_++;
@@ -3286,7 +3295,31 @@ public class Vehicle extends LaneObject{
 						} else brakeForDestination_ = false;	//stop braking for destination
 					} 
 					curDirection_ = routeDirections_[routePosition_];
-					curStreet_ = routeStreets_[routePosition_];		
+					/*
+					//use this to log vehicles passing junctions. To count the different routes and their frequency.
+					Node tmpNode = null;
+					int street1 = -1;
+					int street2 = -1;
+ 					if(curDirection_ && routeStreets_[routePosition_].getStartNode().getCrossingStreetsCount() > 2){
+ 						tmpNode = routeStreets_[routePosition_].getStartNode();
+ 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+ 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+ 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+ 						}
+ 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+					}
+					else if(!curDirection_ && routeStreets_[routePosition_].getEndNode().getCrossingStreetsCount() > 2) {
+						tmpNode = routeStreets_[routePosition_].getEndNode();
+ 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+ 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+ 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+ 						}
+ 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+					}
+
+*/
+					curStreet_ = routeStreets_[routePosition_];	
+					
 					if(curDirection_){						
 						if(curStreet_.getStartNode() == junctionAllowed_){
 							junctionAllowed_.getJunction().allowOtherVehicle();

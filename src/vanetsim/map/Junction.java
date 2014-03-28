@@ -227,7 +227,7 @@ public final class Junction{
 	public synchronized boolean canPassJunction(Vehicle vehicle, int priority, Node nextNode){
 		if(vehicleAllowedThisStep_ == vehicle){
 			Street[] outgoingStreets;
-			Street tmpStreet, tmpStreet2;
+			Street tmpStreet, tmpStreet2 = null;
 			LaneObject tmpLaneObject;
 			Node nextNode2 = null;
 			boolean tmpDirection;
@@ -304,6 +304,8 @@ public final class Junction{
 			else junctionQueuePriority4_.delFirstVehicle();
 			vehicleOnJunction_ = true;
 			vehicleOnJunctionSince_ = renderer_.getTimePassed();
+			
+		
 			return true;
 		} else return false;
 	}
