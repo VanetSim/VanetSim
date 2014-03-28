@@ -20,7 +20,7 @@ package vanetsim.scenario.events;
 import java.awt.Color;
 import java.text.ParseException;
 import java.util.Random;
-import java16.util.ArrayDeque;
+import java.util.ArrayDeque;
 
 import vanetsim.ErrorLog;
 import vanetsim.gui.Renderer;

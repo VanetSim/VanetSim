@@ -173,7 +173,7 @@ public class KnownVehicle{
 			
 			if(foundFirst && i == (amountOfSavedBeacons_ + starter - 1)) returnValue[1] = savedSpeed_[i%(amountOfSavedBeacons_)];
 		}
-		if(!foundFirst)System.out.println("fehler!");
+		if(!foundFirst)System.out.println("error!");
 		return returnValue;
 	}
 	

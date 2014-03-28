@@ -217,8 +217,7 @@ public final class SimulateControlPanel extends JPanel implements ActionListener
 		add(startStopJPanel_, c);
 		
 		c.gridx = 1;
-
-		add(ButtonCreator.getJButton("pause.png", "pause", Messages.getString("SimulateControlPanel.pause"), this), c); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		add(ButtonCreator.getJButton("onestep.png", "onestep", Messages.getString("SimulateControlPanel.onestep"), this), c); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		
 		c.gridx = 0;
 		c.gridwidth = 2;
@@ -563,7 +562,6 @@ public final class SimulateControlPanel extends JPanel implements ActionListener
 			    }
 			});
 			
-			System.out.println(styleArray[mode_ % styleArray.length]);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

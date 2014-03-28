@@ -23,12 +23,14 @@ import java.util.Iterator;
 import java.util.Random;
 
 
-import java16.util.ArrayDeque;
+
+import java.util.ArrayDeque;
 
 
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
+import vanetsim.gui.helpers.GeneralLogWriter;
 import vanetsim.gui.helpers.PrivacyLogWriter;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
@@ -563,6 +565,9 @@ public class Vehicle extends LaneObject{
 	private static int minEVAMessageDelay_ = 1;
 	private static int maxEVAMessageDelay_ = 10;
 	
+	private boolean logBeaconsAfterEvent_ = false;
+	private String beaconString_ = "";
+	private int amountOfLoggedBeacons_ = 0;
 
 	/**
 	 * Instantiates a new vehicle. You will get an exception if the destinations don't contain at least two <b>valid</b> elements.<br>
@@ -617,7 +622,7 @@ public class Vehicle extends LaneObject{
 			curSpeed_ = brakingRate_/2;
 			newSpeed_ = curSpeed_;
 			if(curStreet_.isOneway()){
-				while(!destinations_.isEmpty() && (destinations_.peekFirst().getStreet() == curStreet_ || !calculateRoute(false, false))){
+				while(!destinations_.isEmpty() && (destinations_.peekFirst().getStreet() == curStreet_ || !calculateRoute(true, false))){
 					curWaitTime_ = destinations_.pollFirst().getWaittime();
 				}
 			} else {
@@ -757,12 +762,92 @@ public class Vehicle extends LaneObject{
 	}
 
 	/**
+	 * A method to be filled when implementing IDE
+	 * @param timePerStep
+	 */
+	
+	public void adjustSpeedWithIDM(int timePerStep){
+		// start vehicle
+		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
+			if(curWaitTime_ <= timePerStep){
+				//the time the vehicle will wait until it starts driving
+				curWaitTime_ = 0;
+				//needs to be set for vehicle to start driving
+				active_ = true;
+				brakeForDestination_ = false;
+				//add the vehicle to the current lane object
+				curStreet_.addLaneObject(this, curDirection_);
+			} else curWaitTime_ -= timePerStep;
+		}
+		if(active_){
+			if(curWaitTime_ == 0 && curStreet_ != null){
+				//as a result of this method a newSpeed_ must be set
+				newSpeed_ = 270;	
+				if(this.getCurStreet().getName().contains("Mittelweg")) newSpeed_ = 27000;		
+			}
+		}
+	}
+	
+	/**
+	 * A method to be filled when implementing MOBIL
+	 * @param timePerStep
+	 */
+	
+	public boolean checkLaneFreeMOBIL(int lane){
+		//Check implementation of checkLaneFree(int) to get ideas!
+		return true;
+	}
+	
+	
+	/**
+	 * A method to be filled when using vehicle sjtu trace files
+	 * @param timePerStep
+	 */
+	
+	public void adjustSpeedWithSJTUTraceFiles(int timePerStep){
+		// start vehicle
+
+		//needs to be set for vehicle to start driving
+		active_ = true;
+		
+		//the time the vehicle will wait until it starts driving
+		curWaitTime_ = 0;
+		
+		//add the vehicle to the current lane object
+		curStreet_.addLaneObject(this, curDirection_);
+
+		//as a result of this method a newSpeed_ must be set
+		newSpeed_ = 1800;	
+	}
+	
+	/**
+	 * A method to be filled when using vehicle San Francisco trace files
+	 * @param timePerStep
+	 */
+	
+	public void adjustSpeedWithSanFranciscoTraceFiles(int timePerStep){
+		// start vehicle
+
+		//needs to be set for vehicle to start driving
+		active_ = true;
+		
+		//the time the vehicle will wait until it starts driving
+		curWaitTime_ = 0;
+		
+		//add the vehicle to the current lane object
+		curStreet_.addLaneObject(this, curDirection_);
+
+		//as a result of this method a newSpeed_ must be set
+		newSpeed_ = 1800;	
+	}
+
+	
+	/**
 	 * Adjust the speed if reaching crossings or other cars. It also checks if the vehicle should get active.
 	 * Furthermore some cleanup in the known messages and vehicles is done and new jam messages are created if necessary.
 	 * 
 	 * @param timePerStep the time per step in milliseconds
 	 */
-	
 
 	public void adjustSpeed(int timePerStep){
 		waitingForSignal_ = false;
@@ -1100,12 +1185,6 @@ public class Vehicle extends LaneObject{
 					
 				//}
 				
-				
-			
-			
-				
-
-			
 			
 			if(isWiFiEnabled() && communicationEnabled_){
 				
@@ -1387,6 +1466,7 @@ public class Vehicle extends LaneObject{
 											messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
 										}
 										*/
+	
 										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
 										long dx = message.getDestinationX_() - curX_;
@@ -2380,6 +2460,7 @@ public class Vehicle extends LaneObject{
 				if(tmpDirection) junctionNode = tmpStreet.getEndNode();
 				else junctionNode = tmpStreet.getStartNode();
 				if(junctionNode.getJunction() != null){
+	
 					if(junctionAllowed_ != junctionNode){
 						if(routeDirections_[i+1]) nextNode = routeStreets_[i+1].getEndNode();
 						else nextNode = routeStreets_[i+1].getStartNode();
@@ -3040,7 +3121,21 @@ public class Vehicle extends LaneObject{
 					REPORT_PANEL.addBeacon(this, ID_, curX_, curY_, curSpeed_, false);
 				}
 			}
-					
+				
+			GeneralLogWriter.log(ID_ + ":" + curX_ + ":" +  curY_ + ":" +  curSpeed_); 
+			
+			
+			if(logBeaconsAfterEvent_){
+				amountOfLoggedBeacons_++;
+				if(amountOfLoggedBeacons_ == 10){
+					beaconString_ += "," + curX_ + "," + curY_ + "," + curSpeed_;
+					if(!beaconString_.equals(","))GeneralLogWriter.log(beaconString_); 
+					logBeaconsAfterEvent_ = false;
+				}
+				else{
+					beaconString_ += "," + curX_ + "," + curY_ + "," + curSpeed_;
+				}
+			}
 			
 			// interception of Beacons by ARSUs
 			AttackRSU[] tempARSUList = getArsuList();
@@ -3200,7 +3295,31 @@ public class Vehicle extends LaneObject{
 						} else brakeForDestination_ = false;	//stop braking for destination
 					} 
 					curDirection_ = routeDirections_[routePosition_];
-					curStreet_ = routeStreets_[routePosition_];		
+					/*
+					//use this to log vehicles passing junctions. To count the different routes and their frequency.
+					Node tmpNode = null;
+					int street1 = -1;
+					int street2 = -1;
+ 					if(curDirection_ && routeStreets_[routePosition_].getStartNode().getCrossingStreetsCount() > 2){
+ 						tmpNode = routeStreets_[routePosition_].getStartNode();
+ 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+ 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+ 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+ 						}
+ 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+					}
+					else if(!curDirection_ && routeStreets_[routePosition_].getEndNode().getCrossingStreetsCount() > 2) {
+						tmpNode = routeStreets_[routePosition_].getEndNode();
+ 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+ 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+ 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+ 						}
+ 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+					}
+
+*/
+					curStreet_ = routeStreets_[routePosition_];	
+					
 					if(curDirection_){						
 						if(curStreet_.getStartNode() == junctionAllowed_){
 							junctionAllowed_.getJunction().allowOtherVehicle();
@@ -4962,6 +5081,36 @@ public class Vehicle extends LaneObject{
 
 	public static void setMaxEVAMessageDelay_(int theMaxEVAMessageDelay_) {
 		maxEVAMessageDelay_ = theMaxEVAMessageDelay_;
+	}
+
+
+	public boolean isLogBeaconsAfterEvent_() {
+		return logBeaconsAfterEvent_;
+	}
+
+
+	public void setLogBeaconsAfterEvent_(boolean logBeaconsAfterEvent_) {
+		this.logBeaconsAfterEvent_ = logBeaconsAfterEvent_;
+	}
+
+
+	public int getAmountOfLoggedBeacons_() {
+		return amountOfLoggedBeacons_;
+	}
+
+
+	public void setAmountOfLoggedBeacons_(int amountOfLoggedBeacons_) {
+		this.amountOfLoggedBeacons_ = amountOfLoggedBeacons_;
+	}
+
+
+	public String getBeaconString_() {
+		return beaconString_;
+	}
+
+
+	public void setBeaconString_(String beaconString_) {
+		this.beaconString_ = beaconString_;
 	}
 
 }

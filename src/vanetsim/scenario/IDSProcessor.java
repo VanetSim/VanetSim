@@ -708,7 +708,7 @@ public class IDSProcessor{
 				
 			}
 			else{
-				System.out.println("beacon amount zu klein");
+				System.out.println("not sufficient Beacons ...");
 			}
 		}
 		

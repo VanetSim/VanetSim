@@ -266,6 +266,7 @@ public final class SimulationMaster extends Thread{
 		boolean consoleStart = Renderer.getInstance().isConsoleStart();
 		KnownVehiclesList.setTimePerStep_(TIME_PER_STEP);
 		//GeneralLogWriter.setLogPath(System.getProperty("user.dir"));
+		//GeneralLogWriter.log("EventType,Attack,x1,y1,v1,x2,y2,v2,x3,y3,v3,x4,y4,v4,x5,y5,v5,x6,y6,v6,x7,y7,v7,x8,y8,v8,x9,y9,v9,x10,y10,v10");
 		while(true){
 			try{
 				if(running_ || doOneStep_){
