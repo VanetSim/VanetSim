@@ -26,7 +26,7 @@
 
 package vanetsim.routing.A_Star;
 
-import java16.util.Arrays;
+import java.util.Arrays;
 
 /**
  * This class is almost the same as <code>java.util.PriorityQueue</code> from Sun OpenJDK 1.7 but is

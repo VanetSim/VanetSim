@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import java16.util.ArrayDeque;
+import java.util.ArrayDeque;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -517,16 +517,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 				startJobs();
 			}
 		}
-		/*
-		for(SimulationProperty vehicleProperty2: vehicleSet2.getPropertyList_()){
-			for(int k = 0; k < vehicleProperty2.getStepAmount_(); k++){
-				System.out.println("Series:" + series + " Simulation property varied:" + simulationProperty.getPropertyKey_() + " value:" + (simulationProperty.getStartValue_() + (simulationProperty.getStepValue_()*(i+1))) + " vehicle set:" + vehicleSet.getName_() + " vehicle property:" + vehicleProperty.getPropertyKey_() + " value:" +  (vehicleProperty.getStartValue_() + (vehicleProperty.getStepValue_()*(j+1))));
-			}
-		}
-		*/
-		/*
-
-	*/
 	}
 	
 	/**

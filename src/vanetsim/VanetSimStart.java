@@ -32,6 +32,8 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import com.apple.eawt.Application;
+
 import vanetsim.gui.DrawingArea;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.MainControlPanel;
@@ -42,7 +44,6 @@ import vanetsim.localization.Messages;
 import vanetsim.map.Map;
 import vanetsim.simulation.SimulationMaster;
 
-import com.apple.eawt.Application;
 
 /**
  * This is the main class for the VANet-Simulator which starts the GUI and all other components.
@@ -92,9 +93,16 @@ public final class VanetSimStart implements Runnable {
 		DrawingArea drawarea = addComponentsToPane(mainFrame_.getContentPane());
 
 		Rectangle bounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds(); 
-		Application application = Application.getApplication();
-		Image image = Toolkit.getDefaultToolkit().getImage(appicon);
-		application.setDockIconImage(image);
+		
+		String osName = System.getProperty("os.name").toLowerCase();
+		boolean isMacOs = osName.startsWith("mac os x");
+		if (isMacOs) 
+		{
+			Application application = Application.getApplication();
+			Image image = Toolkit.getDefaultToolkit().getImage(appicon);
+			application.setDockIconImage(image);
+		}
+		
 
 		mainFrame_.pack();
 		//mainFrame_.setIconImage(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("vanetsim/images/logo.png")));

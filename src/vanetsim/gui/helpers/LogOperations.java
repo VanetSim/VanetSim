@@ -1680,7 +1680,6 @@ public class LogOperations extends Thread {
 					else if(logData[direction].equals("OUT")){
 						
 					}
-					//else if (vehiclesReachedGoalArray.contains(logData[steadyID] + ":" + logData[pseudonym])) System.out.println("reached Dest!");
 					else if(logData[direction].equals("IN") && !vehiclesReachedGoalArray.contains(logData[steadyID] + ":" + logData[pseudonym])){
 	
 						//take the second beacon. It is more actual

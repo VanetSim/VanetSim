@@ -289,4 +289,8 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	public JCheckBox getShowEncryptedBeacons_() {
 		return showEncryptedBeacons_;
 	}
+	
+	public void updateMixRadius(){
+		Vehicle.setMixZoneRadius(((Number)mixRadius_.getValue()).intValue());
+	}
 }

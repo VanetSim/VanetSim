@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.XMLFormatter;
-import java16.util.logging.Logger;
+import java.util.logging.Logger;
 
 import vanetsim.ErrorLog;
 import vanetsim.localization.Messages;
@@ -118,6 +118,7 @@ public final class PrivacyLogWriter {
 	public static void setLogPath(String logPath) {
 		setParameters(logPath + "/", "log");
 		PrivacyLogWriter.logPath = logPath;
+		System.out.println("log is:" + logPath); 
 	}
 
 	public static String getLogPath() {

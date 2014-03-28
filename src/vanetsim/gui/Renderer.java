@@ -37,8 +37,8 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.concurrent.CyclicBarrier;
 
-import java16.awt.geom.Path2D;
-import java16.util.ArrayDeque;
+import java.awt.geom.Path2D;
+import java.util.ArrayDeque;
 
 import javax.imageio.ImageIO;
 

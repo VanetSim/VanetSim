@@ -259,9 +259,7 @@ public class KnownEventSource{
 		
 		if(spamCheck_){
 			if(updates_ >= (spammingThreshold_-1) && (lastUpdate_ - firstContact_- (updates_*80)) <= updates_*spammingTimeThreshold_){
-				//vehicle_.setSpamCounter_(vehicle_.getSpamCounter_() + 1);
 				spamCounter_++;
-				if(!vehicle_.isFakingMessages()) System.out.println("Fehler kein spammer!");
 			}
 		}
 	}
