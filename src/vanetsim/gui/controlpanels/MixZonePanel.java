@@ -23,16 +23,24 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
@@ -82,6 +90,24 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	/** JLabel to describe autoAddLabel_ textfield */
 	private final JLabel radiusLabel_;	
 
+	/** JLabel to describe addModeChoice_ JComboBox */
+	private final JLabel addMixZonesByModeLabel_;
+
+	/** JCombobox to select choice of auto create mix-zone mode */
+	private final JComboBox<String> addModeChoice_;
+	
+	/** An array with all street types */ 
+	private static final String[] PRESET_TYPES = {Messages.getString("MixZonePanel.best"), Messages.getString("MixZonePanel.random")};  
+
+	/** JLabel to describe mixAmount_ textfield */
+	private final JLabel addMixZonesAmountLabel_;
+	
+	/** JFormattedTextField containing the amount of mix zones to be created */
+	private final JFormattedTextField mixAmount_;
+	
+	/** Button to create mix-zobes */
+	private final JButton readLogAndStartAdding_;
+	
 	/** Note to describe add mix zone mode */
 	TextAreaLabel addNote_;
 	
@@ -168,6 +194,39 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		c.gridx = 1;
 		add(showEncryptedBeacons_,c);
 		showEncryptedBeacons_.addActionListener(this);
+		
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		add(new JSeparator(SwingConstants.HORIZONTAL),c);
+		++c.gridy;
+		c.gridwidth = 1;
+		c.gridx = 0;
+		addMixZonesByModeLabel_ = new JLabel(Messages.getString("MixZonePanel.addMixZonesToBestJunctions")); //$NON-NLS-1$
+		add(addMixZonesByModeLabel_, c);
+		c.gridx = 1;
+		addModeChoice_ = new JComboBox<String>(PRESET_TYPES);
+		addModeChoice_.setSelectedIndex(0);
+		add(addModeChoice_, c);
+		
+		++c.gridy;
+		c.gridx = 0;
+		addMixZonesAmountLabel_ = new JLabel(Messages.getString("MixZonePanel.addMixZonesAmount")); //$NON-NLS-1$
+		add(addMixZonesAmountLabel_, c);
+		c.gridx = 1;
+		mixAmount_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		mixAmount_.setValue(5);
+		mixAmount_.setPreferredSize(new Dimension(60,20));
+		c.gridx = 1;
+		add(mixAmount_,c);
+		
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		readLogAndStartAdding_ = new JButton(Messages.getString("MixZonePanel.readLogAndStartAdding"));
+		readLogAndStartAdding_.setActionCommand("add mix zones");
+		readLogAndStartAdding_.addActionListener(this);
+		add(readLogAndStartAdding_);
 		
 		c.gridx = 0;
 		c.gridwidth = 2;
@@ -256,7 +315,12 @@ public class MixZonePanel extends JPanel implements ActionListener{
 			encryptedBeacons_.setVisible(true);	
 			encryptedBeaconsLabel_.setVisible(true);
 			showEncryptedBeacons_.setVisible(true);
-			showEncryptedBeaconsLabel_.setVisible(true);
+			showEncryptedBeaconsLabel_.setVisible(true);	
+			addMixZonesByModeLabel_.setVisible(true);
+			addModeChoice_.setVisible(true);
+			addMixZonesAmountLabel_.setVisible(true);
+			mixAmount_.setVisible(true);
+			readLogAndStartAdding_.setVisible(true);
 		}
 		//JRadioButton event; delete mix zone mode
 		else if("deleteMixZone".equals(command)){
@@ -270,9 +334,80 @@ public class MixZonePanel extends JPanel implements ActionListener{
 			encryptedBeaconsLabel_.setVisible(false);
 			showEncryptedBeacons_.setVisible(false);
 			showEncryptedBeaconsLabel_.setVisible(false);
+			addMixZonesByModeLabel_.setVisible(false);
+			addModeChoice_.setVisible(false);
+			addMixZonesAmountLabel_.setVisible(false);
+			mixAmount_.setVisible(false);
+			readLogAndStartAdding_.setVisible(false);
 		}
+		else if("add mix zones".equals(command)){
+			if(mixAmount_.getValue() != null){
+				if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.best"))) calculateBestJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+				else if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.random"))) calculateRandomJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+			}		
+		}
+	
 	}
 
+	/**
+	 * Opens a log file containing vehicle routes; calculates the junctions with the best vehicle distribution
+	 */
+	public ArrayList<Integer> calculateBestJunctionsForMixZones(int n){
+		ArrayList<Integer> nodeIDs = new ArrayList<Integer>();
+		
+		//open log file:
+		JFileChooser fc = new JFileChooser();
+				
+		//set directory and ".log" filter
+		fc.setMultiSelectionEnabled(false);
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+				
+		if(status == JFileChooser.APPROVE_OPTION){
+			File tmpFile = fc.getSelectedFile();
+			//read file
+			BufferedReader reader;
+						        
+						        //get maximal vehicles count and calculates values of line
+						        try{
+						            reader = new BufferedReader(new FileReader(theFile));
+						            String line = reader.readLine(); 
+						            averageTime += Double.parseDouble(line);
+									System.out.println("added time:" + line);
+
+						           
+								} catch (Exception e) {
+									e.printStackTrace();
+									System.out.println(theFile.getAbsolutePath());
+								    System.err.println("FileNotFoundException: " + e.getMessage());
+								}
+						  
+							}
+							System.out.print("*************");
+							System.out.println("average known vehicle time:" + (averageTime/files.size()));
+						}
+					} catch (Exception e) {
+					    e.printStackTrace();
+					}
+					
+				}
+		
+		return nodeIDs;
+	}
+	
+	/**
+	 * Gets the amount of junctions in on a map and chooses n randomly
+	 */
+	public ArrayList<Integer> calculateRandomJunctionsForMixZones(int n){
+		ArrayList<Integer> nodeIDs = new ArrayList<Integer>();
+		
+		
+		
+		return nodeIDs;
+	}
+	
 	/**
 	 * Returns if mix zones are added automatically
 	 * 
