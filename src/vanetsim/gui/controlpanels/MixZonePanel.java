@@ -25,9 +25,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -46,9 +51,12 @@ import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.gui.helpers.TextAreaLabel;
 import vanetsim.localization.Messages;
+import vanetsim.map.Junction;
 import vanetsim.map.Map;
 import vanetsim.map.MapHelper;
 import vanetsim.map.Node;
+import vanetsim.map.Region;
+import vanetsim.map.Street;
 import vanetsim.scenario.RSU;
 import vanetsim.scenario.Vehicle;
 
@@ -98,7 +106,7 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	
 	/** An array with all street types */ 
 	private static final String[] PRESET_TYPES = {Messages.getString("MixZonePanel.best"), Messages.getString("MixZonePanel.random")};  
-
+	
 	/** JLabel to describe mixAmount_ textfield */
 	private final JLabel addMixZonesAmountLabel_;
 	
@@ -226,7 +234,7 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		readLogAndStartAdding_ = new JButton(Messages.getString("MixZonePanel.readLogAndStartAdding"));
 		readLogAndStartAdding_.setActionCommand("add mix zones");
 		readLogAndStartAdding_.addActionListener(this);
-		add(readLogAndStartAdding_);
+		add(readLogAndStartAdding_, c);
 		
 		c.gridx = 0;
 		c.gridwidth = 2;
@@ -342,7 +350,17 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		}
 		else if("add mix zones".equals(command)){
 			if(mixAmount_.getValue() != null){
-				if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.best"))) calculateBestJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+				if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.best"))) {
+					Node[] nodes = calculateBestJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+					
+					for(int i = 0; i < nodes.length; i++) {
+						if(nodes[i] != null){
+							Map.getInstance().addMixZone(nodes[i], ((Number)mixRadius_.getValue()).intValue() * 100);
+							Renderer.getInstance().ReRender(true, false);
+						}
+						
+					}
+				}
 				else if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.random"))) calculateRandomJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
 			}		
 		}
@@ -352,8 +370,8 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	/**
 	 * Opens a log file containing vehicle routes; calculates the junctions with the best vehicle distribution
 	 */
-	public ArrayList<Integer> calculateBestJunctionsForMixZones(int n){
-		ArrayList<Integer> nodeIDs = new ArrayList<Integer>();
+	public Node[] calculateBestJunctionsForMixZones(int n){
+		Node[] nodeIDs = new Node[n];
 		
 		//open log file:
 		JFileChooser fc = new JFileChooser();
@@ -364,36 +382,121 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				
 		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
-				
+			
+		int numberOfLines = 1;
+		int maxNumberOfVehicleInNode = 0;
+		
+		HashMap<String,Integer> numberOfVehiclesPerNode = new HashMap<String,Integer>();
+		HashMap<String,Integer> numberOfVehiclesPerPort = new HashMap<String,Integer>();
+		HashMap<Node,Double> entropyOfNode = new HashMap<Node,Double>();
+		
+		String[] lineSplit;
+		
 		if(status == JFileChooser.APPROVE_OPTION){
 			File tmpFile = fc.getSelectedFile();
 			//read file
 			BufferedReader reader;
 						        
-						        //get maximal vehicles count and calculates values of line
-						        try{
-						            reader = new BufferedReader(new FileReader(theFile));
-						            String line = reader.readLine(); 
-						            averageTime += Double.parseDouble(line);
-									System.out.println("added time:" + line);
+			try{
+				reader = new BufferedReader(new FileReader(tmpFile));
 
-						           
-								} catch (Exception e) {
-									e.printStackTrace();
-									System.out.println(theFile.getAbsolutePath());
-								    System.err.println("FileNotFoundException: " + e.getMessage());
-								}
-						  
-							}
-							System.out.print("*************");
-							System.out.println("average known vehicle time:" + (averageTime/files.size()));
-						}
-					} catch (Exception e) {
-					    e.printStackTrace();
-					}
+				System.out.println("started reading file");
+	            String line = reader.readLine();    
+		           while(line != null){
+		        	   lineSplit = line.split(":");
+		        	   if(lineSplit.length == 3){
+		        		   if((numberOfLines%1000) == 0)System.out.print(".");
+			        	   //count vehicles per node
+			        	   if(numberOfVehiclesPerNode.containsKey(lineSplit[0])){
+			        		   numberOfVehiclesPerNode.put(lineSplit[0], (numberOfVehiclesPerNode.get(lineSplit[0]) + 1));
+			        		   if(maxNumberOfVehicleInNode < numberOfVehiclesPerNode.get(lineSplit[0])) maxNumberOfVehicleInNode = numberOfVehiclesPerNode.get(lineSplit[0]);
+			        	   }
+			        	   else numberOfVehiclesPerNode.put(lineSplit[0], 1);
+			        	   
+			        	   //count vehicles per port
+			        	   if(numberOfVehiclesPerPort.containsKey(line))numberOfVehiclesPerPort.put(line, (numberOfVehiclesPerPort.get(line) + 1));
+			        	   else numberOfVehiclesPerPort.put(line, 1);
+			        	   
+			        	   numberOfLines++;
+			        	     
+		        	   }
+		        	   line = reader.readLine();
+		        	   
+		           }
+		           System.out.println("ended reading file"); 
+			} catch (FileNotFoundException e) {
+			    System.out.println("FileNotFoundException: " + e.getMessage());
+			} catch (IOException e) {
+			    System.out.println("Caught IOException: " + e.getMessage());
 					
-				}
+			}
+		}
 		
+		
+		//get all nodes
+		Region[][] tmpRegions = Map.getInstance().getRegions();
+		
+		int regionCountX = Map.getInstance().getRegionCountX();
+		int regionCountY = Map.getInstance().getRegionCountY();
+		Node[] nodes;
+		Street[] crossingStreets;
+		 
+		int totalNumberOfVehiclesForNode = 0;
+		double entropyInProgress = 0;
+		int maxVehiclesPerNode = 0;
+		
+		System.out.println("started calculating entropy");
+		for(int i = 0; i <= regionCountX-1;i++){
+			for(int j = 0; j <= regionCountY-1;j++){
+				Region tmpRegion = tmpRegions[i][j];
+					
+				nodes = tmpRegion.getNodes();
+				
+				for(int k = 0; k < nodes.length; k++){
+					crossingStreets = nodes[k].getCrossingStreets();
+					
+					//only use crossing with 4 ports
+					if(crossingStreets.length > 3 && numberOfVehiclesPerNode.containsKey(nodes[k].getNodeID() + "")){
+						if((numberOfLines % 1000) == 0) System.out.print(".");
+						totalNumberOfVehiclesForNode = numberOfVehiclesPerNode.get(nodes[k].getNodeID() + "");
+						if(maxVehiclesPerNode < totalNumberOfVehiclesForNode)maxVehiclesPerNode = totalNumberOfVehiclesForNode;
+						entropyInProgress = 0;
+						//create all possible entry / exit combinations of this junction
+						for(int l = 0; l < crossingStreets.length; l++){
+							for(int m = 0; m < crossingStreets.length; m++){
+									if(numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m) != null) {
+										entropyInProgress += ((double)numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m)/totalNumberOfVehiclesForNode) * (Math.log((double)numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m)/totalNumberOfVehiclesForNode)/Math.log(crossingStreets.length*crossingStreets.length));
+									}
+								
+							}
+						}
+						System.out.println("entropy: " + -entropyInProgress);
+						entropyOfNode.put(nodes[k], (-entropyInProgress));
+					}
+				}
+			}
+		}
+		
+		System.out.println("ended calculating entropy");
+		double[] topValues = new double[n];
+		
+		System.out.println("started calculating best mix zones places");
+
+		for (Entry<Node, Double> entry : entropyOfNode.entrySet()) {
+		    Node node = entry.getKey();
+		    Double entropy = entry.getValue();
+		    Double density = ((double)numberOfVehiclesPerNode.get(node.getNodeID() + ""))/maxVehiclesPerNode;
+		    for(int i = 0; i < topValues.length; i++){
+		    	if((entropy+density) > topValues[i]){
+		    		nodeIDs[i] = node;
+		    		topValues[i] = (entropy+density);
+		    		
+		    		break;
+		    	}
+		    }
+		}
+		System.out.println("ended calculating best mix zones places");
+
 		return nodeIDs;
 	}
 	
