@@ -568,7 +568,7 @@ public class Vehicle extends LaneObject{
 	private boolean logBeaconsAfterEvent_ = false;
 	private String beaconString_ = "";
 	private int amountOfLoggedBeacons_ = 0;
-	private boolean logJunctionFrequency_ = true;
+	private boolean logJunctionFrequency_ = false;
 	
 	/**
 	 * Instantiates a new vehicle. You will get an exception if the destinations don't contain at least two <b>valid</b> elements.<br>

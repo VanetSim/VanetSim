@@ -361,7 +361,17 @@ public class MixZonePanel extends JPanel implements ActionListener{
 						
 					}
 				}
-				else if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.random"))) calculateRandomJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+				else if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.random"))){
+					Node[] nodes = calculateRandomJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+					
+					for(int i = 0; i < nodes.length; i++) {
+						if(nodes[i] != null){
+							Map.getInstance().addMixZone(nodes[i], ((Number)mixRadius_.getValue()).intValue() * 100);
+							Renderer.getInstance().ReRender(true, false);
+						}
+						
+					}
+				}
 			}		
 		}
 	
@@ -479,6 +489,7 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		
 		System.out.println("ended calculating entropy");
 		double[] topValues = new double[n];
+		double mixDistanceSquared = ((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100)*((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100);
 		
 		System.out.println("started calculating best mix zones places");
 
@@ -486,13 +497,44 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		    Node node = entry.getKey();
 		    Double entropy = entry.getValue();
 		    Double density = ((double)numberOfVehiclesPerNode.get(node.getNodeID() + ""))/maxVehiclesPerNode;
-		    for(int i = 0; i < topValues.length; i++){
+		    double rememberSmallestValue = 999999999;
+		    int rememberSmallestIndex = -1;
+		    
+		    for(int i = 0; i < topValues.length; i++){   	
 		    	if((entropy+density) > topValues[i]){
-		    		nodeIDs[i] = node;
-		    		topValues[i] = (entropy+density);
-		    		
-		    		break;
+		    		if(rememberSmallestValue > topValues[i]){
+		    				rememberSmallestValue = topValues[i];
+		    				rememberSmallestIndex = i;
+		    		}
 		    	}
+		    }
+		    
+		    
+		    if(rememberSmallestIndex != -1){
+		    	boolean switched = false;
+			    for(int i = 0; i < nodeIDs.length; i++){   	
+			    	if(nodeIDs[i] != null){
+			    		double dx = node.getX() - nodeIDs[i].getX();
+			    		double dy = node.getY() - nodeIDs[i].getY();
+
+						
+						if((dx * dx + dy * dy) <= mixDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+							//the mix zones are to near ... only one can survive!
+							switched = true;
+							
+							if(topValues[i] < (entropy+density)){
+								nodeIDs[i] = node;
+					    		topValues[i] = (entropy+density);
+							}
+						}
+			    	}
+			    }
+			    
+			    if(!switched){
+			    	nodeIDs[rememberSmallestIndex] = node;
+		    		topValues[rememberSmallestIndex] = (entropy+density);
+			    }
+	    		
 		    }
 		}
 		System.out.println("ended calculating best mix zones places");
@@ -503,11 +545,54 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	/**
 	 * Gets the amount of junctions in on a map and chooses n randomly
 	 */
-	public ArrayList<Integer> calculateRandomJunctionsForMixZones(int n){
-		ArrayList<Integer> nodeIDs = new ArrayList<Integer>();
+	public Node[] calculateRandomJunctionsForMixZones(int n){
+		Node[] nodeIDs = new Node[n];
 		
+		//get all nodes save nodes with more then 3 ports into ArrayList
+		ArrayList<Node> nodeList = new ArrayList<Node>();
+		Region[][] tmpRegions = Map.getInstance().getRegions();
 		
+		int regionCountX = Map.getInstance().getRegionCountX();
+		int regionCountY = Map.getInstance().getRegionCountY();
+		Node[] nodes;
+		Street[] crossingStreets;
 		
+		System.out.println("Getting node list");
+		for(int i = 0; i <= regionCountX-1;i++){
+			for(int j = 0; j <= regionCountY-1;j++){
+				Region tmpRegion = tmpRegions[i][j];
+					
+				nodes = tmpRegion.getNodes();
+				
+				for(int k = 0; k < nodes.length; k++){
+					crossingStreets = nodes[k].getCrossingStreets();
+					
+					//only use crossing with 4 ports
+					if(crossingStreets.length > 3){
+						nodeList.add(nodes[k]);
+					}
+				}
+			}
+		}
+		
+
+		System.out.println("Choosing nodes from list");
+		
+		for(int i = 0; i < nodeIDs.length;){
+			int random = (int) (Math.random()*nodeList.size());
+			
+			boolean found = false;
+			for(int j = 0; j< nodeIDs.length; j++){
+				if(nodeIDs[j] != null && nodeIDs[j].equals(nodeList.get(random))){
+					found = true;
+				}
+			}
+			if(!found){
+				nodeIDs[i] = nodeList.get(random);
+				i++;
+			}
+		}
+
 		return nodeIDs;
 	}
 	
