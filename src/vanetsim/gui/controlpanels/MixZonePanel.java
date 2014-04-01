@@ -32,7 +32,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -51,7 +50,6 @@ import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.gui.helpers.TextAreaLabel;
 import vanetsim.localization.Messages;
-import vanetsim.map.Junction;
 import vanetsim.map.Map;
 import vanetsim.map.MapHelper;
 import vanetsim.map.Node;
@@ -113,7 +111,7 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	/** JFormattedTextField containing the amount of mix zones to be created */
 	private final JFormattedTextField mixAmount_;
 	
-	/** Button to create mix-zobes */
+	/** Button to create mix-zones */
 	private final JButton readLogAndStartAdding_;
 	
 	/** Note to describe add mix zone mode */
