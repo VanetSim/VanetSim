@@ -23,16 +23,28 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
@@ -41,6 +53,8 @@ import vanetsim.localization.Messages;
 import vanetsim.map.Map;
 import vanetsim.map.MapHelper;
 import vanetsim.map.Node;
+import vanetsim.map.Region;
+import vanetsim.map.Street;
 import vanetsim.scenario.RSU;
 import vanetsim.scenario.Vehicle;
 
@@ -82,6 +96,24 @@ public class MixZonePanel extends JPanel implements ActionListener{
 	/** JLabel to describe autoAddLabel_ textfield */
 	private final JLabel radiusLabel_;	
 
+	/** JLabel to describe addModeChoice_ JComboBox */
+	private final JLabel addMixZonesByModeLabel_;
+
+	/** JCombobox to select choice of auto create mix-zone mode */
+	private final JComboBox<String> addModeChoice_;
+	
+	/** An array with all street types */ 
+	private static final String[] PRESET_TYPES = {Messages.getString("MixZonePanel.best"), Messages.getString("MixZonePanel.random")};  
+	
+	/** JLabel to describe mixAmount_ textfield */
+	private final JLabel addMixZonesAmountLabel_;
+	
+	/** JFormattedTextField containing the amount of mix zones to be created */
+	private final JFormattedTextField mixAmount_;
+	
+	/** Button to create mix-zones */
+	private final JButton readLogAndStartAdding_;
+	
 	/** Note to describe add mix zone mode */
 	TextAreaLabel addNote_;
 	
@@ -168,6 +200,39 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		c.gridx = 1;
 		add(showEncryptedBeacons_,c);
 		showEncryptedBeacons_.addActionListener(this);
+		
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		add(new JSeparator(SwingConstants.HORIZONTAL),c);
+		++c.gridy;
+		c.gridwidth = 1;
+		c.gridx = 0;
+		addMixZonesByModeLabel_ = new JLabel(Messages.getString("MixZonePanel.addMixZonesToBestJunctions")); //$NON-NLS-1$
+		add(addMixZonesByModeLabel_, c);
+		c.gridx = 1;
+		addModeChoice_ = new JComboBox<String>(PRESET_TYPES);
+		addModeChoice_.setSelectedIndex(0);
+		add(addModeChoice_, c);
+		
+		++c.gridy;
+		c.gridx = 0;
+		addMixZonesAmountLabel_ = new JLabel(Messages.getString("MixZonePanel.addMixZonesAmount")); //$NON-NLS-1$
+		add(addMixZonesAmountLabel_, c);
+		c.gridx = 1;
+		mixAmount_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		mixAmount_.setValue(5);
+		mixAmount_.setPreferredSize(new Dimension(60,20));
+		c.gridx = 1;
+		add(mixAmount_,c);
+		
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		readLogAndStartAdding_ = new JButton(Messages.getString("MixZonePanel.readLogAndStartAdding"));
+		readLogAndStartAdding_.setActionCommand("add mix zones");
+		readLogAndStartAdding_.addActionListener(this);
+		add(readLogAndStartAdding_, c);
 		
 		c.gridx = 0;
 		c.gridwidth = 2;
@@ -256,7 +321,12 @@ public class MixZonePanel extends JPanel implements ActionListener{
 			encryptedBeacons_.setVisible(true);	
 			encryptedBeaconsLabel_.setVisible(true);
 			showEncryptedBeacons_.setVisible(true);
-			showEncryptedBeaconsLabel_.setVisible(true);
+			showEncryptedBeaconsLabel_.setVisible(true);	
+			addMixZonesByModeLabel_.setVisible(true);
+			addModeChoice_.setVisible(true);
+			addMixZonesAmountLabel_.setVisible(true);
+			mixAmount_.setVisible(true);
+			readLogAndStartAdding_.setVisible(true);
 		}
 		//JRadioButton event; delete mix zone mode
 		else if("deleteMixZone".equals(command)){
@@ -270,9 +340,260 @@ public class MixZonePanel extends JPanel implements ActionListener{
 			encryptedBeaconsLabel_.setVisible(false);
 			showEncryptedBeacons_.setVisible(false);
 			showEncryptedBeaconsLabel_.setVisible(false);
+			addMixZonesByModeLabel_.setVisible(false);
+			addModeChoice_.setVisible(false);
+			addMixZonesAmountLabel_.setVisible(false);
+			mixAmount_.setVisible(false);
+			readLogAndStartAdding_.setVisible(false);
 		}
+		else if("add mix zones".equals(command)){
+			if(mixAmount_.getValue() != null){
+				if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.best"))) {
+					Node[] nodes = calculateBestJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+					
+					for(int i = 0; i < nodes.length; i++) {
+						if(nodes[i] != null){
+							Map.getInstance().addMixZone(nodes[i], ((Number)mixRadius_.getValue()).intValue() * 100);
+							Renderer.getInstance().ReRender(true, false);
+						}
+						
+					}
+				}
+				else if(addModeChoice_.getSelectedItem().toString().equals(Messages.getString("MixZonePanel.random"))){
+					Node[] nodes = calculateRandomJunctionsForMixZones(((Number)mixAmount_.getValue()).intValue());
+					
+					for(int i = 0; i < nodes.length; i++) {
+						if(nodes[i] != null){
+							Map.getInstance().addMixZone(nodes[i], ((Number)mixRadius_.getValue()).intValue() * 100);
+							Renderer.getInstance().ReRender(true, false);
+						}
+						
+					}
+				}
+			}		
+		}
+	
 	}
 
+	/**
+	 * Opens a log file containing vehicle routes; calculates the junctions with the best vehicle distribution
+	 */
+	public Node[] calculateBestJunctionsForMixZones(int n){
+		Node[] nodeIDs = new Node[n];
+		
+		//open log file:
+		JFileChooser fc = new JFileChooser();
+				
+		//set directory and ".log" filter
+		fc.setMultiSelectionEnabled(false);
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+			
+		int numberOfLines = 1;
+		int maxNumberOfVehicleInNode = 0;
+		
+		HashMap<String,Integer> numberOfVehiclesPerNode = new HashMap<String,Integer>();
+		HashMap<String,Integer> numberOfVehiclesPerPort = new HashMap<String,Integer>();
+		HashMap<Node,Double> entropyOfNode = new HashMap<Node,Double>();
+		
+		String[] lineSplit;
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+			File tmpFile = fc.getSelectedFile();
+			//read file
+			BufferedReader reader;
+						        
+			try{
+				reader = new BufferedReader(new FileReader(tmpFile));
+
+				System.out.println("started reading file");
+	            String line = reader.readLine();    
+		           while(line != null){
+		        	   lineSplit = line.split(":");
+		        	   if(lineSplit.length == 3){
+		        		   if((numberOfLines%1000) == 0)System.out.print(".");
+			        	   //count vehicles per node
+			        	   if(numberOfVehiclesPerNode.containsKey(lineSplit[0])){
+			        		   numberOfVehiclesPerNode.put(lineSplit[0], (numberOfVehiclesPerNode.get(lineSplit[0]) + 1));
+			        		   if(maxNumberOfVehicleInNode < numberOfVehiclesPerNode.get(lineSplit[0])) maxNumberOfVehicleInNode = numberOfVehiclesPerNode.get(lineSplit[0]);
+			        	   }
+			        	   else numberOfVehiclesPerNode.put(lineSplit[0], 1);
+			        	   
+			        	   //count vehicles per port
+			        	   if(numberOfVehiclesPerPort.containsKey(line))numberOfVehiclesPerPort.put(line, (numberOfVehiclesPerPort.get(line) + 1));
+			        	   else numberOfVehiclesPerPort.put(line, 1);
+			        	   
+			        	   numberOfLines++;
+			        	     
+		        	   }
+		        	   line = reader.readLine();
+		        	   
+		           }
+		           System.out.println("ended reading file"); 
+			} catch (FileNotFoundException e) {
+			    System.out.println("FileNotFoundException: " + e.getMessage());
+			} catch (IOException e) {
+			    System.out.println("Caught IOException: " + e.getMessage());
+					
+			}
+		}
+		
+		
+		//get all nodes
+		Region[][] tmpRegions = Map.getInstance().getRegions();
+		
+		int regionCountX = Map.getInstance().getRegionCountX();
+		int regionCountY = Map.getInstance().getRegionCountY();
+		Node[] nodes;
+		Street[] crossingStreets;
+		 
+		int totalNumberOfVehiclesForNode = 0;
+		double entropyInProgress = 0;
+		int maxVehiclesPerNode = 0;
+		
+		System.out.println("started calculating entropy");
+		for(int i = 0; i <= regionCountX-1;i++){
+			for(int j = 0; j <= regionCountY-1;j++){
+				Region tmpRegion = tmpRegions[i][j];
+					
+				nodes = tmpRegion.getNodes();
+				
+				for(int k = 0; k < nodes.length; k++){
+					crossingStreets = nodes[k].getCrossingStreets();
+					
+					//only use crossing with 4 ports
+					if(crossingStreets.length > 3 && numberOfVehiclesPerNode.containsKey(nodes[k].getNodeID() + "")){
+						if((numberOfLines % 1000) == 0) System.out.print(".");
+						totalNumberOfVehiclesForNode = numberOfVehiclesPerNode.get(nodes[k].getNodeID() + "");
+						if(maxVehiclesPerNode < totalNumberOfVehiclesForNode)maxVehiclesPerNode = totalNumberOfVehiclesForNode;
+						entropyInProgress = 0;
+						//create all possible entry / exit combinations of this junction
+						for(int l = 0; l < crossingStreets.length; l++){
+							for(int m = 0; m < crossingStreets.length; m++){
+									if(numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m) != null) {
+										entropyInProgress += ((double)numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m)/totalNumberOfVehiclesForNode) * (Math.log((double)numberOfVehiclesPerPort.get(nodes[k].getNodeID() + ":" + l + ":" + m)/totalNumberOfVehiclesForNode)/Math.log(crossingStreets.length*crossingStreets.length));
+									}
+								
+							}
+						}
+						System.out.println("entropy: " + -entropyInProgress);
+						entropyOfNode.put(nodes[k], (-entropyInProgress));
+					}
+				}
+			}
+		}
+		
+		System.out.println("ended calculating entropy");
+		double[] topValues = new double[n];
+		double mixDistanceSquared = ((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100)*((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100);
+		
+		System.out.println("started calculating best mix zones places");
+
+		for (Entry<Node, Double> entry : entropyOfNode.entrySet()) {
+		    Node node = entry.getKey();
+		    Double entropy = entry.getValue();
+		    Double density = ((double)numberOfVehiclesPerNode.get(node.getNodeID() + ""))/maxVehiclesPerNode;
+		    double rememberSmallestValue = 999999999;
+		    int rememberSmallestIndex = -1;
+		    
+		    for(int i = 0; i < topValues.length; i++){   	
+		    	if((entropy+density) > topValues[i]){
+		    		if(rememberSmallestValue > topValues[i]){
+		    				rememberSmallestValue = topValues[i];
+		    				rememberSmallestIndex = i;
+		    		}
+		    	}
+		    }
+		    
+		    
+		    if(rememberSmallestIndex != -1){
+		    	boolean switched = false;
+			    for(int i = 0; i < nodeIDs.length; i++){   	
+			    	if(nodeIDs[i] != null){
+			    		double dx = node.getX() - nodeIDs[i].getX();
+			    		double dy = node.getY() - nodeIDs[i].getY();
+
+						
+						if((dx * dx + dy * dy) <= mixDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+							//the mix zones are to near ... only one can survive!
+							switched = true;
+							
+							if(topValues[i] < (entropy+density)){
+								nodeIDs[i] = node;
+					    		topValues[i] = (entropy+density);
+							}
+						}
+			    	}
+			    }
+			    
+			    if(!switched){
+			    	nodeIDs[rememberSmallestIndex] = node;
+		    		topValues[rememberSmallestIndex] = (entropy+density);
+			    }
+	    		
+		    }
+		}
+		System.out.println("ended calculating best mix zones places");
+
+		return nodeIDs;
+	}
+	
+	/**
+	 * Gets the amount of junctions in on a map and chooses n randomly
+	 */
+	public Node[] calculateRandomJunctionsForMixZones(int n){
+		Node[] nodeIDs = new Node[n];
+		
+		//get all nodes save nodes with more then 3 ports into ArrayList
+		ArrayList<Node> nodeList = new ArrayList<Node>();
+		Region[][] tmpRegions = Map.getInstance().getRegions();
+		
+		int regionCountX = Map.getInstance().getRegionCountX();
+		int regionCountY = Map.getInstance().getRegionCountY();
+		Node[] nodes;
+		Street[] crossingStreets;
+		
+		System.out.println("Getting node list");
+		for(int i = 0; i <= regionCountX-1;i++){
+			for(int j = 0; j <= regionCountY-1;j++){
+				Region tmpRegion = tmpRegions[i][j];
+					
+				nodes = tmpRegion.getNodes();
+				
+				for(int k = 0; k < nodes.length; k++){
+					crossingStreets = nodes[k].getCrossingStreets();
+					
+					//only use crossing with 4 ports
+					if(crossingStreets.length > 3){
+						nodeList.add(nodes[k]);
+					}
+				}
+			}
+		}
+		
+
+		System.out.println("Choosing nodes from list");
+		
+		for(int i = 0; i < nodeIDs.length;){
+			int random = (int) (Math.random()*nodeList.size());
+			
+			boolean found = false;
+			for(int j = 0; j< nodeIDs.length; j++){
+				if(nodeIDs[j] != null && nodeIDs[j].equals(nodeList.get(random))){
+					found = true;
+				}
+			}
+			if(!found){
+				nodeIDs[i] = nodeList.get(random);
+				i++;
+			}
+		}
+
+		return nodeIDs;
+	}
+	
 	/**
 	 * Returns if mix zones are added automatically
 	 * 

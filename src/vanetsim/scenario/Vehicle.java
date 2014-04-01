@@ -568,7 +568,8 @@ public class Vehicle extends LaneObject{
 	private boolean logBeaconsAfterEvent_ = false;
 	private String beaconString_ = "";
 	private int amountOfLoggedBeacons_ = 0;
-
+	private boolean logJunctionFrequency_ = false;
+	
 	/**
 	 * Instantiates a new vehicle. You will get an exception if the destinations don't contain at least two <b>valid</b> elements.<br>
 	 * Elements are considered as invalid if
@@ -3122,7 +3123,7 @@ public class Vehicle extends LaneObject{
 				}
 			}
 				
-			GeneralLogWriter.log(ID_ + ":" + curX_ + ":" +  curY_ + ":" +  curSpeed_); 
+			//GeneralLogWriter.log(ID_ + ":" + curX_ + ":" +  curY_ + ":" +  curSpeed_); 
 			
 			
 			if(logBeaconsAfterEvent_){
@@ -3295,29 +3296,30 @@ public class Vehicle extends LaneObject{
 						} else brakeForDestination_ = false;	//stop braking for destination
 					} 
 					curDirection_ = routeDirections_[routePosition_];
-					/*
-					//use this to log vehicles passing junctions. To count the different routes and their frequency.
-					Node tmpNode = null;
-					int street1 = -1;
-					int street2 = -1;
- 					if(curDirection_ && routeStreets_[routePosition_].getStartNode().getCrossingStreetsCount() > 2){
- 						tmpNode = routeStreets_[routePosition_].getStartNode();
- 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
- 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
- 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
- 						}
- 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
-					}
-					else if(!curDirection_ && routeStreets_[routePosition_].getEndNode().getCrossingStreetsCount() > 2) {
-						tmpNode = routeStreets_[routePosition_].getEndNode();
- 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
- 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
- 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
- 						}
- 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+					
+					if(logJunctionFrequency_){
+						//use this to log vehicles passing junctions. To count the different routes and their frequency.
+						Node tmpNode = null;
+						int street1 = -1;
+						int street2 = -1;
+	 					if(curDirection_ && routeStreets_[routePosition_].getStartNode().getCrossingStreetsCount() > 2){
+	 						tmpNode = routeStreets_[routePosition_].getStartNode();
+	 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+	 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+	 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+	 						}
+	 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+						}
+						else if(!curDirection_ && routeStreets_[routePosition_].getEndNode().getCrossingStreetsCount() > 2) {
+							tmpNode = routeStreets_[routePosition_].getEndNode();
+	 						for(int b = 0; b < tmpNode.getCrossingStreetsCount(); b++){
+	 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
+	 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
+	 						}
+	 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
+						}
 					}
 
-*/
 					curStreet_ = routeStreets_[routePosition_];	
 					
 					if(curDirection_){						

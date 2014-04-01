@@ -435,7 +435,7 @@ public class LogOperations extends Thread {
 			savedLog = readFileAndHeader(logAnalyser_.getActualJob());
 			logAnalyser_.setFilePathChanged(false);
 		}	
-
+		
 		//check if we have a correct log -> if yes quit analysis
 		if(savedLog[0] == null || savedLog[1] == null || !savedLog[0].substring(0, 8).equals("Mix-Zone")){
 			JOptionPane.showMessageDialog(null, Messages.getString("LogOperations.WrongLogType"), "Error", JOptionPane.ERROR_MESSAGE);
