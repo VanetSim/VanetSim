@@ -24,19 +24,24 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
+import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-
 import javax.swing.JPanel; 
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.gui.helpers.TextAreaLabel;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
+import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.scenario.AttackRSU;
 import vanetsim.scenario.Vehicle;
@@ -66,6 +71,15 @@ public class AttackerPanel extends JPanel implements ActionListener{
 	/** JLabel to describe arsuRadius_ textfield */
 	private final JLabel arsuRadiusLabel_;	
 
+	/** JLabel to describe percentageOfARSUs_ textfield */
+	private final JLabel percentageOfARSUsLabel_;
+	
+	/** JFormattedTextField containing the percentage of ARSUs coverage on the map */
+	private final JFormattedTextField percentageOfARSUs_;
+	
+	/** Button to create mix-zones */
+	private final JButton placeARSUsButton_;
+	
 	/** Note to describe this mode */
 	TextAreaLabel attackerNote_;
 
@@ -125,6 +139,31 @@ public class AttackerPanel extends JPanel implements ActionListener{
 		arsuRadius_.setPreferredSize(new Dimension(60,20));
 		c.gridx = 1;
 		add(arsuRadius_,c);
+		
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		add(new JSeparator(SwingConstants.HORIZONTAL),c);
+		++c.gridy;
+		c.gridwidth = 1;
+		c.gridx = 0;
+		percentageOfARSUsLabel_ = new JLabel(Messages.getString("AttackerPanel.percentageOfARSUsLabel")); //$NON-NLS-1$
+		add(percentageOfARSUsLabel_, c);
+		c.gridx = 1;
+		percentageOfARSUs_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		percentageOfARSUs_.setValue(5);
+		percentageOfARSUs_.setPreferredSize(new Dimension(60,20));
+		c.gridx = 1;
+		add(percentageOfARSUs_,c);
+
+		++c.gridy;
+		c.gridx = 0;
+		c.gridwidth = 2;
+		placeARSUsButton_ = new JButton(Messages.getString("AttackerPanel.placeARSUs"));
+		placeARSUsButton_.setActionCommand("place arsus");
+		placeARSUsButton_.addActionListener(this);
+		add(placeARSUsButton_, c);
+		
 
 		//Button to delete all attackers
 		c.gridx = 0;
@@ -228,24 +267,112 @@ public class AttackerPanel extends JPanel implements ActionListener{
 		if("clearAttackers".equals(command)){	
 			Renderer.getInstance().setAttackerVehicle(null);	
 			Renderer.getInstance().setAttackedVehicle(null);
-			Vehicle.setArsuList(null);
+			Vehicle.setArsuList(new AttackRSU[0]);
 		}
 
 		//show gui elements of "add arsu mode"
 		else if(("addAttackRSU").equals(command)){
 			arsuRadiusLabel_.setVisible(true);
 			arsuRadius_.setVisible(true);
+			percentageOfARSUsLabel_.setVisible(true);
+			percentageOfARSUs_.setVisible(true);
+			placeARSUsButton_.setVisible(true);
 		}
 		//show gui elements of "select Attacker / attacked vehicle mode" 
 		else if(("selectAttackerVehicle").equals(command) || ("selectAttackedVehicle").equals(command)){
 			arsuRadiusLabel_.setVisible(false);
 			arsuRadius_.setVisible(false);
+			percentageOfARSUsLabel_.setVisible(false);
+			percentageOfARSUs_.setVisible(false);
+			placeARSUsButton_.setVisible(false);
 		}
+		else if(("place arsus").equals(command)){
+			arsuRadiusLabel_.setVisible(false);
+			arsuRadius_.setVisible(false);
+			percentageOfARSUsLabel_.setVisible(false);
+			percentageOfARSUs_.setVisible(false);
+			placeARSUsButton_.setVisible(false);
+			
+			placeARSUs(((Number)percentageOfARSUs_.getValue()).intValue());
+		}
+		
 		Renderer.getInstance().ReRender(true, true);
 	}
 
 	public JFormattedTextField getArsuRadius_() {
 		return arsuRadius_;
+	}
+	
+	public void refreshGUI(){
+		arsuRadiusLabel_.setVisible(true);
+		arsuRadius_.setVisible(true);
+		percentageOfARSUsLabel_.setVisible(true);
+		percentageOfARSUs_.setVisible(true);
+		placeARSUsButton_.setVisible(true);
+	}
+	
+	public void placeARSUs(int percentage){
+		int boundary = ((Number)getArsuRadius_().getValue()).intValue() * 100;
+		int mapMaxHeightWithoutBoundary = Map.getInstance().getMapHeight() - (2*boundary);
+		int mapMaxWidthWithoutBoundary = Map.getInstance().getMapWidth() - (2*boundary);
+		
+		
+		double coverage = ((double)Map.getInstance().getMapHeight()*Map.getInstance().getMapWidth())*(double)(percentage*0.01);
+		double coverageCounter = 0;
+		
+		int randomX = -1;
+		int randomY = -1;
+		
+		double dx = -1;
+		double dy = -1;
+		
+		double arsuDistanceSquared = (4*(double)boundary*(double)boundary);
+		double arsuCircleSpacing = Math.PI*((double)boundary*(double)boundary);
+		
+		AttackRSU[] arsuArray = Vehicle.getArsuList();
+		
+		boolean foundSpace = true;
+		//create ARSUs until the coverage would be greater than coverage
+		while(coverageCounter < coverage){
+			//only try 1000 times otherwise their is no space left (a 100% coverage cannot be reached and does not make any sense)
+
+
+			for(int i = 0; i <= 1000; i++){
+				foundSpace = true;
+				randomX = (int) (Math.random()*mapMaxWidthWithoutBoundary) + boundary;
+				randomY = (int) (Math.random()*mapMaxHeightWithoutBoundary) + boundary;
+				
+				//check if we can place at this position without overlap
+				arsuArray = Vehicle.getArsuList();
+				
+				for(int j = 0; j < arsuArray.length; j++){   	
+			    	if(arsuArray[j] != null){
+			    		dx = randomX - arsuArray[j].getX();
+			    		dy = randomY - arsuArray[j].getY();
+
+						if((dx * dx + dy * dy) <= arsuDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+							//the arsus are to near ...  :'(
+							foundSpace = false;
+						}
+			    	}
+			    }
+				
+				if(foundSpace){
+					new AttackRSU(randomX, randomY, boundary);
+					coverageCounter += arsuCircleSpacing;
+					break;
+				}
+				
+				//if 1000 tries failed exit while loop (no space left on map)
+				if(i == 1000) {
+					coverage = -1;
+					JOptionPane.showMessageDialog(null, Messages.getString("AttackerPanel.MessageBoxErrorMessage"), Messages.getString("AttackerPanel.MessageBoxErrorTitle"), JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+		}
+		Renderer.getInstance().ReRender(true, true);
+		refreshGUI();
 	}
 
 }
