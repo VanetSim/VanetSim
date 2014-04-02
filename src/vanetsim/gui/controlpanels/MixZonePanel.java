@@ -487,8 +487,10 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		
 		System.out.println("ended calculating entropy");
 		double[] topValues = new double[n];
-		double mixDistanceSquared = ((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100)*((((Number)mixRadius_.getValue()).intValue() * 100)*2 + 100);
 		
+		int mixZoneRadius = ((Number)mixRadius_.getValue()).intValue() * 100;
+		double mixDistanceSquared = (4*(double)mixZoneRadius*(double)mixZoneRadius);
+
 		System.out.println("started calculating best mix zones places");
 
 		for (Entry<Node, Double> entry : entropyOfNode.entrySet()) {

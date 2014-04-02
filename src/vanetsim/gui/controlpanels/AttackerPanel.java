@@ -24,7 +24,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
-import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -41,7 +40,6 @@ import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.gui.helpers.TextAreaLabel;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
-import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.scenario.AttackRSU;
 import vanetsim.scenario.Vehicle;
