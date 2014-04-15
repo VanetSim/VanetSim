@@ -489,7 +489,7 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		double[] topValues = new double[n];
 		
 		int mixZoneRadius = ((Number)mixRadius_.getValue()).intValue() * 100;
-		double mixDistanceSquared = (4*(double)mixZoneRadius*(double)mixZoneRadius);
+		double mixDistanceSquared = (4*((double)mixZoneRadius+100)*((double)mixZoneRadius)+100);
 
 		System.out.println("started calculating best mix zones places");
 

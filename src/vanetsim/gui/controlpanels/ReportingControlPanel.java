@@ -647,7 +647,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 			editDetailLogFiles();
 		}
 		else if("accumulateSimple".equals(command)){
-			accumulateSimpleLogFilesForSlow("SP");
+			accumulateSimpleLogFiles("MIX");
 		}	
 		else if("accumulateDetail".equals(command)){
 			accumulateDetailedLogFiles();
@@ -1086,6 +1086,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		            		
 		            		for(int i = 2; i < values2.length; i++) values[i-2] += Float.valueOf(values2[i]);
 		            	}
+		            	
 		            	line = reader.readLine();
 		            }
 		           
@@ -1095,8 +1096,47 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 				    System.err.println("Caught IOException: " + e.getMessage());
 				}
 		    }
-
 		    for(int j = 0; j < values.length; j++) returnValue[j] = (float)values[j]/files.size();	
+
+		    boolean foundMixZone = false;
+		    
+		    for(int i = 1; i < 100; i++){
+		    	values =  new float[10];
+		    	foundMixZone = false;
+		    	for(File file:files){					
+			        BufferedReader reader;
+			        try{
+			            reader = new BufferedReader(new FileReader(file));
+			            String line = reader.readLine(); 
+			            
+			            
+			            while(line != null){	
+			            	String[] values2 = line.split(" ");
+			            		
+			            	if(values2[0].equals("Mix-Zone" + i)){
+			            		foundMixZone = true;
+				           		for(int j = 2; j < values2.length; j++) if(!values2[j].equals("NaN"))values[j-2] += Float.valueOf(values2[j]);
+			           		}
+			            	line = reader.readLine();
+			            }
+			           
+					} catch (FileNotFoundException e) {
+					    System.err.println("FileNotFoundException: " + e.getMessage());
+					} catch (IOException e) {
+					    System.err.println("Caught IOException: " + e.getMessage());
+					}
+			    }
+		    	
+		    	if(foundMixZone){
+		    		System.out.print("Mix-Zone" + i);
+			    	
+			    	for(int j = 0; j < values.length; j++) System.out.print(" " + (float)values[j]/files.size());
+			    	System.out.println("");	
+		    	}
+		    	
+		    }
+		    
+
 		    
 		    return returnValue;
 		}
@@ -1192,7 +1232,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 	
 		String filename = file.getName();
 		//get all files with the same beginning and end
-		int index = filename.indexOf("Version");
+		int index = filename.indexOf(".0_v");
 		String stringStart = filename.substring(0, index-1);
 		
 		ArrayList<File> files = new ArrayList<File>();
@@ -1527,11 +1567,11 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 						accu2 = accumulateSimpleSilentPeriodFiles(files2);
 					}
 					else{
-						accu1 = accumulateSimpleMixFiles(files1);
+						//accu1 = accumulateSimpleMixFiles(files1);
 						accu2 = accumulateSimpleMixFiles(files2);
 					}
 					
-					out.write("" + accu1[0]);
+					//out.write("" + accu1[0]);
 
 					
 					for(int i = 0; i < accu2.length; i++){
@@ -1540,9 +1580,9 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 					out.write("\n");
 					
 					out.write("#");
-					for(int i = 0; i < accu1.length; i++){
-						if(accu1[i] != 0)out.write(" " + accu1[i]);
-					}
+				//	for(int i = 0; i < accu1.length; i++){
+					//	if(accu1[i] != 0)out.write(" " + accu1[i]);
+				//	}
 					out.write("\n");
 				}				
 
