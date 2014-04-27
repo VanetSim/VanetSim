@@ -32,7 +32,7 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import com.apple.eawt.Application;
+//import com.apple.eawt.Application;
 
 import vanetsim.gui.DrawingArea;
 import vanetsim.gui.Renderer;
@@ -93,7 +93,7 @@ public final class VanetSimStart implements Runnable {
 		DrawingArea drawarea = addComponentsToPane(mainFrame_.getContentPane());
 
 		Rectangle bounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds(); 
-		
+/*		
 		String osName = System.getProperty("os.name").toLowerCase();
 		boolean isMacOs = osName.startsWith("mac os x");
 		if (isMacOs) 
@@ -102,7 +102,7 @@ public final class VanetSimStart implements Runnable {
 			Image image = Toolkit.getDefaultToolkit().getImage(appicon);
 			application.setDockIconImage(image);
 		}
-		
+*/		
 
 		mainFrame_.pack();
 		//mainFrame_.setIconImage(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("vanetsim/images/logo.png")));
