@@ -1,0 +1,21 @@
+# Theme (for possible options see https://substance.dev.java.net/docs/skins/overview.html)
+gui_theme=SubstanceBusinessLookAndFeel
+
+# path for debug logfiles, slash (/) at the end
+logger_dir=./logs/
+
+# log format (txt or xml)
+logger_format=txt
+
+# log level (1-7, 1=everything, 7=only most severe errors)
+logger_level=1
+
+# days to keep log files (0-365000)
+logger_trashtime=1
+
+# if double buffering shall be used for the drawing area (should be true normally, false may be faster)
+double_buffer=true
+
+# if the drawing area shall be painted in manual buffered images. Avoids flickering
+# and might be faster on some system. Normally, false should be fine.
+draw_manual_buffered=false
