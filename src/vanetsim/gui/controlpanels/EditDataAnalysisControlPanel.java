@@ -23,8 +23,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
+import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import vanetsim.gui.helpers.ButtonCreator;
+import vanetsim.localization.Messages;
 
 
 /**
@@ -33,6 +36,12 @@ import javax.swing.JPanel;
 public class EditDataAnalysisControlPanel extends JPanel implements  ActionListener{
 
 	private static final long serialVersionUID = 5915143087427387639L;
+	
+	/** Button for opening the "anonymize logfile" window. */
+	private JButton anonymizeLogFile_;
+	
+	/** Button for opening the data linking window. */
+	private JButton linkData_;
 
 	
 	
@@ -55,9 +64,21 @@ public class EditDataAnalysisControlPanel extends JPanel implements  ActionListe
 
 		c.insets = new Insets(5,5,5,5);
 		
+		//add buttons
 		c.gridx = 0;
+		c.gridwidth = 2;
+		++c.gridy;
+		// TODO [MH] create image
+		anonymizeLogFile_ = ButtonCreator.getJButton("", "anonymizeLogFile", Messages.getString("EditDataAnalysisControlPanel.anonymizeLogFile"), this);
+//		anonymizeLogFile_.setVisible(false);		
+		add(anonymizeLogFile_,c);
 		
-		
+		c.gridx = 0;
+		++c.gridy;
+		// TODO [MH] create image
+		linkData_ = ButtonCreator.getJButton("", "linkData", Messages.getString("EditDataAnalysisControlPanel.linkData"), this);
+//		linkData_.setVisible(false);
+		add(linkData_,c);
 		
 		//to consume the rest of the space
 		c.weighty = 1.0;
@@ -68,10 +89,12 @@ public class EditDataAnalysisControlPanel extends JPanel implements  ActionListe
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-
-			
+	public void actionPerformed(ActionEvent e) {
+		String command = e.getActionCommand();
+		
+		if ("anonymizeLogFile".equals(command)){
+			new AnonymizeDataDialog();
+		}
 	}
 
 }

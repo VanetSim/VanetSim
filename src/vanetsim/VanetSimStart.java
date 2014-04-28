@@ -36,6 +36,7 @@ import javax.swing.UIManager;
 
 import vanetsim.gui.DrawingArea;
 import vanetsim.gui.Renderer;
+import vanetsim.gui.controlpanels.AnonymizeDataDialog;
 import vanetsim.gui.controlpanels.MainControlPanel;
 import vanetsim.gui.helpers.MouseClickManager;
 import vanetsim.gui.helpers.ProgressOverlay;
@@ -120,6 +121,9 @@ public final class VanetSimStart implements Runnable {
 		ReRenderManager.getInstance().start();
 		MouseClickManager.getInstance().setDrawArea(drawarea);
 		MouseClickManager.getInstance().start();
+		
+		//TODO [MH] to be removed
+//		new AnonymizeDataDialog();
 	}
 
 	/**
