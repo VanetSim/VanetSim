@@ -80,6 +80,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JComboBox<String> selectedColumn;
 	
+	private JComboBox<String> anonymityMethod;
+	
 	private LogfileTableModel logfileTM;
 	
 	/** FileFilter to choose only ".log" files from FileChooser */
@@ -168,12 +170,43 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		selectedColumn = new JComboBox<>();
 //		selectedColumn.setPreferredSize(new Dimension(120,20));
 		rTop.add(selectedColumn, c2);
-
+		
 		c2.gridy++;
+		c2.gridx = 0;
 		rTop.add(new JSeparator(), c2);
 		c2.gridy++;
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.outputLogfilePath")), c2);
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c2);
 		c2.gridy++;
+		anonymityMethod = new JComboBox<>();
+		rTop.add(anonymityMethod, c2);
+		
+		add(rTop, c);
+		
+		/* right bottom panel */
+		c.gridy++;
+		rBot = new JPanel(new GridBagLayout());
+		/* Contraints for right top jpanel */
+		GridBagConstraints c3 = new GridBagConstraints();
+		c3.fill = GridBagConstraints.BOTH;
+		c3.anchor = GridBagConstraints.PAGE_START;
+		c3.weightx = 0.0;
+		c3.weighty = 0;
+		c3.gridx = 0;
+		c3.gridy = 0;
+		c3.insets = new Insets(5,5,5,5);
+		
+		//to consume the rest of the space
+		c3.weighty = 1.0;
+		JPanel space = new JPanel();
+		space.setOpaque(false);
+		rBot.add(space, c3);
+		
+		c3.weighty = 0.0;
+		c3.gridy++;
+		rBot.add(new JSeparator(), c3);
+		c3.gridy++;
+		rBot.add(new JLabel(Messages.getString("AnonymizeDataDialog.outputLogfilePath")), c3);
+		c3.gridy++;
 		outputLogfilePath = new JFormattedTextField();
 		outputLogfilePath.setValue(System.getProperty("user.dir"));
 //		outputLogfilePath.setPreferredSize(new Dimension(120,20));
@@ -181,19 +214,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		outputLogfilePath.setCaretPosition(outputLogfilePath.getText().length());
 		outputLogfilePath.setToolTipText(outputLogfilePath.getText());
 		outputLogfilePath.addFocusListener(this);
-		rTop.add(outputLogfilePath, c2);
+		rBot.add(outputLogfilePath, c3);
 		
-		c2.gridy++;
-		c2.gridx = 0;
-		chosenColumnLabel = new JLabel(Messages.getString("AnonymizeDataDialog.chosenColumn"));
-		chosenColumnLabel.setVisible(false);
-		rTop.add(chosenColumnLabel, c2);
-		
-		add(rTop, c);
-		
-		/* right bottom panel */
-		c.gridy++;
-		add(new JLabel("roflol"), c);
+		add(rBot, c);
 		
 		c.weightx = 0;
 		c.weighty = 0;
