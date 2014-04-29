@@ -32,9 +32,6 @@ import javax.swing.table.DefaultTableModel;
 public class LogfileTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -8866885988921022260L;
 	
-	private String filePath;
-	private String format;
-	
 	private final int MAX_ROWS = 50;
 	
 	private ArrayList<Class<? extends Object>> classes;

@@ -19,6 +19,7 @@ package vanetsim.gui.controlpanels;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -200,9 +201,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridheight = 1;
 		c.gridx = 0;
 		c.gridy++;
-		info = new JLabel("Long test stating this and that and so on");
-		info.setBackground(Color.RED);
-		info.setBorder(BorderFactory.createLineBorder(Color.black));
+		info = new JLabel(Messages.getString("AnonymizeDataDialog.info.inputfile"));
+		info.setForeground(Color.RED);
+		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
+//		info.setBorder(BorderFactory.createLineBorder(Color.black));
 		add(info ,c);
 		
 		//define FileFilter for fileChooser
@@ -269,6 +271,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			/* to avoid a filechooser loop */
 			rTop.requestFocus();
 			setFilePath(inputLogfilePath);
+			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
 			formatString.setText(LogfileTableModel.getFirstLine(inputLogfilePath.getText()));
 		}
 		else if ("outputLogfilePath".equals(((JFormattedTextField) arg0.getSource()).getName())){
