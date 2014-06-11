@@ -32,138 +32,43 @@ import javax.swing.table.DefaultTableModel;
 public class LogfileTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -8866885988921022260L;
 	
-	private final int MAX_ROWS = 50;
+//	private final int MAX_ROWS = 50;
 	
-	private ArrayList<Class<? extends Object>> classes;
-	private ArrayList<ArrayList<Object>> data;
-	private String[] columnNames;
-
-	private Character delimiter;
+	private Data data;
 	
 	public LogfileTableModel(String filePath, String format) {
-//		this.filePath = filePath;
-//		this.format = format;
-		
-		parseFile(filePath, format);
-	}
-	
-	public static String getFirstLine(String filePath) {
-		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
-			return in.readLine();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return null;
-	}
-	
-	private void parseFile(String filePath, String format) {
-		String line;
-		StringTokenizer tok;
-
-		analyseFormatString(format);
-				
-		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
-			line = in.readLine();
-			
-			columnNames = new String[classes.size()];
-			data = new ArrayList<>(classes.size());
-
-			tok = new StringTokenizer(line, delimiter.toString());		
-			for (int i = 0; i < classes.size(); i++) {
-				columnNames[i] = tok.nextToken();
-				data.add(i, new ArrayList<>());
-			}
-			
-			for (int i = 0; i < MAX_ROWS; i++) {
-				if ((line = in.readLine()) == null) {
-					break;
-				} 
-				tok = new StringTokenizer(line, delimiter.toString());		
-				for (int j = 0; j < classes.size(); j++) {
-					data.get(j).add(tok.nextToken());
-				}
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
-	
-	private void analyseFormatString(String format) throws IllegalArgumentException {
-		classes = new ArrayList<>();
-		int index = 0;
-		Character delimiter = null;
-		
-		while (index < format.length()) {
-			/* all odd indices should be the delimiter  */
-			if (index % 2 == 1) {
-				if (delimiter == null) {
-					delimiter = new Character(format.charAt(index));
-				} else {
-					if (!delimiter.equals(format.charAt(index))) {
-						throw new IllegalArgumentException();
-					}
-				}
-			} else {
-				switch (format.charAt(index)) {
-				case 's':
-				case 'S':
-					classes.add(String.class);
-					break;
-				case 'c':
-				case 'C':
-					classes.add(Character.class);
-					break;
-				case 'i':
-				case 'I':
-					classes.add(Integer.class);
-					break;
-				case 'd':
-				case 'D':
-					classes.add(Double.class);
-					break;
-				default:
-					throw new IllegalArgumentException();
-				}
-			}
-			index++;
-		}
-		
-		this.delimiter = delimiter;
+		data = new Data();
+		data.parseFile(filePath, format);
 	}
 	
 	public String[] getColumnNames() {
-		return columnNames;
+		return data.getColumnNames();
 	}
 
 	@Override
 	public int getRowCount() {
-		return data.get(0).size();
+		return data.getRowCount();
 	}
 
 	@Override
 	public int getColumnCount() {
-		return data.size();
+		return data.getColumnCount();
 	}
 	
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return data.getColumnName(column);
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return data.get(columnIndex).get(rowIndex);
+		return data.getValueAt(rowIndex, columnIndex);
+	}
+
+	public void removeRow(int rowIndex) {
+		data.removeRow(rowIndex);
 	}
 	
-    public Class<? extends Object> getColumnClass(int c) {
-        return classes.get(c);
-    }
+	
+	
 }

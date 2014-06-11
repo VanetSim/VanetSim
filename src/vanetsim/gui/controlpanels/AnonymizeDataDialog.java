@@ -23,17 +23,27 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -44,10 +54,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
+import vanetsim.anonymizer.AnonymityMethods;
+import vanetsim.anonymizer.Data;
 import vanetsim.anonymizer.LogfileTableModel;
+import vanetsim.anonymizer.RemovingMethods;
 import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
@@ -55,7 +69,7 @@ import vanetsim.map.Map;
 /**
  * A dialog to set map parameters.
  */
-public final class AnonymizeDataDialog extends JDialog implements ActionListener, FocusListener {
+public final class AnonymizeDataDialog extends JDialog implements ActionListener, FocusListener, ItemListener {
 	
 	/** The necessary constant for serializing. */
 	private static final long serialVersionUID = 4882607093689684208L;
@@ -80,7 +94,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JComboBox<String> selectedColumn;
 	
-	private JComboBox<String> anonymityMethod;
+	private JComboBox<AnonymityMethods> anonymityMethod;
+	
+	private JPanel anonMethodPanel = null;
 	
 	private LogfileTableModel logfileTM;
 	
@@ -91,7 +107,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	 * Instantiates a new anonymize data dialog.
 	 */
 	public AnonymizeDataDialog(){
-		super(VanetSimStart.getMainFrame(),Messages.getString("AnonymizeDataDialog.title"), false); //$NON-NLS-1$
+		super(VanetSimStart.getMainFrame(),Messages.getString("AnonymizeDataDialog.title"), false);
 
 		setUndecorated(false);
 		setLayout(new GridBagLayout());
@@ -119,8 +135,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		// Create the scroll pane and add the table to it.
 		tableScroll = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
-		table.setColumnSelectionAllowed(true);
-		table.setRowSelectionAllowed(false);
+		table.setColumnSelectionAllowed(false);
+		table.setRowSelectionAllowed(true);
 
 		// Add the scroll pane to the left hand side of this dialog.
 		add(tableScroll,c);
@@ -171,6 +187,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //		selectedColumn.setPreferredSize(new Dimension(120,20));
 		rTop.add(selectedColumn, c2);
 		
+		/* Anonymity method combo box */
 		c2.gridy++;
 		c2.gridx = 0;
 		rTop.add(new JSeparator(), c2);
@@ -178,7 +195,19 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c2);
 		c2.gridy++;
 		anonymityMethod = new JComboBox<>();
+		/* fill combobox with available methods */
+		getAvailableAnonMethods(anonymityMethod);
+		anonymityMethod.addItemListener(this);
 		rTop.add(anonymityMethod, c2);
+		
+		/* Panel for anonymity method dependend swing items */
+		c2.gridx = 0;
+		c2.gridy++;
+		c2.gridheight = 3;
+		anonMethodPanel = new JPanel(new GridBagLayout());
+		anonMethodPanel.setVisible(false);
+		createPanelForSelectedAnonMethod();
+		rTop.add(anonMethodPanel, c2);
 		
 		add(rTop, c);
 		
@@ -228,7 +257,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		info.setForeground(Color.RED);
 		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
 //		info.setBorder(BorderFactory.createLineBorder(Color.black));
-		add(info ,c);
+		add(info, c);
 		
 		//define FileFilter for fileChooser
 		logFileFilter_ = new FileFilter(){
@@ -269,6 +298,98 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			selectedColumn.addItem(str);
 		}
 		selectedColumn.setSelectedIndex(0);
+
+		/* enable deleting of rows */
+        int condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
+        InputMap inputMap = table.getInputMap(condition);
+        ActionMap actionMap = table.getActionMap();
+
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "delete");
+		actionMap.put("delete", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (logfileTM.getRowCount() > 0 && table.getSelectedRowCount() > 0) {
+					/* remove all selected rows */
+					for (int i : table.getSelectedRows()) {
+						//TODO [MH] removing of many lines takes too long
+						logfileTM.removeRow(i);
+					}
+					/* tell the UI that there was a change in the data */
+					logfileTM.fireTableRowsDeleted(
+						table.getSelectedRows()[0], 
+						table.getSelectedRows()[table.getSelectedRowCount() - 1]
+					);
+				}
+//				table.editingCanceled(null);
+			}
+		});
+	}
+	
+	/**
+	 * fill the combobox with all avaiable anonymity methods
+	 * @param box	the combobox to be filled
+	 */
+	private void getAvailableAnonMethods(JComboBox<AnonymityMethods> box) {
+		for (AnonymityMethods method : AnonymityMethods.values()) {
+			box.addItem(method);
+		}
+	}
+	
+	private void createPanelForSelectedAnonMethod() {
+		System.out.println("here" + anonymityMethod.getSelectedIndex());
+		/* if there is no item selected, do nothing */
+		if (anonymityMethod.getSelectedIndex() == -1) {
+			return;
+		}
+		/* get selected method */
+		AnonymityMethods method = (AnonymityMethods) anonymityMethod.getSelectedItem();
+		/* delete active panel content */
+		anonMethodPanel.removeAll();
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.PAGE_START;
+		c.weightx = 0.0;
+		c.weighty = 0;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.insets = new Insets(5,5,5,5);
+		
+		switch (method) {
+		case AGGREGATION:
+			System.out.println("lol3");
+			break;
+		case REMOVING:
+			System.out.println("lol1");
+			c.gridheight = 1;
+			c.gridwidth = 1;
+			anonMethodPanel.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod.removing.method")), c);	
+			c.gridy++;
+			
+			JComboBox<RemovingMethods> removingMethodBox = new JComboBox<>();
+			for (RemovingMethods removingMethod : RemovingMethods.values()) {
+				removingMethodBox.addItem(removingMethod);
+			}
+			
+			anonMethodPanel.add(removingMethodBox, c);
+			anonMethodPanel.setVisible(true);
+			
+//			inputLogfilePath = new JFormattedTextField();
+////			inputLogfilePath.setValue(System.getProperty("user.dir"));
+////			inputLogfilePath.setPreferredSize(new Dimension(120,20));
+//			inputLogfilePath.setName("inputLogfilePath");
+//			inputLogfilePath.setCaretPosition(inputLogfilePath.getText().length());
+//			inputLogfilePath.setToolTipText(inputLogfilePath.getText());
+//			inputLogfilePath.addFocusListener(this);
+//			rTop.add(inputLogfilePath, c);
+			
+			
+			break;
+		default:
+			System.out.println("lol2");
+			break;
+		}
+		anonMethodPanel.revalidate();
+		anonMethodPanel.repaint();
 	}
 
 	/**
@@ -295,7 +416,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			rTop.requestFocus();
 			setFilePath(inputLogfilePath);
 			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
-			formatString.setText(LogfileTableModel.getFirstLine(inputLogfilePath.getText()));
+			formatString.setText(Data.getFirstLine(inputLogfilePath.getText()));
 		}
 		else if ("outputLogfilePath".equals(((JFormattedTextField) arg0.getSource()).getName())){
 			/* to avoid a filechooser loop */
@@ -308,5 +429,19 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	public void focusLost(FocusEvent arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			/* for now, the ItemListener is only used for anonymity method, therefore we do not need checks */
+			createPanelForSelectedAnonMethod();
+//			Object item = e.getItem();
+//			System.out.println("herheiuor " + item.getClass());
+//			if (item instanceof JComboBox<?>) {
+//				System.out.println(((JComboBox<?>) item).getSelectedItem());
+//			}
+			// do something with object
+		}
 	}
 }

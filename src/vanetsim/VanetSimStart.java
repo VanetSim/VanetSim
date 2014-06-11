@@ -123,7 +123,7 @@ public final class VanetSimStart implements Runnable {
 		MouseClickManager.getInstance().start();
 		
 		//TODO [MH] to be removed
-//		new AnonymizeDataDialog();
+		new AnonymizeDataDialog();
 	}
 
 	/**
