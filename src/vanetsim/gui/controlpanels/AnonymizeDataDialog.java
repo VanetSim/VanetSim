@@ -52,7 +52,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
-import vanetsim.anonymizer.AnonymityMethods;
+import vanetsim.anonymizer.AnonymityMethodsEnum;
 import vanetsim.anonymizer.Data;
 import vanetsim.anonymizer.LogfileTableModel;
 import vanetsim.anonymizer.RemovingMethods;
@@ -84,6 +84,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JButton anonymizeButton;
 	
+	private JButton processButton;
+	
 	private JButton saveToLogFileButton;
 	
 	private JLabel info;
@@ -92,9 +94,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JScrollPane tableScroll;
 	
-	private JComboBox<String> selectedColumn;
+//	private JComboBox<String> selectedColumn;
 	
-	private JComboBox<AnonymityMethods> anonymityMethod;
+	private JComboBox<AnonymityMethodsEnum> anonymityMethod;
 	
 	private JPanel anonMethodPanel = null;
 	
@@ -150,10 +152,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	private void loadData() {
 		logfileTM = new LogfileTableModel(inputLogfilePath.getText(), formatString.getText());
 		table.setModel(logfileTM);
-		for (String str : logfileTM.getColumnNames()) {
-			selectedColumn.addItem(str);
-		}
-		selectedColumn.setSelectedIndex(0);
+//		for (String str : logfileTM.getColumnNames()) {
+//			selectedColumn.addItem(str);
+//		}
+//		selectedColumn.setSelectedIndex(0);
 
 		/* enable deleting of rows */
         int condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
@@ -184,8 +186,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	 * fill the combobox with all available anonymity methods
 	 * @param box	the combobox to be filled
 	 */
-	private void getAvailableAnonMethods(JComboBox<AnonymityMethods> box) {
-		for (AnonymityMethods method : AnonymityMethods.values()) {
+	private void getAvailableAnonMethods(JComboBox<AnonymityMethodsEnum> box) {
+		for (AnonymityMethodsEnum method : AnonymityMethodsEnum.values()) {
 			box.addItem(method);
 		}
 	}
@@ -196,7 +198,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			return;
 		}
 		/* get selected method */
-		AnonymityMethods method = (AnonymityMethods) anonymityMethod.getSelectedItem();
+		AnonymityMethodsEnum method = (AnonymityMethodsEnum) anonymityMethod.getSelectedItem();
 		/* delete active panel content */
 		anonMethodPanel.removeAll();
 		
@@ -246,6 +248,11 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 				loadData();
 			} else {
 				//TODO [MH] print message
+			}
+		} else if (e.getSource().equals(processButton)) {
+			if (!inputLogfilePath.getText().equals("")) {
+				/* we have the file path and format, so we can load the data into the table */
+					loadData();
 			}
 		} else if (e.getSource().equals(inputLogfileButton)) {
 			setFilePath(inputLogfilePath);
@@ -392,6 +399,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		info.setForeground(Color.RED);
 		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
 		info.setBorder(BorderFactory.createLineBorder(Color.black));
+		info.setPreferredSize(new Dimension(0, 35));
 		add(info, c);
 		
 		pack();
@@ -410,16 +418,14 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.fill = GridBagConstraints.BOTH;
 		
 		/* 
-		 * We have a lot of components and choose a WxH=7x3 layout 
+		 * We have a lot of components and choose a WxH=6x3 layout 
 		 * - all components have a height of 1
 		 * - weights stand next to the scetch
 		 * 
 		 * |---------------------------|
 		 * |  input  | inTxt  | inBut  | 1,1,1
 		 * |---------------------------|
-		 * |  format | foTxt  |        | 1,1,1
-		 * |---------------------------|
-		 * |  column | colBox |        | 1,1,1
+		 * |  format | foTxt  |procBut | 1,1,1
 		 * |---------------------------|
 		 * |             hline         | 3
 		 * |---------------------------|
@@ -459,7 +465,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.weightx = 0.0;
 		//TODO [MH] Load Button graphic
 		inputLogfileButton = new JButton("L");
-		inputLogfileButton.setName("inputLogfileButton");
 		inputLogfileButton.addActionListener(this);
 		rTop.add(inputLogfileButton, c);
 		
@@ -484,28 +489,17 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		formatString.setToolTipText(Messages.getString("AnonymizeDataDialog.formatStringMsg"));
 		formatString.addActionListener(this);
 		rTop.add(formatString, c);
-		
-		/* column chooser stuff */
-		c.gridx = 0;
-		c.gridy = 2;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		/* height should only be given to the anonPanel when resizing */
-		c.weighty = 0.0;
-		/* width should only be given to the text field when resizing */
-		c.weightx = 0.0;
-		
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.column")), c);
 		c.gridx++;
 		/* width should only be given to the text field when resizing */
-		c.weightx = 1.0;
-		selectedColumn = new JComboBox<>();
-//		selectedColumn.setPreferredSize(new Dimension(120,20));
-		rTop.add(selectedColumn, c);
-		
+		c.weightx = 0.0;
+		//TODO [MH] Load Button graphic
+		processButton = new JButton("P");
+		processButton.addActionListener(this);
+		rTop.add(processButton, c);
+
 		/* hline stuff */
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 2;
 		c.gridwidth = 3;
 		c.gridheight = 1;
 		/* height should only be given to the anonPanel when resizing */
@@ -515,9 +509,29 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		rTop.add(new JSeparator(), c);
 		
+		//TODO [MH] move it into the anonMethodPanel where needed
+//		/* column chooser stuff */
+//		c.gridx = 0;
+//		c.gridy = 3;
+//		c.gridwidth = 1;
+//		c.gridheight = 1;
+//		/* height should only be given to the anonPanel when resizing */
+//		c.weighty = 0.0;
+//		/* width should only be given to the text field when resizing */
+//		c.weightx = 0.0;
+//		
+//		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.column")), c);
+//		c.gridx++;
+//		/* width should only be given to the text field when resizing */
+//		c.weightx = 1.0;
+//		selectedColumn = new JComboBox<>();
+////		selectedColumn.setPreferredSize(new Dimension(120,20));
+//		rTop.add(selectedColumn, c);
+		
+		
 		/* Anonymity method combo box stuff */
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		/* height should only be given to the anonPanel when resizing */
@@ -525,7 +539,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* width should only be given to the text field when resizing */
 		c.weightx = 0.0;
 		
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c);
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.method")), c);
 		c.gridx++;
 		/* width should only be given to the text field when resizing */
 		c.weightx = 1.0;
@@ -537,7 +551,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		/* Panel for anonymity method dependend swing items */
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = 4;
 		c.gridwidth = 3;
 		c.gridheight = 1;
 		/* height should only be given to the anonPanel when resizing */
@@ -553,7 +567,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		/* anonymize button stuff */
 		c.gridx = 1;
-		c.gridy = 6;
+		c.gridy = 5;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		/* height should only be given to the anonPanel when resizing */
