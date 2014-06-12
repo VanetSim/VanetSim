@@ -36,9 +36,14 @@ public class LogfileTableModel extends AbstractTableModel {
 	
 	private Data data;
 	
+
 	public LogfileTableModel(String filePath, String format) {
 		data = new Data();
 		data.parseFile(filePath, format);
+	}
+
+	public Data getData() {
+		return data;
 	}
 	
 	public String[] getColumnNames() {

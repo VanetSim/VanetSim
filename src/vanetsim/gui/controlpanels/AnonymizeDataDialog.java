@@ -52,6 +52,8 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
+import vanetsim.anonymizer.AnonRemoving;
+import vanetsim.anonymizer.AnonymityMethod;
 import vanetsim.anonymizer.AnonymityMethodsEnum;
 import vanetsim.anonymizer.Data;
 import vanetsim.anonymizer.LogfileTableModel;
@@ -234,6 +236,12 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		anonMethodPanel.revalidate();
 		anonMethodPanel.repaint();
 	}
+	
+	private void chooseAnonymizer() {
+		//TODO [MH]
+		AnonymityMethod rem = new AnonRemoving(logfileTM.getData(), info);
+		rem.anonymize(null);
+	}
 
 	/**
 	 * An implemented <code>ActionListener</code> which performs the needed actions when the OK-button
@@ -254,6 +262,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 				/* we have the file path and format, so we can load the data into the table */
 					loadData();
 			}
+		} else if (e.getSource().equals(anonymizeButton)) {
+			//TODO [MH] check conditions
+			chooseAnonymizer();
 		} else if (e.getSource().equals(inputLogfileButton)) {
 			setFilePath(inputLogfilePath);
 			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
