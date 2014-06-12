@@ -23,32 +23,26 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -62,9 +56,7 @@ import vanetsim.anonymizer.AnonymityMethods;
 import vanetsim.anonymizer.Data;
 import vanetsim.anonymizer.LogfileTableModel;
 import vanetsim.anonymizer.RemovingMethods;
-import vanetsim.gui.helpers.ButtonCreator;
 import vanetsim.localization.Messages;
-import vanetsim.map.Map;
 
 /**
  * A dialog to set map parameters.
@@ -80,7 +72,11 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JFormattedTextField inputLogfilePath;
 	
+	private JButton inputLogfileButton;
+	
 	private JFormattedTextField outputLogfilePath;
+
+	private JButton outputLogfileButton;
 	
 	private JTextField formatString;
 	
@@ -113,167 +109,23 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		setLayout(new GridBagLayout());
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
-		//some basic options
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.PAGE_START;
-		c.insets = new Insets(5,5,5,5);
-				
-		/* the jtable to display the logfile content */
-		c.weightx = 1;
-		c.weighty = 1;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 1;
-		c.gridheight = 2;
-		
-		table = new JTable();
-//		table.setPreferredScrollableViewportSize(new Dimension(500, 400));
-		table.setMinimumSize(new Dimension(500, 400));
-		table.setFillsViewportHeight(true);
+		createDialogUI();
 
-		// Create the scroll pane and add the table to it.
-		tableScroll = new JScrollPane(table);
-		table.setFillsViewportHeight(true);
-		table.setColumnSelectionAllowed(false);
-		table.setRowSelectionAllowed(true);
-
-		// Add the scroll pane to the left hand side of this dialog.
-		add(tableScroll,c);
-		
-		/* right top panel */
-		c.weightx = 0;
-		c.weighty = 0;
-		c.gridx = 1;
-		c.gridheight = 1;
-		
-		rTop = new JPanel(new GridBagLayout());
-		/* Contraints for right top jpanel */
-		GridBagConstraints c2 = new GridBagConstraints();
-		c2.fill = GridBagConstraints.BOTH;
-		c2.anchor = GridBagConstraints.PAGE_START;
-		c2.weightx = 0.0;
-		c2.weighty = 0;
-		c2.gridx = 0;
-		c2.gridy = 0;
-		c2.insets = new Insets(5,5,5,5);
-		
-		c2.gridheight = 1;
-		c2.gridwidth = 1;
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.inputLogfilePath")), c2);	
-		c2.gridy++;
-		inputLogfilePath = new JFormattedTextField();
-//		inputLogfilePath.setValue(System.getProperty("user.dir"));
-//		inputLogfilePath.setPreferredSize(new Dimension(120,20));
-		inputLogfilePath.setName("inputLogfilePath");
-		inputLogfilePath.setCaretPosition(inputLogfilePath.getText().length());
-		inputLogfilePath.setToolTipText(inputLogfilePath.getText());
-		inputLogfilePath.addFocusListener(this);
-		rTop.add(inputLogfilePath, c2);
-		
-		c2.gridy++;
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.formatStringMsg")), c2);
-		c2.gridy++;
-		formatString = new JTextField();
-//		formatString.setPreferredSize(new Dimension(120,20));
-		formatString.setName("formatString");
-		formatString.addActionListener(this);
-		rTop.add(formatString, c2);
-		
-		c2.gridy++;
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.selectedCol")), c2);
-		c2.gridy++;
-		selectedColumn = new JComboBox<>();
-//		selectedColumn.setPreferredSize(new Dimension(120,20));
-		rTop.add(selectedColumn, c2);
-		
-		/* Anonymity method combo box */
-		c2.gridy++;
-		c2.gridx = 0;
-		rTop.add(new JSeparator(), c2);
-		c2.gridy++;
-		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c2);
-		c2.gridy++;
-		anonymityMethod = new JComboBox<>();
-		/* fill combobox with available methods */
-		getAvailableAnonMethods(anonymityMethod);
-		anonymityMethod.addItemListener(this);
-		rTop.add(anonymityMethod, c2);
-		
-		/* Panel for anonymity method dependend swing items */
-		c2.gridx = 0;
-		c2.gridy++;
-		c2.gridheight = 3;
-		anonMethodPanel = new JPanel(new GridBagLayout());
-		anonMethodPanel.setVisible(false);
-		createPanelForSelectedAnonMethod();
-		rTop.add(anonMethodPanel, c2);
-		
-		add(rTop, c);
-		
-		/* right bottom panel */
-		c.gridy++;
-		rBot = new JPanel(new GridBagLayout());
-		/* Contraints for right top jpanel */
-		GridBagConstraints c3 = new GridBagConstraints();
-		c3.fill = GridBagConstraints.BOTH;
-		c3.anchor = GridBagConstraints.PAGE_START;
-		c3.weightx = 0.0;
-		c3.weighty = 0;
-		c3.gridx = 0;
-		c3.gridy = 0;
-		c3.insets = new Insets(5,5,5,5);
-		
-		//to consume the rest of the space
-		c3.weighty = 1.0;
-		JPanel space = new JPanel();
-		space.setOpaque(false);
-		rBot.add(space, c3);
-		
-		c3.weighty = 0.0;
-		c3.gridy++;
-		rBot.add(new JSeparator(), c3);
-		c3.gridy++;
-		rBot.add(new JLabel(Messages.getString("AnonymizeDataDialog.outputLogfilePath")), c3);
-		c3.gridy++;
-		outputLogfilePath = new JFormattedTextField();
-		outputLogfilePath.setValue(System.getProperty("user.dir"));
-//		outputLogfilePath.setPreferredSize(new Dimension(120,20));
-		outputLogfilePath.setName("outputLogfilePath");
-		outputLogfilePath.setCaretPosition(outputLogfilePath.getText().length());
-		outputLogfilePath.setToolTipText(outputLogfilePath.getText());
-		outputLogfilePath.addFocusListener(this);
-		rBot.add(outputLogfilePath, c3);
-		
-		add(rBot, c);
-		
-		c.weightx = 0;
-		c.weighty = 0;
-		c.gridwidth = 2;
-		c.gridheight = 1;
-		c.gridx = 0;
-		c.gridy++;
-		info = new JLabel(Messages.getString("AnonymizeDataDialog.info.inputfile"));
-		info.setForeground(Color.RED);
-		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
-//		info.setBorder(BorderFactory.createLineBorder(Color.black));
-		add(info, c);
-		
-		//define FileFilter for fileChooser
-		logFileFilter_ = new FileFilter(){
+		/* define a file filter for log files */
+		logFileFilter_ = new FileFilter() {
 			public boolean accept(File f) {
-				if (f.isDirectory()) return true;
+				if (f.isDirectory())
+					return true;
 				return f.getName().toLowerCase().endsWith(".log"); //$NON-NLS-1$
 			}
-			public String getDescription () { 
+
+			public String getDescription() {
 				return Messages.getString("EditLogControlPanel.logFiles") + " (*.log)"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		};
-	
-		pack();
-		setLocationRelativeTo(VanetSimStart.getMainFrame());
-		setVisible(true);
 	}
+	
+	
 	
 	private void setFilePath(JFormattedTextField textField){
 		//begin with creation of new file
@@ -325,7 +177,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	}
 	
 	/**
-	 * fill the combobox with all avaiable anonymity methods
+	 * fill the combobox with all available anonymity methods
 	 * @param box	the combobox to be filled
 	 */
 	private void getAvailableAnonMethods(JComboBox<AnonymityMethods> box) {
@@ -335,7 +187,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	}
 	
 	private void createPanelForSelectedAnonMethod() {
-		System.out.println("here" + anonymityMethod.getSelectedIndex());
 		/* if there is no item selected, do nothing */
 		if (anonymityMethod.getSelectedIndex() == -1) {
 			return;
@@ -356,10 +207,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		switch (method) {
 		case AGGREGATION:
-			System.out.println("lol3");
 			break;
 		case REMOVING:
-			System.out.println("lol1");
 			c.gridheight = 1;
 			c.gridwidth = 1;
 			anonMethodPanel.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod.removing.method")), c);	
@@ -372,20 +221,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			
 			anonMethodPanel.add(removingMethodBox, c);
 			anonMethodPanel.setVisible(true);
-			
-//			inputLogfilePath = new JFormattedTextField();
-////			inputLogfilePath.setValue(System.getProperty("user.dir"));
-////			inputLogfilePath.setPreferredSize(new Dimension(120,20));
-//			inputLogfilePath.setName("inputLogfilePath");
-//			inputLogfilePath.setCaretPosition(inputLogfilePath.getText().length());
-//			inputLogfilePath.setToolTipText(inputLogfilePath.getText());
-//			inputLogfilePath.addFocusListener(this);
-//			rTop.add(inputLogfilePath, c);
-			
-			
 			break;
 		default:
-			System.out.println("lol2");
 			break;
 		}
 		anonMethodPanel.revalidate();
@@ -405,6 +242,20 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 				loadData();
 			} else {
 				//TODO [MH] print message
+			}
+		} else if (e.getSource().equals(inputLogfileButton)) {
+			setFilePath(inputLogfilePath);
+			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
+			//TODO [MH] check whether its a valid path otherwise display a "forced tooltext"
+			if (!inputLogfilePath.getText().equals("")) {
+				formatString.setText(Data.getFirstLine(inputLogfilePath.getText()));
+			}
+		} else if (e.getSource().equals(outputLogfileButton)) {
+			setFilePath(outputLogfilePath);
+			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
+			//TODO [MH] check whether its a valid path otherwise display a "forced tooltext"
+			if (!outputLogfilePath.getText().equals("")) {
+				formatString.setText(Data.getFirstLine(outputLogfilePath.getText()));
 			}
 		}
 	}
@@ -443,5 +294,288 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //			}
 			// do something with object
 		}
+	}
+	
+	/* Helper functions, which are only called once to build the UI */
+	/**
+	 * create the interface of the whole dialog
+	 */
+	private void createDialogUI() {
+		GridBagConstraints c = new GridBagConstraints();
+		/* In which direction to fill a component when resizing */
+		c.fill = GridBagConstraints.BOTH;
+		/* set outer margin between each component */
+		c.insets = new Insets(5,5,5,5);
+		/* if a component is smaller than its display area, center it */
+		c.anchor = GridBagConstraints.CENTER;
+		
+		/* 
+		 * We have 4 components and choose a WxH=3x3 layout: 
+		 * - JTable					2x2
+		 * - Right top JPanel		1x1
+		 * - right bottom JPanel	1x1
+		 * - Info line				3x1
+		 * |-------------|--------|
+		 * |             |  rTop  |
+		 * |    table    |--------|
+		 * |             |  rBot  |
+		 * |-------------|--------|
+		 * |       info line      |
+		 * |----------------------|
+		 */
+				
+		/* the jtable to display the logfile content */
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.gridheight = 2;
+		/* give equal height to table and rTop,rBot when resizing */
+		c.weighty = 0.5;
+		/* give more width to the table than to rTop, rBot when resizing */
+		c.weightx = 0.8;
+		
+		table = new JTable();
+		table.setColumnSelectionAllowed(false);
+		table.setRowSelectionAllowed(true);
+		table.setFillsViewportHeight(true);
+		// Create the scroll pane and add the table to it.
+		tableScroll = new JScrollPane(table);
+		add(tableScroll, c);
+		
+		/* right top panel stuff */
+		c.gridx = 2;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		/* give equal height to table and rTop,rBot when resizing */
+		c.weighty = 0.5;
+		/* give more width to the table than to rTop, rBot when resizing */
+		c.weightx = 0.2;
+		
+		rTop = new JPanel(new GridBagLayout());
+		createRightTopPanel();
+		add(rTop, c);
+		
+		/* right bottom panel stuff */
+		c.gridx = 2;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		/* give equal height to table and rTop,rBot when resizing */
+		c.weighty = 0.5;
+		/* give more width to the table than to rTop, rBot when resizing */
+		c.weightx = 0.2;
+		
+		rBot = new JPanel(new GridBagLayout());
+		createRightBottomPanel();
+		add(rBot, c);
+
+		/* info line */
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		/* do not increase height of info line when resizing */
+		c.weighty = 0.0;
+		/* give all width to the info line, since its the only component in this row */
+		c.weightx = 1.0;
+
+		info = new JLabel(Messages.getString("AnonymizeDataDialog.info.inputfile"));
+		info.setForeground(Color.RED);
+		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
+		info.setBorder(BorderFactory.createLineBorder(Color.black));
+		add(info, c);
+		
+		pack();
+		setLocationRelativeTo(VanetSimStart.getMainFrame());
+		setVisible(true);
+	}
+	
+	private void createRightTopPanel() {
+		/* Contraints for right top jpanel */
+		GridBagConstraints c = new GridBagConstraints();
+		/* set outer margin between each component */
+		c.insets = new Insets(5,5,5,5);
+		/* if a component is smaller than its display area, center it */
+		c.anchor = GridBagConstraints.CENTER;
+		/* In which direction to fill a component when resizing */		
+		c.fill = GridBagConstraints.BOTH;
+		
+		/* 
+		 * We have a lot of components and choose a WxH=7x3 layout 
+		 * - all components have a height of 1
+		 * - weights stand next to the scetch
+		 * 
+		 * |---------------------------|
+		 * |  input  | inTxt  | inBut  | 1,1,1
+		 * |---------------------------|
+		 * |  format | foTxt  |        | 1,1,1
+		 * |---------------------------|
+		 * |  column | colBox |        | 1,1,1
+		 * |---------------------------|
+		 * |             hline         | 3
+		 * |---------------------------|
+		 * |  anonM  |anonBox |        | 1,1,1
+		 * |---------------------------|
+		 * |        anonPanel          | 3
+		 * |---------------------------|
+		 * |         |doButton|        | 1,1,1
+		 * |---------------------------|
+		 */
+		
+		/* input stuff */
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;		
+
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.input")), c);	
+		c.gridx++;
+		inputLogfilePath = new JFormattedTextField();
+//		inputLogfilePath.setValue(System.getProperty("user.dir"));
+//		inputLogfilePath.setPreferredSize(new Dimension(400,10));
+		inputLogfilePath.setName("inputLogfilePath");
+		inputLogfilePath.setCaretPosition(inputLogfilePath.getText().length());
+		inputLogfilePath.setToolTipText(Messages.getString("AnonymizeDataDialog.inputLogfilePath"));
+		inputLogfilePath.setText(Messages.getString("AnonymizeDataDialog.inputLogfilePath"));
+//		inputLogfilePath.addFocusListener(this);
+		rTop.add(inputLogfilePath, c);
+		c.gridx++;
+		//TODO [MH] Load Button graphic
+		inputLogfileButton = new JButton("L");
+		inputLogfileButton.setName("inputLogfileButton");
+		inputLogfileButton.addActionListener(this);
+		rTop.add(inputLogfileButton, c);
+		
+		/* format stuff */
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;	
+		
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.format")), c);
+		c.gridx++;
+		formatString = new JTextField();
+//		formatString.setPreferredSize(new Dimension(120,20));
+		formatString.setName("formatString");
+		formatString.setText(Messages.getString("AnonymizeDataDialog.formatStringMsg"));
+		formatString.setToolTipText(Messages.getString("AnonymizeDataDialog.formatStringMsg"));
+		formatString.addActionListener(this);
+		rTop.add(formatString, c);
+		
+		/* column chooser stuff */
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.column")), c);
+		c.gridx++;
+		selectedColumn = new JComboBox<>();
+//		selectedColumn.setPreferredSize(new Dimension(120,20));
+		rTop.add(selectedColumn, c);
+		
+		/* hline stuff */
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		
+		rTop.add(new JSeparator(), c);
+		
+		/* Anonymity method combo box stuff */
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		
+		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c);
+		c.gridx++;
+		anonymityMethod = new JComboBox<>();
+		/* fill combobox with available methods */
+		getAvailableAnonMethods(anonymityMethod);
+		anonymityMethod.addItemListener(this);
+		rTop.add(anonymityMethod, c);
+		
+		/* Panel for anonymity method dependend swing items */
+		c.gridx = 0;
+		c.gridy = 5;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		
+		anonMethodPanel = new JPanel(new GridBagLayout());
+		anonMethodPanel.setVisible(false);
+		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		createPanelForSelectedAnonMethod();
+		rTop.add(anonMethodPanel, c);
+	}
+	
+	private void createRightBottomPanel() {
+		/* Contraints for right bot jpanel */
+		GridBagConstraints c = new GridBagConstraints();
+		/* set outer margin between each component */
+		c.insets = new Insets(5,5,5,5);
+		/* if a component is smaller than its display area, center it */
+		c.anchor = GridBagConstraints.PAGE_END;
+		/* In which direction to fill a component when resizing */		
+		c.fill = GridBagConstraints.BOTH;
+		
+		/* 
+		 * We have 5 components and choose a WxH=2x3 layout 
+		 * - all components have a height of 1
+		 * - weights stand next to the scetch
+		 * 
+		 * |---------------------------|
+		 * |             hline         | 3
+		 * |---------------------------|
+		 * |  output | outPath| outBut | 1,1,1
+		 * |---------------------------|
+		 * |         |saveBut |        | 1,1,1
+		 * |---------------------------|
+		 */
+		
+		
+		//to consume the rest of the space
+//		c.weighty = 1.0;
+//		JPanel space = new JPanel();
+//		space.setOpaque(false);
+//		rBot.add(space, c);
+		
+		/* hline stuff */
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		
+		rBot.add(new JSeparator(), c);
+		
+		/* output stuff */
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		
+		rBot.add(new JLabel(Messages.getString("AnonymizeDataDialog.output")), c);
+		c.gridx++;
+		outputLogfilePath = new JFormattedTextField();
+		outputLogfilePath.setValue(System.getProperty("user.dir"));
+//		outputLogfilePath.setPreferredSize(new Dimension(120,20));
+		outputLogfilePath.setName("outputLogfilePath");
+		outputLogfilePath.setCaretPosition(outputLogfilePath.getText().length());
+		outputLogfilePath.setToolTipText(outputLogfilePath.getText());
+//		outputLogfilePath.addFocusListener(this);
+		rBot.add(outputLogfilePath, c);
+		c.gridx++;
+		//TODO [MH] Load Button graphic
+		outputLogfileButton = new JButton("L");
+		outputLogfileButton.setName("outputLogfileButton");
+		outputLogfileButton.addActionListener(this);
+		rTop.add(outputLogfileButton, c);
+		
+		/* save button stuff */
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 	}
 }
