@@ -82,6 +82,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JLabel chosenColumnLabel;
 	
+	private JButton anonymizeButton;
+	
+	private JButton saveToLogFileButton;
+	
 	private JLabel info;
 	
 	private JTable table;
@@ -366,6 +370,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* give more width to the table than to rTop, rBot when resizing */
 		c.weightx = 0.2;
 		
+		/* for the bottom panel we want it to always 'touch' the bottom without resizing in height */
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.PAGE_END;
+		
 		rBot = new JPanel(new GridBagLayout());
 		createRightBottomPanel();
 		add(rBot, c);
@@ -427,10 +435,16 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 1;
-		c.gridheight = 1;		
+		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 0.0;
 
 		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.input")), c);	
 		c.gridx++;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		inputLogfilePath = new JFormattedTextField();
 //		inputLogfilePath.setValue(System.getProperty("user.dir"));
 //		inputLogfilePath.setPreferredSize(new Dimension(400,10));
@@ -441,6 +455,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //		inputLogfilePath.addFocusListener(this);
 		rTop.add(inputLogfilePath, c);
 		c.gridx++;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 0.0;
 		//TODO [MH] Load Button graphic
 		inputLogfileButton = new JButton("L");
 		inputLogfileButton.setName("inputLogfileButton");
@@ -451,10 +467,16 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
-		c.gridheight = 1;	
+		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 0.0;
 		
 		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.format")), c);
 		c.gridx++;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		formatString = new JTextField();
 //		formatString.setPreferredSize(new Dimension(120,20));
 		formatString.setName("formatString");
@@ -468,9 +490,15 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 0.0;
 		
 		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.column")), c);
 		c.gridx++;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		selectedColumn = new JComboBox<>();
 //		selectedColumn.setPreferredSize(new Dimension(120,20));
 		rTop.add(selectedColumn, c);
@@ -480,6 +508,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 3;
 		c.gridwidth = 3;
 		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		
 		rTop.add(new JSeparator(), c);
 		
@@ -488,9 +520,15 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 4;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 0.0;
 		
 		rTop.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod")), c);
 		c.gridx++;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		anonymityMethod = new JComboBox<>();
 		/* fill combobox with available methods */
 		getAvailableAnonMethods(anonymityMethod);
@@ -502,12 +540,31 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 5;
 		c.gridwidth = 3;
 		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 1.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
 		
 		anonMethodPanel = new JPanel(new GridBagLayout());
 		anonMethodPanel.setVisible(false);
 		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		createPanelForSelectedAnonMethod();
 		rTop.add(anonMethodPanel, c);
+		
+		/* anonymize button stuff */
+		c.gridx = 1;
+		c.gridy = 6;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		/* height should only be given to the anonPanel when resizing */
+		c.weighty = 0.0;
+		/* width should only be given to the text field when resizing */
+		c.weightx = 1.0;
+		
+		//TODO [MH] Load Button graphic
+		anonymizeButton = new JButton("Anonymize!");
+		anonymizeButton.addActionListener(this);
+		rTop.add(anonymizeButton, c);
 	}
 	
 	private void createRightBottomPanel() {
@@ -515,10 +572,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		GridBagConstraints c = new GridBagConstraints();
 		/* set outer margin between each component */
 		c.insets = new Insets(5,5,5,5);
-		/* if a component is smaller than its display area, center it */
+		/* if a component is smaller than its display area, put it on the bottom part */
 		c.anchor = GridBagConstraints.PAGE_END;
 		/* In which direction to fill a component when resizing */		
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		
 		/* 
 		 * We have 5 components and choose a WxH=2x3 layout 
@@ -546,6 +603,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 0;
 		c.gridwidth = 3;
 		c.gridheight = 1;
+		/* use the full available width when resizing for hline, outPath and saveButton */
+		c.weightx = 1.0;
+		/* do not change height when resizing */
+		c.weighty = 0.0;
 		
 		rBot.add(new JSeparator(), c);
 		
@@ -554,9 +615,15 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		/* use the full available width when resizing for hline, outPath and saveButton */
+		c.weightx = 0.0;
+		/* do not change height when resizing */
+		c.weighty = 0.0;
 		
 		rBot.add(new JLabel(Messages.getString("AnonymizeDataDialog.output")), c);
 		c.gridx++;
+		/* use the full available width when resizing for hline, outPath and saveButton */
+		c.weightx = 1.0;
 		outputLogfilePath = new JFormattedTextField();
 		outputLogfilePath.setValue(System.getProperty("user.dir"));
 //		outputLogfilePath.setPreferredSize(new Dimension(120,20));
@@ -566,16 +633,27 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //		outputLogfilePath.addFocusListener(this);
 		rBot.add(outputLogfilePath, c);
 		c.gridx++;
+		/* use the full available width when resizing for hline, outPath and saveButton */
+		c.weightx = 0.0;
 		//TODO [MH] Load Button graphic
 		outputLogfileButton = new JButton("L");
 		outputLogfileButton.setName("outputLogfileButton");
 		outputLogfileButton.addActionListener(this);
-		rTop.add(outputLogfileButton, c);
+		rBot.add(outputLogfileButton, c);
 		
 		/* save button stuff */
 		c.gridx = 1;
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		/* use the full available width when resizing for hline, outPath and saveButton */
+		c.weightx = 1.0;
+		/* do not change height when resizing */
+		c.weighty = 0.0;
+		
+		//TODO [MH] Load Button graphic
+		saveToLogFileButton = new JButton("Save to logfile!");
+		saveToLogFileButton.addActionListener(this);
+		rBot.add(saveToLogFileButton, c);
 	}
 }
