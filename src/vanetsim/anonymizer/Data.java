@@ -5,10 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Data {
-	private ArrayList<ArrayList<Object>> data;
+	private List<List<Object>> data;
 	private ArrayList<Class<? extends Object>> classes;
 	private String[] columnNames;
 
@@ -54,7 +56,7 @@ public class Data {
 			tok = new StringTokenizer(line, delimiter.toString());		
 			for (int i = 0; i < classes.size(); i++) {
 				columnNames[i] = tok.nextToken();
-				data.add(i, new ArrayList<>());
+				data.add(i, new LinkedList<>());
 			}
 			
 			/* all other lines contain data. Read that into 'data' */				
@@ -129,7 +131,7 @@ public class Data {
 		this.delimiter = delimiter;
 	}
 	
-	public ArrayList<ArrayList<Object>> getData() {
+	public List<List<Object>> getData() {
 		return data;
 	}
 
@@ -158,7 +160,7 @@ public class Data {
 	}
 	
 	public void removeRow(int rowIndex) {
-		for (ArrayList<Object> al : data) {
+		for (List<Object> al : data) {
 			al.remove(rowIndex);
 		}
 	}
