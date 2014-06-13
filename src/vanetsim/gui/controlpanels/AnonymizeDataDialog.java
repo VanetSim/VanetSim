@@ -204,31 +204,11 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* delete active panel content */
 		anonMethodPanel.removeAll();
 		
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.PAGE_START;
-		c.weightx = 0.0;
-		c.weighty = 0;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.insets = new Insets(5,5,5,5);
-		
 		switch (method) {
 		case AGGREGATION:
 			break;
 		case REMOVING:
-			c.gridheight = 1;
-			c.gridwidth = 1;
-			anonMethodPanel.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod.removing.method")), c);	
-			c.gridy++;
-			
-			JComboBox<RemovingMethods> removingMethodBox = new JComboBox<>();
-			for (RemovingMethods removingMethod : RemovingMethods.values()) {
-				removingMethodBox.addItem(removingMethod);
-			}
-			
-			anonMethodPanel.add(removingMethodBox, c);
-			anonMethodPanel.setVisible(true);
+			createRemovingMethodPanel();
 			break;
 		default:
 			break;
@@ -409,8 +389,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		info = new JLabel(Messages.getString("AnonymizeDataDialog.info.inputfile"));
 		info.setForeground(Color.RED);
 		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
-		info.setBorder(BorderFactory.createLineBorder(Color.black));
-		info.setPreferredSize(new Dimension(0, 35));
+		//TODO [MH]
+//		info.setBorder(BorderFactory.createLineBorder(Color.black));
+		info.setBorder(BorderFactory.createTitledBorder("Info"));
+		info.setPreferredSize(new Dimension(0, 55));
 		add(info, c);
 		
 		pack();
@@ -572,7 +554,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		anonMethodPanel = new JPanel(new GridBagLayout());
 		anonMethodPanel.setVisible(false);
-		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		//TODO [MH]
+//		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		anonMethodPanel.setBorder(BorderFactory.createTitledBorder("Removing preferences"));
 		createPanelForSelectedAnonMethod();
 		rTop.add(anonMethodPanel, c);
 		
@@ -603,7 +587,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		
 		/* 
-		 * We have 5 components and choose a WxH=2x3 layout 
+		 * We have 5 components and choose a WxH=3x3 layout 
 		 * - all components have a height of 1
 		 * - weights stand next to the scetch
 		 * 
@@ -680,5 +664,46 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		saveToLogFileButton = new JButton("Save to logfile!");
 		saveToLogFileButton.addActionListener(this);
 		rBot.add(saveToLogFileButton, c);
+	}
+	
+	private void createRemovingMethodPanel() {
+		/* 
+		 * We have 5 components and choose a WxH=2x3 layout 
+		 * - all components have a height of 1
+		 * - weights stand next to the scetch
+		 * 
+		 * |---------------------------|
+		 * |  method | methBox|        | 1,1,1
+		 * |---------------------------|
+		 * |  chooser| input  | unit   | 1,1,1
+		 * |---------------------------|
+		 */
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.PAGE_START;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+//		c.insets = new Insets(5,5,5,5);
+		
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		anonMethodPanel.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod.removing.method")), c);	
+		c.gridx++;
+		JComboBox<RemovingMethods> removingMethodBox = new JComboBox<>();
+		for (RemovingMethods removingMethod : RemovingMethods.values()) {
+			removingMethodBox.addItem(removingMethod);
+		}
+		anonMethodPanel.add(removingMethodBox, c);
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		
+		
+		
+		anonMethodPanel.setVisible(true);
 	}
 }
