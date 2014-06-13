@@ -17,6 +17,7 @@
  */
 package vanetsim.gui.controlpanels;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -53,6 +54,7 @@ import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
 import vanetsim.anonymizer.AnonRemoving;
+import vanetsim.anonymizer.AnonRemovingPanel;
 import vanetsim.anonymizer.AnonymityMethod;
 import vanetsim.anonymizer.AnonymityMethodsEnum;
 import vanetsim.anonymizer.Data;
@@ -208,7 +210,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		case AGGREGATION:
 			break;
 		case REMOVING:
-			createRemovingMethodPanel();
+//			createRemovingMethodPanel();
+			anonMethodPanel.add(new AnonRemovingPanel());
+			anonMethodPanel.setVisible(true);
 			break;
 		default:
 			break;
@@ -552,7 +556,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* width should only be given to the text field when resizing */
 		c.weightx = 1.0;
 		
-		anonMethodPanel = new JPanel(new GridBagLayout());
+		//this maximizes the inner anonPanels
+//		anonMethodPanel = new JPanel(new BorderLayout());
+		anonMethodPanel = new JPanel();
+		
 		anonMethodPanel.setVisible(false);
 		//TODO [MH]
 //		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -666,6 +673,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		rBot.add(saveToLogFileButton, c);
 	}
 	
+	//TODO [MH] to be removed
 	private void createRemovingMethodPanel() {
 		/* 
 		 * We have 5 components and choose a WxH=2x3 layout 
