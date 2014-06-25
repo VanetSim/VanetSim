@@ -36,8 +36,6 @@ public class AnonRemoving extends AnonymityMethod {
 			}
 		}
 		
-		System.out.println(Arrays.toString(params));
-		
 		return 0;
 	}
 	

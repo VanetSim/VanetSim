@@ -50,6 +50,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
@@ -98,6 +100,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	private JTable table;
 	
 	private JScrollPane tableScroll;
+	
+	private TitledBorder tableBorder;
 	
 //	private JComboBox<String> selectedColumn;
 	
@@ -154,6 +158,21 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		}
 	}
 	
+	private void displayRowCountAndSelectedCount() {
+		int count;
+		if (logfileTM != null) {
+			count = logfileTM.getRowCount();
+		} else {
+			count = 0;
+		}
+		
+		tableBorder.setTitle(String.format(
+			Messages.getString("AnonymizeDataDialog.tableBorder"),
+			count,
+			table.getSelectedRowCount()
+		));
+	}
+	
 	private void loadData() {
 		logfileTM = new LogfileTableModel(inputLogfilePath.getText(), formatString.getText());
 		table.setModel(logfileTM);
@@ -161,6 +180,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //			selectedColumn.addItem(str);
 //		}
 //		selectedColumn.setSelectedIndex(0);
+		
+		/* print number of elements in the table */
+		displayRowCountAndSelectedCount();
 
 		/* enable deleting of rows */
         int condition = JComponent.WHEN_IN_FOCUSED_WINDOW;
@@ -181,6 +203,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 						table.getSelectedRows()[0], 
 						table.getSelectedRows()[table.getSelectedRowCount() - 1]
 					);
+					displayRowCountAndSelectedCount();
 				}
 //				table.editingCanceled(null);
 			}
@@ -241,6 +264,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		method.anonymize(((AnonMethodPanel)anonMethodPanel.getComponent(0)).getParameters());
 		/* after anonymization took place, refresh the table */
 		logfileTM.fireTableDataChanged();
+		displayRowCountAndSelectedCount();
 	}
 
 	/**
@@ -356,6 +380,14 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		table.setFillsViewportHeight(true);
 		// Create the scroll pane and add the table to it.
 		tableScroll = new JScrollPane(table);
+		//TODO [MH] translation
+		tableBorder = BorderFactory.createTitledBorder(
+			BorderFactory.createEmptyBorder(), 
+			String.format(Messages.getString("AnonymizeDataDialog.tableBorder"), 0, 0), 
+			TitledBorder.DEFAULT_JUSTIFICATION, 
+			TitledBorder.BOTTOM
+		);
+		tableScroll.setBorder(tableBorder);
 		add(tableScroll, c);
 		
 		/* right top panel stuff */
@@ -405,6 +437,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
 		//TODO [MH]
 //		info.setBorder(BorderFactory.createLineBorder(Color.black));
+		//TODO [MH] translation
 		info.setBorder(BorderFactory.createTitledBorder("Info"));
 		info.setPreferredSize(new Dimension(0, 55));
 		add(info, c);
@@ -571,8 +604,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		anonMethodPanel = new JPanel();
 		
 		anonMethodPanel.setVisible(false);
-		//TODO [MH]
-//		anonMethodPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		//TODO [MH] translation
 		anonMethodPanel.setBorder(BorderFactory.createTitledBorder("Removing preferences"));
 		createPanelForSelectedAnonMethod();
 		rTop.add(anonMethodPanel, c);

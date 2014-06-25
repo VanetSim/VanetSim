@@ -70,7 +70,7 @@ public class AnonRemovingPanel extends AnonMethodPanel {
 		unit = new JLabel("%");
 		add(unit, c);
 		
-		setBorder(BorderFactory.createLineBorder(Color.black));
+//		setBorder(BorderFactory.createLineBorder(Color.black));
 	}
 
 	@Override
