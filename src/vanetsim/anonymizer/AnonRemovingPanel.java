@@ -75,7 +75,12 @@ public class AnonRemovingPanel extends AnonMethodPanel {
 
 	@Override
 	public String[] getParameters() {
-		//TODO [MH]
-		return null;
+		String[] params = new String[3];
+		params[0] = removingMethodBox.getSelectedItem().toString();
+		params[1] = chooserBox.getSelectedItem().toString();
+		params[2] = numberField.getText();
+		
+		return params;
 	}
+
 }

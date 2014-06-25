@@ -53,6 +53,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
+import vanetsim.anonymizer.AnonMethodPanel;
 import vanetsim.anonymizer.AnonRemoving;
 import vanetsim.anonymizer.AnonRemovingPanel;
 import vanetsim.anonymizer.AnonymityMethod;
@@ -221,10 +222,25 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		anonMethodPanel.repaint();
 	}
 	
+	//TODO [MH]
 	private void chooseAnonymizer() {
-		//TODO [MH]
-		AnonymityMethod rem = new AnonRemoving(logfileTM.getData(), info);
-		rem.anonymize(null);
+		AnonymityMethod method = null;
+		String[] params = null;
+		
+		//TODO [MH] what happens if nothing is selected
+		switch ((AnonymityMethodsEnum) anonymityMethod.getSelectedItem()) {
+		case AGGREGATION:
+			break;
+		case REMOVING:
+			method = new AnonRemoving(logfileTM.getData(), info);
+			break;
+		default:
+			break;
+		}
+		/* pass parameters of the GUI to the anonmize() method */
+		method.anonymize(((AnonMethodPanel)anonMethodPanel.getComponent(0)).getParameters());
+		/* after anonymization took place, refresh the table */
+		logfileTM.fireTableDataChanged();
 	}
 
 	/**
@@ -293,12 +309,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			/* for now, the ItemListener is only used for anonymity method, therefore we do not need checks */
 			createPanelForSelectedAnonMethod();
-//			Object item = e.getItem();
-//			System.out.println("herheiuor " + item.getClass());
-//			if (item instanceof JComboBox<?>) {
-//				System.out.println(((JComboBox<?>) item).getSelectedItem());
-//			}
-			// do something with object
 		}
 	}
 	
