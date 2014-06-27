@@ -13,5 +13,7 @@ public abstract class AnonymityMethod {
 		this.info = info;
 	}
 	
+	// from here you have access to the data and can perform operations on it.
+	// If some parameter are missing, write it into 'info' and return with non-zero number
 	public abstract int anonymize(String[] params);
 }
