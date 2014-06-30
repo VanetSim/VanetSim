@@ -68,14 +68,14 @@ public class EditDataAnalysisControlPanel extends JPanel implements  ActionListe
 		c.gridx = 0;
 		c.gridwidth = 2;
 		++c.gridy;
-		// TODO [MH] create image
+		//TODO create image
 		anonymizeLogFile_ = ButtonCreator.getJButton("", "anonymizeLogFile", Messages.getString("EditDataAnalysisControlPanel.anonymizeLogFile"), this);
 //		anonymizeLogFile_.setVisible(false);		
 		add(anonymizeLogFile_,c);
 		
 		c.gridx = 0;
 		++c.gridy;
-		// TODO [MH] create image
+		//TODO create image
 		linkData_ = ButtonCreator.getJButton("", "linkData", Messages.getString("EditDataAnalysisControlPanel.linkData"), this);
 //		linkData_.setVisible(false);
 		add(linkData_,c);

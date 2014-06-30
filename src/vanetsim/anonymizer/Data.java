@@ -25,14 +25,9 @@ public class Data {
 	public static String getFirstLine(String filePath) {
 		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
 			return in.readLine();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 	
 	/**
@@ -67,10 +62,10 @@ public class Data {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			// TODO [MH]
 			e.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			// TODO [MH]
 			e1.printStackTrace();
 		}
 	}

@@ -109,6 +109,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	private JPanel anonMethodPanel = null;
 	
+	private TitledBorder anonMethodPanelBorder;
+	
 	private LogfileTableModel logfileTM;
 	
 	/** FileFilter to choose only ".log" files from FileChooser */
@@ -129,8 +131,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* define a file filter for log files */
 		logFileFilter_ = new FileFilter() {
 			public boolean accept(File f) {
-				if (f.isDirectory())
-					return true;
 				return f.getName().toLowerCase().endsWith(".log"); //$NON-NLS-1$
 			}
 
@@ -143,7 +143,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	
 	
 	private void setFilePath(JFormattedTextField textField){
-		//begin with creation of new file
 		JFileChooser fc = new JFileChooser();
 		//set directory and ".log" filter
 		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
@@ -229,6 +228,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		AnonymityMethodsEnum method = (AnonymityMethodsEnum) anonymityMethod.getSelectedItem();
 		/* delete active panel content */
 		anonMethodPanel.removeAll();
+		/* write the new name of the method panel */
+		nameMethodPanel();
 		
 		switch (method) {
 		case AGGREGATION:
@@ -245,12 +246,24 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		anonMethodPanel.repaint();
 	}
 	
-	//TODO [MH]
+	private void nameMethodPanel() {
+		anonMethodPanelBorder.setTitle(
+			anonymityMethod.getSelectedItem() + 
+			" " + 
+			Messages.getString("AnonymizeDataDialog.anonymityMethod.preferences")
+		);
+	}
+	
 	private void chooseAnonymizer() {
 		AnonymityMethod method = null;
 		String[] params = null;
 		
-		//TODO [MH] what happens if nothing is selected
+		/* check whether data to anonymize is available */
+		if (logfileTM == null || logfileTM.getData() == null) {
+			info.setText(Messages.getString("AnonymizeDataDialog.info.anonymizeButtonPressed"));
+			return;
+		}
+		
 		switch ((AnonymityMethodsEnum) anonymityMethod.getSelectedItem()) {
 		case AGGREGATION:
 			break;
@@ -258,9 +271,11 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			method = new AnonRemoving(logfileTM.getData(), info);
 			break;
 		default:
+			/* can not happen */
+			assert(false);
 			break;
 		}
-		/* pass parameters of the GUI to the anonmize() method */
+		/* pass parameters of the GUI to the anonymize() method */
 		method.anonymize(((AnonMethodPanel)anonMethodPanel.getComponent(0)).getParameters());
 		/* after anonymization took place, refresh the table */
 		logfileTM.fireTableDataChanged();
@@ -287,44 +302,43 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 					loadData();
 			}
 		} else if (e.getSource().equals(anonymizeButton)) {
-			//TODO [MH] check conditions
+			/* conditions are checked in chooseAnonymizer() */
 			chooseAnonymizer();
 		} else if (e.getSource().equals(inputLogfileButton)) {
 			setFilePath(inputLogfilePath);
-			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
-			//TODO [MH] check whether its a valid path otherwise display a "forced tooltext"
-			if (!inputLogfilePath.getText().equals("")) {
-				formatString.setText(Data.getFirstLine(inputLogfilePath.getText()));
+			if (inputLogfilePath.getText().equals("") || 
+				inputLogfilePath.getText().equals(Messages.getString("AnonymizeDataDialog.inputLogfilePath"))
+			) {
+				info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
+			} else {
+				String firstLine;
+				if ((firstLine = Data.getFirstLine(inputLogfilePath.getText())) == null) {
+					info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
+				} else {
+					info.setText(String.format(Messages.getString("AnonymizeDataDialog.info.formatstr"), firstLine));
+				}					
 			}
 		} else if (e.getSource().equals(outputLogfileButton)) {
+			//TODO [MH] output logfile
 			setFilePath(outputLogfilePath);
-			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
-			//TODO [MH] check whether its a valid path otherwise display a "forced tooltext"
-			if (!outputLogfilePath.getText().equals("")) {
-				formatString.setText(Data.getFirstLine(outputLogfilePath.getText()));
-			}
 		}
 	}
 
 	@Override
-	public void focusGained(FocusEvent arg0) {
-		if ("inputLogfilePath".equals(((JFormattedTextField) arg0.getSource()).getName())){
-			/* to avoid a filechooser loop */
-			rTop.requestFocus();
-			setFilePath(inputLogfilePath);
-			info.setText(Messages.getString("AnonymizeDataDialog.info.formatstr"));
-			formatString.setText(Data.getFirstLine(inputLogfilePath.getText()));
-		}
-		else if ("outputLogfilePath".equals(((JFormattedTextField) arg0.getSource()).getName())){
-			/* to avoid a filechooser loop */
-			rTop.requestFocus();
-			setFilePath(outputLogfilePath);
+	public void focusGained(FocusEvent e) {
+		if (e.getSource().equals(inputLogfilePath)) {
+			inputLogfilePath.selectAll();
+		} else if (e.getSource().equals(formatString)) {
+			formatString.selectAll();
+		} else if (e.getSource().equals(outputLogfilePath)){
+			//TODO [MH] selectAll does not work
+			outputLogfilePath.selectAll();
 		}
 	}
 
 	@Override
 	public void focusLost(FocusEvent arg0) {
-		// TODO Auto-generated method stub
+		// TODO [MH] load firstline on focus lost on inputLogfilePath
 		
 	}
 
@@ -380,7 +394,6 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		table.setFillsViewportHeight(true);
 		// Create the scroll pane and add the table to it.
 		tableScroll = new JScrollPane(table);
-		//TODO [MH] translation
 		tableBorder = BorderFactory.createTitledBorder(
 			BorderFactory.createEmptyBorder(), 
 			String.format(Messages.getString("AnonymizeDataDialog.tableBorder"), 0, 0), 
@@ -435,10 +448,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		info = new JLabel(Messages.getString("AnonymizeDataDialog.info.inputfile"));
 		info.setForeground(Color.RED);
 		info.setFont(new Font(info.getName(), Font.PLAIN, 12));
-		//TODO [MH]
-//		info.setBorder(BorderFactory.createLineBorder(Color.black));
-		//TODO [MH] translation
-		info.setBorder(BorderFactory.createTitledBorder("Info"));
+		info.setBorder(BorderFactory.createTitledBorder(Messages.getString("AnonymizeDataDialog.info.info")));
 		info.setPreferredSize(new Dimension(0, 55));
 		add(info, c);
 		
@@ -498,12 +508,12 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		inputLogfilePath.setCaretPosition(inputLogfilePath.getText().length());
 		inputLogfilePath.setToolTipText(Messages.getString("AnonymizeDataDialog.inputLogfilePath"));
 		inputLogfilePath.setText(Messages.getString("AnonymizeDataDialog.inputLogfilePath"));
-//		inputLogfilePath.addFocusListener(this);
+		inputLogfilePath.addFocusListener(this);
 		rTop.add(inputLogfilePath, c);
 		c.gridx++;
 		/* width should only be given to the text field when resizing */
 		c.weightx = 0.0;
-		//TODO [MH] Load Button graphic
+		//TODO Load Button graphic
 		inputLogfileButton = new JButton("L");
 		inputLogfileButton.addActionListener(this);
 		rTop.add(inputLogfileButton, c);
@@ -528,11 +538,12 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		formatString.setText(Messages.getString("AnonymizeDataDialog.formatStringMsg"));
 		formatString.setToolTipText(Messages.getString("AnonymizeDataDialog.formatStringMsg"));
 		formatString.addActionListener(this);
+		formatString.addFocusListener(this);
 		rTop.add(formatString, c);
 		c.gridx++;
 		/* width should only be given to the text field when resizing */
 		c.weightx = 0.0;
-		//TODO [MH] Load Button graphic
+		//TODO Load Button graphic
 		processButton = new JButton("P");
 		processButton.addActionListener(this);
 		rTop.add(processButton, c);
@@ -549,7 +560,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		rTop.add(new JSeparator(), c);
 		
-		//TODO [MH] move it into the anonMethodPanel where needed
+		//TODO [MH] column chooser: move it into the anonMethodPanel where needed
 //		/* column chooser stuff */
 //		c.gridx = 0;
 //		c.gridy = 3;
@@ -604,8 +615,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		anonMethodPanel = new JPanel();
 		
 		anonMethodPanel.setVisible(false);
-		//TODO [MH] translation
-		anonMethodPanel.setBorder(BorderFactory.createTitledBorder("Removing preferences"));
+		anonMethodPanelBorder = BorderFactory.createTitledBorder("");
+		/* get the correct name based on the chosen anonymity method */
+		nameMethodPanel();
+		anonMethodPanel.setBorder(anonMethodPanelBorder);
 		createPanelForSelectedAnonMethod();
 		rTop.add(anonMethodPanel, c);
 		
@@ -619,7 +632,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* width should only be given to the text field when resizing */
 		c.weightx = 1.0;
 		
-		//TODO [MH] Load Button graphic
+		//TODO Load Button graphic
 		anonymizeButton = new JButton("Anonymize!");
 		anonymizeButton.addActionListener(this);
 		rTop.add(anonymizeButton, c);
@@ -685,15 +698,15 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		outputLogfilePath = new JFormattedTextField();
 		outputLogfilePath.setValue(System.getProperty("user.dir"));
 //		outputLogfilePath.setPreferredSize(new Dimension(120,20));
-		outputLogfilePath.setName("outputLogfilePath");
-		outputLogfilePath.setCaretPosition(outputLogfilePath.getText().length());
+//		outputLogfilePath.setName("outputLogfilePath");
+//		outputLogfilePath.setCaretPosition(outputLogfilePath.getText().length());
 		outputLogfilePath.setToolTipText(outputLogfilePath.getText());
-//		outputLogfilePath.addFocusListener(this);
+		outputLogfilePath.addFocusListener(this);
 		rBot.add(outputLogfilePath, c);
 		c.gridx++;
 		/* use the full available width when resizing for hline, outPath and saveButton */
 		c.weightx = 0.0;
-		//TODO [MH] Load Button graphic
+		//TODO Load Button graphic
 		outputLogfileButton = new JButton("L");
 		outputLogfileButton.setName("outputLogfileButton");
 		outputLogfileButton.addActionListener(this);
@@ -709,51 +722,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		/* do not change height when resizing */
 		c.weighty = 0.0;
 		
-		//TODO [MH] Load Button graphic
+		//TODO Load Button graphic
 		saveToLogFileButton = new JButton("Save to logfile!");
 		saveToLogFileButton.addActionListener(this);
 		rBot.add(saveToLogFileButton, c);
-	}
-	
-	//TODO [MH] to be removed
-	private void createRemovingMethodPanel() {
-		/* 
-		 * We have 5 components and choose a WxH=2x3 layout 
-		 * - all components have a height of 1
-		 * - weights stand next to the scetch
-		 * 
-		 * |---------------------------|
-		 * |  method | methBox|        | 1,1,1
-		 * |---------------------------|
-		 * |  chooser| input  | unit   | 1,1,1
-		 * |---------------------------|
-		 */
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.PAGE_START;
-		c.weightx = 0.0;
-		c.weighty = 0.0;
-//		c.insets = new Insets(5,5,5,5);
-		
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		anonMethodPanel.add(new JLabel(Messages.getString("AnonymizeDataDialog.anonymityMethod.removing.method")), c);	
-		c.gridx++;
-		JComboBox<RemovingMethods> removingMethodBox = new JComboBox<>();
-		for (RemovingMethods removingMethod : RemovingMethods.values()) {
-			removingMethodBox.addItem(removingMethod);
-		}
-		anonMethodPanel.add(removingMethodBox, c);
-		c.gridx = 0;
-		c.gridy = 1;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		
-		
-		
-		anonMethodPanel.setVisible(true);
 	}
 }
