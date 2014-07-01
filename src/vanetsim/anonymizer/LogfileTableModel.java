@@ -17,17 +17,10 @@
  */
 package vanetsim.anonymizer;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.StringTokenizer;
-
+import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
+
+import vanetsim.localization.Messages;
 
 public class LogfileTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -8866885988921022260L;
@@ -37,9 +30,17 @@ public class LogfileTableModel extends AbstractTableModel {
 	private Data data;
 	
 
-	public LogfileTableModel(String filePath, String format) {
+	public LogfileTableModel() {
+	}
+	
+	public boolean initializeTM(String filePath, String format) {
 		data = new Data();
-		data.parseFile(filePath, format);
+		if (!data.parseFile(filePath, format)) {
+			/* parsing was not successful */
+			data = null;
+			return false;
+		}
+		return true;
 	}
 
 	public Data getData() {

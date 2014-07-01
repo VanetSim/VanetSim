@@ -32,6 +32,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -116,6 +118,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	/** FileFilter to choose only ".log" files from FileChooser */
 	private FileFilter logFileFilter_;
 	
+	private boolean isPathValid = false;
+	
 	/**
 	 * Instantiates a new anonymize data dialog.
 	 */
@@ -173,12 +177,14 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	}
 	
 	private void loadData() {
-		logfileTM = new LogfileTableModel(inputLogfilePath.getText(), formatString.getText());
+		logfileTM = new LogfileTableModel();
+		if (!logfileTM.initializeTM(inputLogfilePath.getText(), formatString.getText())) {
+			/* there was an error with parsing */
+			info.setText(Messages.getString("AnonymizeDataDialog.info.parsingNotValid"));
+			return;
+		}
+
 		table.setModel(logfileTM);
-//		for (String str : logfileTM.getColumnNames()) {
-//			selectedColumn.addItem(str);
-//		}
-//		selectedColumn.setSelectedIndex(0);
 		
 		/* print number of elements in the table */
 		displayRowCountAndSelectedCount();
@@ -207,6 +213,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 //				table.editingCanceled(null);
 			}
 		});
+
+		info.setText(Messages.getString("AnonymizeDataDialog.info.chooseAnonymizeMethod"));
 	}
 	
 	/**
@@ -254,6 +262,22 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		);
 	}
 	
+	private void doPathCheckAndFirstLine() {
+		if (inputLogfilePath.getText().equals("") || 
+			inputLogfilePath.getText().equals(Messages.getString("AnonymizeDataDialog.inputLogfilePath"))
+        ) {
+			info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
+		} else {
+			String firstLine;
+			if ((firstLine = Data.getFirstLine(inputLogfilePath.getText())) == null) {
+				info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
+			} else {
+				isPathValid = true;
+				info.setText(String.format(Messages.getString("AnonymizeDataDialog.info.formatstr"), firstLine));
+			}					
+		}
+	}
+	
 	private void chooseAnonymizer() {
 		AnonymityMethod method = null;
 		String[] params = null;
@@ -290,8 +314,9 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(formatString)) {
-			if (!inputLogfilePath.getText().equals("")) {
-			/* we have the file path and format, so we can load the data into the table */
+			if (isPathValid) {
+				//TODO [mh] check format string
+				/* we have the file path and format, so we can load the data into the table */
 				loadData();
 			} else {
 				//TODO [MH] print message
@@ -306,18 +331,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			chooseAnonymizer();
 		} else if (e.getSource().equals(inputLogfileButton)) {
 			setFilePath(inputLogfilePath);
-			if (inputLogfilePath.getText().equals("") || 
-				inputLogfilePath.getText().equals(Messages.getString("AnonymizeDataDialog.inputLogfilePath"))
-			) {
-				info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
-			} else {
-				String firstLine;
-				if ((firstLine = Data.getFirstLine(inputLogfilePath.getText())) == null) {
-					info.setText(Messages.getString("AnonymizeDataDialog.info.wrongInput"));
-				} else {
-					info.setText(String.format(Messages.getString("AnonymizeDataDialog.info.formatstr"), firstLine));
-				}					
-			}
+			doPathCheckAndFirstLine();
 		} else if (e.getSource().equals(outputLogfileButton)) {
 			//TODO [MH] output logfile
 			setFilePath(outputLogfilePath);
@@ -337,9 +351,11 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	}
 
 	@Override
-	public void focusLost(FocusEvent arg0) {
-		// TODO [MH] load firstline on focus lost on inputLogfilePath
-		
+	public void focusLost(FocusEvent e) {
+		/* when the focus is lost, check whether the user typed a valid logfile path and if so, load the first line */
+		if (e.getSource().equals(inputLogfilePath)) {
+			doPathCheckAndFirstLine();
+		}
 	}
 
 	@Override

@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+
+import javax.sound.sampled.Port.Info;
 
 public class Data {
 	private List<List<Object>> data;
@@ -35,13 +38,12 @@ public class Data {
 	 * @param filePath	a path to a file to be parsed
 	 * @param format	a format string specifying the content of the chosen file
 	 */
-	public void parseFile(String filePath, String format) {
+	public boolean parseFile(String filePath, String format) {
 		String line;
 		StringTokenizer tok;
 
-		analyseFormatString(format);
-				
 		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
+			analyseFormatString(format);
 			/* read the first line, which should contain the column names */
 			line = in.readLine();
 			
@@ -53,7 +55,7 @@ public class Data {
 				columnNames[i] = tok.nextToken();
 				data.add(i, new LinkedList<>());
 			}
-			
+
 			/* all other lines contain data. Read that into 'data' */				
 			while ((line = in.readLine()) != null) {
 				tok = new StringTokenizer(line, delimiter.toString());		
@@ -61,13 +63,20 @@ public class Data {
 					data.get(j).add(tok.nextToken());
 				}
 			}
-		} catch (FileNotFoundException e) {
-			// TODO [MH]
-			e.printStackTrace();
+		} catch (NoSuchElementException | IllegalArgumentException e) {
+			/* NoSuchElementException: thrown by tok.nextToken() if there is no next token */
+			/* IllegalArgumentException: thrown by analyseFormatString */
+
+			/* format string or data was wrong, abort operation */
+			columnNames = null;
+			data = null;
+			return false;
 		} catch (IOException e1) {
-			// TODO [MH]
-			e1.printStackTrace();
+			/* it should be made sure, that the filename is valid */
+			assert(false);
 		}
+		
+		return true;
 	}
 	
 	/**
