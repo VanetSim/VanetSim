@@ -60,12 +60,25 @@ public class Data {
 			while ((line = in.readLine()) != null) {
 				tok = new StringTokenizer(line, delimiter.toString());		
 				for (int j = 0; j < classes.size(); j++) {
-					data.get(j).add(tok.nextToken());
+					if (classes.get(j) == String.class) {
+						String element = tok.nextToken();
+						data.get(j).add(element);
+					} else if (classes.get(j) == Character.class) {
+						char element = tok.nextToken().charAt(0);
+						data.get(j).add(element);
+					} else if (classes.get(j) == Integer.class) {
+						int element = Integer.parseInt(tok.nextToken());
+						data.get(j).add(element);
+					} else if (classes.get(j) == Double.class) {
+						double element = Double.parseDouble(tok.nextToken());
+						data.get(j).add(element);
+					} 
 				}
 			}
 		} catch (NoSuchElementException | IllegalArgumentException e) {
 			/* NoSuchElementException: thrown by tok.nextToken() if there is no next token */
 			/* IllegalArgumentException: thrown by analyseFormatString */
+			/* NumberFormatException: thrown by parseInt & parseDouble, caught by IllegalArguementException */
 
 			/* format string or data was wrong, abort operation */
 			columnNames = null;
