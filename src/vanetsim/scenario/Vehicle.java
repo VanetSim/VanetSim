@@ -609,7 +609,9 @@ public class Vehicle extends LaneObject{
 			color_ = color;
 			brakingRate_ = brakingRate;
 			accelerationRate_ = accelerationRate;
-			maxAcceleration_ = accelerationRate_; // TODO maxAcceleration_ must be given by the constructor
+			maxAcceleration_ = accelerationRate_;	// TODO 
+			minTimeDistance_ = timeDistance_;		// TODO 
+			minBraking_ = brakingRate_;				// TODO 
 			timeDistance_ = timeDistance;
 			politeness_ = politeness;
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
@@ -974,7 +976,6 @@ public class Vehicle extends LaneObject{
 				// Start of the IDM-specific source code
 				// the rest was copied from the function 'adjustSpeed(int)'
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				// TODO IDM implementieren
 				
 				// acceleration computed using the intellegent driver model (IDM)
 				double accelerationByIDM;
@@ -5764,7 +5765,7 @@ public class Vehicle extends LaneObject{
 	public int getMinTimeDistance_() {
 		return minTimeDistance_;
 	}
-	private int getMinBraking_(){
+	public int getMinBraking_(){
 		return minBraking_;
 	}
 	
