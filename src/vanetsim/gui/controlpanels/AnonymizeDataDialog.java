@@ -199,9 +199,10 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 			public void actionPerformed(ActionEvent e) {
 				if (logfileTM.getRowCount() > 0 && table.getSelectedRowCount() > 0) {
 					/* remove all selected rows */
+					Data data = logfileTM.getData();
 					for (int i : table.getSelectedRows()) {
 						//TODO [MH] removing of many lines takes too long
-						logfileTM.removeRow(i);
+						data.removeRow(i);
 					}
 					/* tell the UI that there was a change in the data */
 					logfileTM.fireTableRowsDeleted(
@@ -313,19 +314,12 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 	 * @param e	an <code>ActionEvent</code>
 	 */
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(formatString)) {
+		if (e.getSource().equals(formatString) || e.getSource().equals(processButton)) {
 			if (isPathValid) {
-				//TODO [mh] check format string
 				/* we have the file path and format, so we can load the data into the table */
 				loadData();
-			} else {
-				//TODO [MH] print message
 			}
-		} else if (e.getSource().equals(processButton)) {
-			if (!inputLogfilePath.getText().equals("")) {
-				/* we have the file path and format, so we can load the data into the table */
-					loadData();
-			}
+			/* else: do not do anything, because info already says to specify an input file */
 		} else if (e.getSource().equals(anonymizeButton)) {
 			/* conditions are checked in chooseAnonymizer() */
 			chooseAnonymizer();
