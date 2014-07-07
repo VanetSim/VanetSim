@@ -609,9 +609,6 @@ public class Vehicle extends LaneObject{
 			color_ = color;
 			brakingRate_ = brakingRate;
 			accelerationRate_ = accelerationRate;
-			maxAcceleration_ = accelerationRate_;	// TODO 
-			minTimeDistance_ = timeDistance_;		// TODO 
-			minBraking_ = brakingRate_;				// TODO 
 			timeDistance_ = timeDistance;
 			politeness_ = politeness;
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
@@ -977,7 +974,11 @@ public class Vehicle extends LaneObject{
 				// the rest was copied from the function 'adjustSpeed(int)'
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				
-				// acceleration computed using the intellegent driver model (IDM)
+				maxAcceleration_ = accelerationRate_;	//
+				minTimeDistance_ = timeDistance_;		//
+				minBraking_ = brakingRate_;				//
+				
+				// acceleration computed using the intellegent driver model (IDM) TODO
 				double accelerationByIDM;
 				
 				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
