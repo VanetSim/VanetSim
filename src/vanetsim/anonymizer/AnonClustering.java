@@ -160,7 +160,7 @@ public class AnonClustering extends AnonymityMethod {
 		clusteringSteps(numOfClusters);
 	}
 
-	// step3 - Recalculation of the cluster centroids
+	// step3 - Recalculation of the cluster centroids. If the positions of the cluster did not change go to the final step4, else go to step2.
 	public void step3(int numOfClusters) {
 		Cluster p;
 		CarPosition s;
@@ -195,18 +195,18 @@ public class AnonClustering extends AnonymityMethod {
 
 			}
 
-		}
-		if (changes < 100) {
+		} 
+		//If the positions of the cluster did not change (or the change is minimal) go to the final step4, else go to step2.
+		if (changes < 10) {
 			clusteringDone = true;
-
 		}
 		step = 3;
 		clusteringSteps(numOfClusters);
 	}
 
 	// step4 - last step. When the clustering process is done, override the
-	// positions (X and Y) off the cars with the positions of the assigned
-	// clusters
+	// positions (X and Y) of the cars with the positions of the assigned
+	// clusters. You get anonymized positions of the cars.
 	public void step4(int numOfClusters) {
 		CarPosition a;
 		Cluster p = null;
