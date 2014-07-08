@@ -75,6 +75,4 @@ public class LogfileTableModel extends AbstractTableModel {
 		data.removeRow(rowIndex);
 	}
 	
-	
-	
 }

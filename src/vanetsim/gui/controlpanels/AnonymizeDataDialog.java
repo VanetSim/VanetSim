@@ -58,8 +58,10 @@ import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
 import vanetsim.anonymizer.AnonMethodPanel;
+import vanetsim.anonymizer.AnonClustering;
 import vanetsim.anonymizer.AnonRemoving;
 import vanetsim.anonymizer.AnonRemovingPanel;
+import vanetsim.anonymizer.AnonAggregationPanel;
 import vanetsim.anonymizer.AnonymityMethod;
 import vanetsim.anonymizer.AnonymityMethodsEnum;
 import vanetsim.anonymizer.Data;
@@ -241,6 +243,8 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		switch (method) {
 		case AGGREGATION:
+			anonMethodPanel.add(new AnonAggregationPanel());
+			anonMethodPanel.setVisible(true);
 			break;
 		case REMOVING:
 //			createRemovingMethodPanel();
@@ -290,6 +294,7 @@ public final class AnonymizeDataDialog extends JDialog implements ActionListener
 		
 		switch ((AnonymityMethodsEnum) anonymityMethod.getSelectedItem()) {
 		case AGGREGATION:
+			method = new AnonClustering(logfileTM.getData(), info);
 			break;
 		case REMOVING:
 			method = new AnonRemoving(logfileTM.getData(), info);

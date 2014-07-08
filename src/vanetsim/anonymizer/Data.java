@@ -176,6 +176,11 @@ public class Data {
 		return data.get(columnIndex).get(rowIndex);
 	}
 	
+	public void setValueAt(int rowIndex, int columnIndex, Object value)
+	{
+		data.get(columnIndex).set(rowIndex, value);
+	}
+	
 	public void removeRow(int rowIndex) {
 		for (List<Object> al : data) {
 			al.remove(rowIndex);
