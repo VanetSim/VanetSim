@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import javax.sound.sampled.Port.Info;
-
 public class Data {
 	private List<List<Object>> data;
 	private ArrayList<Class<? extends Object>> classes;
@@ -27,10 +25,45 @@ public class Data {
 	 */
 	public static String getFirstLine(String filePath) {
 		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
-			return in.readLine();
+			String firstLine = in.readLine();
+			String firstDataLine = in.readLine();
+//			guessFormatString(firstDataLine);
+
+			return firstLine;
 		} catch (IOException e1) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Make a guess of what the format string could look like
+	 * @param dataLine	a line of data from the logfile
+	 * @return			guessed format string
+	 */
+	private static String guessFormatString(String dataLine) {
+		char[] data = dataLine.toCharArray();
+		char delimiter;
+		int countSemicolon = 0;
+		int countColon = 0;
+		int countComma = 0;
+
+		/* guess the delimiter */
+		for (char c : data) {
+			if      (c == ';') countSemicolon++;
+			else if (c == ':') countColon++;
+			else if (c == ',') countComma++;
+		}
+		if (countSemicolon > countColon) {
+			delimiter = ';';
+			if (countComma > countSemicolon) {
+				delimiter = ',';
+			}
+		} else {
+			delimiter = ':';
+		}
+		
+		//TODO [MH] next
+		return null;
 	}
 	
 	/**
