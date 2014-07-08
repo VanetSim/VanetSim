@@ -228,22 +228,22 @@ public class AnonClustering extends AnonymityMethod {
 		// Save the cluster centroid positions in a file, to match the
 		// anonymized car positions with the cluster centroid positions. The
 		// user has to match them manually.
-		try {
-			File file = new File("C:\\temp\\Clusters.txt");
-			file.getParentFile().mkdirs();
-
-			PrintWriter pr = new PrintWriter(file);
-
-			for (int l = 0; l < numOfClusters; l++) {
-//				String s = (String) ClusterList.get(l).toString();
-				pr.println(ClusterList.get(l));
-			}
-
-			pr.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("No such file exists.");
-		}
+//		try {
+//			File file = new File("C:\\temp\\Clusters.txt");
+//			file.getParentFile().mkdirs();
+//
+//			PrintWriter pr = new PrintWriter(file);
+//
+//			for (int l = 0; l < numOfClusters; l++) {
+////				String s = (String) ClusterList.get(l).toString();
+//				pr.println(ClusterList.get(l));
+//			}
+//
+//			pr.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.out.println("No such file exists.");
+//		}
 	}
 
 	class Cluster {
