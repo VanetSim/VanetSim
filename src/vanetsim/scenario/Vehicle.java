@@ -974,10 +974,6 @@ public class Vehicle extends LaneObject{
 				// the rest was copied from the function 'adjustSpeed(int)'
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				
-				maxAcceleration_ = accelerationRate_;	//
-				minTimeDistance_ = timeDistance_;		//
-				minBraking_ = brakingRate_;				//
-				
 				// acceleration computed using the intellegent driver model (IDM) TODO
 				double accelerationByIDM;
 				
@@ -985,17 +981,19 @@ public class Vehicle extends LaneObject{
 				// the 'interaction part' of the IDM-function is missing. 
 				if (next_ == null ||
 						next_.getCurLane() != curLane_ ||
-						(next_.getCurPosition() - curPosition_) < 0){	
-					accelerationByIDM = maxAcceleration_ * (1 - Math.pow(curSpeed_ / curStreet_.getSpeed(), 4));
+						(next_.getCurPosition() - curPosition_ - vehicleLength_) < 0){	
+					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / curStreet_.getSpeed()), 4));
 				}
 				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
 				else {
-					double s_star_delta = 200 + minTimeDistance_ * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
-							   2 * Math.sqrt(maxAcceleration_ * minBraking_));
-					accelerationByIDM = maxAcceleration_ *
+					double timeDistanceInSec =  (double)timeDistance_/1000;
+					double s_star_delta = 200 + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
+							   2 * Math.sqrt(accelerationRate_ * brakingRate_));
+					s_star_delta = (s_star_delta > 200) ? s_star_delta : 200;
+					accelerationByIDM = accelerationRate_ *
 							(1 -
-							 Math.pow(curSpeed_ / curStreet_.getSpeed(), 4) -
-							 Math.pow(s_star_delta / (next_.getCurPosition() - curPosition_), 2));
+							 Math.pow((curSpeed_ / curStreet_.getSpeed()), 4) -
+							 Math.pow((s_star_delta / (next_.getCurPosition() - curPosition_ - vehicleLength_)), 2));
 				}
 				
 				// After computing the acceleration with the IDM-function a new speed for the next simulation step is computed
