@@ -974,14 +974,16 @@ public class Vehicle extends LaneObject{
 				// the rest was copied from the function 'adjustSpeed(int)'
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				
+				
 				// acceleration computed using the intellegent driver model (IDM) TODO
 				double accelerationByIDM;
 				
 				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
-				// the 'interaction part' of the IDM-function is missing. 
+				// the 'interaction part' of the IDM-function is missing.
 				if (next_ == null ||
 						next_.getCurLane() != curLane_ ||
-						(next_.getCurPosition() - curPosition_ - vehicleLength_) < 0){	
+						(curDirection_ && next_.getCurPosition() - curPosition_ - vehicleLength_ < 0) ||
+						(!curDirection_ && curPosition_ - next_.getCurPosition() - vehicleLength_ < 0)){
 					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / curStreet_.getSpeed()), 4));
 				}
 				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
