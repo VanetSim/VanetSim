@@ -833,7 +833,7 @@ public class Vehicle extends LaneObject{
 					
 					
 				} else destinationCheckCountdown_ -= timePerStep;
-
+				
 				// ================================= 
 				// Step 2: Check for vehicle/blocking in front of this one or a slower street and try to change lane
 				// ================================= 
@@ -964,7 +964,7 @@ public class Vehicle extends LaneObject{
 						
 					}			
 				}
-
+				
 
 				// ================================= 
 				// Step 4: Break or accelerate
@@ -976,26 +976,28 @@ public class Vehicle extends LaneObject{
 				
 				
 				// acceleration computed using the intellegent driver model (IDM) TODO
-				double accelerationByIDM;
+				double accelerationByIDM = 0;
 				
 				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
 				// the 'interaction part' of the IDM-function is missing.
-				if (next_ == null ||
-						next_.getCurLane() != curLane_ ||
-						(curDirection_ && next_.getCurPosition() - curPosition_ - vehicleLength_ < 0) ||
-						(!curDirection_ && curPosition_ - next_.getCurPosition() - vehicleLength_ < 0)){
+				if (next_ == null || checkCurrentBraking(curLane_) != 1){
 					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / curStreet_.getSpeed()), 4));
 				}
 				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
 				else {
+					// The distance between the vehicle and the vehicle in front in dependence of the driving direction
+					// startNode -> endNode OR endNode -> startNode
+					double minDistance = 300;
+					double distanceToFrontVehicle = curDirection_ ? next_.getCurPosition() - curPosition_ : curPosition_ - next_.getCurPosition();
+					
 					double timeDistanceInSec =  (double)timeDistance_/1000;
-					double s_star_delta = 200 + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
+					double s_star_delta = minDistance + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
 							   2 * Math.sqrt(accelerationRate_ * brakingRate_));
-					s_star_delta = (s_star_delta > 200) ? s_star_delta : 200;
+					s_star_delta = (s_star_delta > minDistance) ? s_star_delta : minDistance;
 					accelerationByIDM = accelerationRate_ *
 							(1 -
 							 Math.pow((curSpeed_ / curStreet_.getSpeed()), 4) -
-							 Math.pow((s_star_delta / (next_.getCurPosition() - curPosition_ - vehicleLength_)), 2));
+							 Math.pow((s_star_delta / (distanceToFrontVehicle - vehicleLength_)), 2));
 				}
 				
 				// After computing the acceleration with the IDM-function a new speed for the next simulation step is computed
