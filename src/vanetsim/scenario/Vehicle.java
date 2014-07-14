@@ -977,11 +977,14 @@ public class Vehicle extends LaneObject{
 				
 				// acceleration computed using the intellegent driver model (IDM) TODO
 				double accelerationByIDM = 0;
+				int deltaValueIDM = 2;
+				int desiredSpeed = (curStreet_.getSpeed() < maxSpeed_) ? curStreet_.getSpeed() : maxSpeed_;
+				//int desiredSpeed =  Math.min(curStreet_.getSpeed(), maxSpeed_);
 				
 				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
 				// the 'interaction part' of the IDM-function is missing.
 				if (next_ == null || checkCurrentBraking(curLane_) != 1){
-					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / curStreet_.getSpeed()), 4));
+					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), 4));
 				}
 				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
 				else {
@@ -996,7 +999,7 @@ public class Vehicle extends LaneObject{
 					s_star_delta = (s_star_delta > minDistance) ? s_star_delta : minDistance;
 					accelerationByIDM = accelerationRate_ *
 							(1 -
-							 Math.pow((curSpeed_ / curStreet_.getSpeed()), 4) -
+							 Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM) -
 							 Math.pow((s_star_delta / (distanceToFrontVehicle - vehicleLength_)), 2));
 				}
 				
