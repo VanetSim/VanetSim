@@ -565,6 +565,10 @@ public class Vehicle extends LaneObject{
 	/** a counter to save the amount of found spamers */
 	private int spamCounter_ = 0;
 	
+	/** IDM-specific values used in the computation of the velocity based on the IDM function*/
+	private int deltaValueIDM = 4; //TODO
+	private double minDistanceIDM = 300;
+	
 
 	private int EVAMessageDelay_ = 3;
 
@@ -975,28 +979,26 @@ public class Vehicle extends LaneObject{
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				
 				
-				// acceleration computed using the intellegent driver model (IDM) TODO
+				// acceleration computed using the intellegent driver model (IDM) //TODO
 				double accelerationByIDM = 0;
-				int deltaValueIDM = 2;
+				
 				int desiredSpeed = (curStreet_.getSpeed() < maxSpeed_) ? curStreet_.getSpeed() : maxSpeed_;
-				//int desiredSpeed =  Math.min(curStreet_.getSpeed(), maxSpeed_);
 				
 				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
 				// the 'interaction part' of the IDM-function is missing.
 				if (next_ == null || checkCurrentBraking(curLane_) != 1){
-					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), 4));
+					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM));
 				}
 				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
 				else {
 					// The distance between the vehicle and the vehicle in front in dependence of the driving direction
 					// startNode -> endNode OR endNode -> startNode
-					double minDistance = 300;
 					double distanceToFrontVehicle = curDirection_ ? next_.getCurPosition() - curPosition_ : curPosition_ - next_.getCurPosition();
 					
 					double timeDistanceInSec =  (double)timeDistance_/1000;
-					double s_star_delta = minDistance + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
+					double s_star_delta = minDistanceIDM + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
 							   2 * Math.sqrt(accelerationRate_ * brakingRate_));
-					s_star_delta = (s_star_delta > minDistance) ? s_star_delta : minDistance;
+					s_star_delta = (s_star_delta > minDistanceIDM) ? s_star_delta : minDistanceIDM;
 					accelerationByIDM = accelerationRate_ *
 							(1 -
 							 Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM) -
