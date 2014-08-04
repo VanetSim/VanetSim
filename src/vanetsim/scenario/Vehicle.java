@@ -1005,6 +1005,8 @@ public class Vehicle extends LaneObject{
 							 Math.pow((s_star_delta / (distanceToFrontVehicle - vehicleLength_)), 2));
 				}
 				
+				if (accelerationByIDM > accelerationRate_) accelerationByIDM = accelerationRate_;
+				if (accelerationByIDM < -brakingRate_) accelerationByIDM = -brakingRate_;
 				// After computing the acceleration with the IDM-function a new speed for the next simulation step is computed
 				newSpeed_ = curSpeed_ + (accelerationByIDM * (double)timePerStep/1000);
 				
