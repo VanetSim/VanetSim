@@ -90,6 +90,9 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** The control panel to edit mix zones. */
 	private final MixZonePanel editMixZonePanel_ = new MixZonePanel();
 	
+	/** The control panel to edit location verification settings. */
+	private final EditLocationVerificationControlPanel editLocationVerificationPanel_ = new EditLocationVerificationControlPanel();
+	
 	/** The control panel to edit silent periods. */
 	private final SilentPeriodPanel editSilentPeriodPanel_ = new SilentPeriodPanel();
 	
@@ -192,7 +195,7 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		// A Panel containing all edit controls. The controls for editing streets, vehicles and events are outsourced into separate classes
 		editPanel_ = new JPanel();
 		editPanel_.setLayout(new BorderLayout(0,5));
-		String[] choices = { Messages.getString("EditControlPanel.settings"),Messages.getString("EditControlPanel.trafficModel"),Messages.getString("EditControlPanel.dataAnalysis"),Messages.getString("EditControlPanel.presentationMode"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String[] choices = { Messages.getString("EditControlPanel.settings"),Messages.getString("EditControlPanel.trafficModel"),Messages.getString("EditControlPanel.dataAnalysis"),Messages.getString("EditControlPanel.presentationMode"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"),  Messages.getString("EditControlPanel.locationVerification"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		//String[] choices = { Messages.getString("EditControlPanel.settings"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		editChoice_ = new JComboBox<String>(choices);
@@ -214,6 +217,8 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		editStreetPanel_.setOpaque(false);
 		editCardPanel_.add(editTrafficLightsPanel_, "trafficLights"); //$NON-NLS-1$
 		editTrafficLightsPanel_.setOpaque(false);
+		editCardPanel_.add(editLocationVerificationPanel_, "locationVerification"); //$NON-NLS-1$
+		editLocationVerificationPanel_.setOpaque(false);
 		
 		//tabbed pane for events
 		tabbedPaneEvents_ = new JTabbedPane();
@@ -382,6 +387,8 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.presentationMode"))){ //$NON-NLS-1$
 					Renderer.getInstance().ReRender(true, false);
+				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.locationVerification"))){ //$NON-NLS-1$
+					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.privacy"))){ //$NON-NLS-1$
 					Renderer.getInstance().setShowMixZones(true);
 					Renderer.getInstance().setHighlightNodes(true);
@@ -498,6 +505,11 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	        	Renderer.getInstance().ReRender(true, false);
 	        } else if(Messages.getString("EditControlPanel.settings").equals(item)){	//$NON-NLS-1$
 	        	cl.show(editCardPanel_, "settings"); //$NON-NLS-1$
+	        	Renderer.getInstance().setHighlightNodes(false);
+	        	Renderer.getInstance().setShowAllBlockings(false);
+	        	Renderer.getInstance().ReRender(true, false);
+	        } else if(Messages.getString("EditControlPanel.locationVerification").equals(item)){	//$NON-NLS-1$
+	        	cl.show(editCardPanel_, "locationVerification"); //$NON-NLS-1$
 	        	Renderer.getInstance().setHighlightNodes(false);
 	        	Renderer.getInstance().setShowAllBlockings(false);
 	        	Renderer.getInstance().ReRender(true, false);
