@@ -418,7 +418,6 @@ public class Vehicle extends LaneObject{
 	private int minBraking_;
 	
 	
-	
 	/** How long this vehicle is waiting in a jam (in milliseconds). */
 	private int stopTime_ = 0;
 	
@@ -569,7 +568,7 @@ public class Vehicle extends LaneObject{
 	
 	/** IDM-specific values used in the computation of the velocity based on the IDM function*/
 	private int deltaValueIDM_ = 4; //TODO
-	private double minDistanceIDM_ = 500;
+	private double minDistanceIDM_ = 250;
 	//private double maxInFrontSearchDistanceIDM_;
 	
 
@@ -619,7 +618,6 @@ public class Vehicle extends LaneObject{
 			timeDistance_ = timeDistance;
 			politeness_ = politeness;
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
-			//maxInFrontSearchDistanceIDM_ = maxBrakingDistance_;System.out.println(maxInFrontSearchDistanceIDM_); 
 			startingWayPoint_ = destinations_.pollFirst();		// take the first element and remove it from the destinations!
 			wiFiEnabled_ = wiFiEnabled;
 			speedDeviation_ = speedDeviation;
