@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.ArrayDeque;
 
 
+
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -416,7 +418,6 @@ public class Vehicle extends LaneObject{
 	private int minBraking_;
 	
 	
-	
 	/** How long this vehicle is waiting in a jam (in milliseconds). */
 	private int stopTime_ = 0;
 	
@@ -566,8 +567,9 @@ public class Vehicle extends LaneObject{
 	private int spamCounter_ = 0;
 	
 	/** IDM-specific values used in the computation of the velocity based on the IDM function*/
-	private int deltaValueIDM = 4; //TODO
-	private double minDistanceIDM = 300;
+	private int deltaValueIDM_ = 4; //TODO
+	private double minDistanceIDM_ = 250;
+	//private double maxInFrontSearchDistanceIDM_;
 	
 
 	private int EVAMessageDelay_ = 3;
@@ -778,22 +780,26 @@ public class Vehicle extends LaneObject{
 	 */
 	
 	public void adjustSpeedWithIDM(int timePerStep){
-		// start vehicle
+		waitingForSignal_ = false;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){
-				//the time the vehicle will wait until it starts driving
 				curWaitTime_ = 0;
-				//needs to be set for vehicle to start driving
 				active_ = true;
 				brakeForDestination_ = false;
-				//add the vehicle to the current lane object
 				curStreet_.addLaneObject(this, curDirection_);
 			} else curWaitTime_ -= timePerStep;
-		} 
+		}
+
 		if(active_){
 			if(curWaitTime_ == 0 && curStreet_ != null){
-				
-				
+				//curBrakingDistance always needs to be up-to-date but speed normally doesn't change too often...
+				if(curSpeed_ != speedAtLastBrakingDistanceCalculation_){
+					speedAtLastBrakingDistanceCalculation_ = curSpeed_;
+					//curBrakingDistance_ = (int)StrictMath.floor(((timeDistance_/1000)*curSpeed_) + curSpeed_ * curSpeed_ / (2 * brakingRate_)); <-- new version, commented out because of performance issues (vehicles are to near together when blocking occurs)
+					//System.out.println(curBrakingDistance_);
+					curBrakingDistance_ = (int)StrictMath.floor(0.5d + curSpeed_ + curSpeed_ * curSpeed_ / (2 * brakingRate_));
+					if(curBrakingDistance_ < 500) curBrakingDistance_ = 500;
+				}
 				// ================================= 
 				// Step 1: Check if vehicle is near destination so that it needs to brake (only checked when necessary => timer!)
 				// ================================= 
@@ -837,7 +843,7 @@ public class Vehicle extends LaneObject{
 					
 					
 				} else destinationCheckCountdown_ -= timePerStep;
-				
+
 				// ================================= 
 				// Step 2: Check for vehicle/blocking in front of this one or a slower street and try to change lane
 				// ================================= 
@@ -879,8 +885,6 @@ public class Vehicle extends LaneObject{
 					}
 				}
 				// found a blocking. Check if we might change lane to prevent this
-				
-				
 
 				// ================================= 
 				// Step 3: Check if we can change to the right lane
@@ -968,7 +972,7 @@ public class Vehicle extends LaneObject{
 						
 					}			
 				}
-				
+			
 
 				// ================================= 
 				// Step 4: Break or accelerate
@@ -981,33 +985,63 @@ public class Vehicle extends LaneObject{
 				
 				// acceleration computed using the intellegent driver model (IDM) //TODO
 				double accelerationByIDM = 0;
+				double desiredSpeed = (curStreet_.getSpeed() < maxSpeed_) ? curStreet_.getSpeed() : maxSpeed_;
+				double speedOfFrontVehicle;
 				
-				int desiredSpeed = (curStreet_.getSpeed() < maxSpeed_) ? curStreet_.getSpeed() : maxSpeed_;
-				
-				// if no other vehicle in front of the actual vehicle can be detected, we use a modified version of IDM, in which
-				// the 'interaction part' of the IDM-function is missing.
-				if (next_ == null || checkCurrentBraking(curLane_) != 1){
-					accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM));
+				// First we search for the first vehicle in front of the actual vehicle in the actual laneContainer.
+				// The vehicle in front has to be on the same lane, too.
+				LaneObject tmpNext = next_;
+				while (tmpNext != null && tmpNext.getCurLane() != curLane_){
+					tmpNext = tmpNext.getNext();
 				}
-				// if a vehicle will be in front of the actual vehicle, we use the normal version of the IDM-function.
+				
+				// if no other vehicle in front of the actual vehicle can be detected
+				// within the laneContainer of the actual street, we start a search for a
+				// vehicle on the on oncoming streets. 
+				if (tmpNext == null){
+					boolean foundNextVehicle;
+					double distanceToFrontVehicle;
+					
+					double[] checkingResults = checkCurrentDistanceToVehicleInFront(curLane_);
+					foundNextVehicle = !(checkingResults[0] == 0);
+					distanceToFrontVehicle = checkingResults[1];
+					speedOfFrontVehicle = checkingResults[2];
+					
+					if (!foundNextVehicle){
+						accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM_));
+					}
+					else {							
+						double timeDistanceInSec =  (double)timeDistance_/1000;
+						double s_star_delta = minDistanceIDM_ + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - speedOfFrontVehicle) /
+								   2 * Math.sqrt(accelerationRate_ * brakingRate_));
+						s_star_delta = (s_star_delta > minDistanceIDM_) ? s_star_delta : minDistanceIDM_;
+						accelerationByIDM = accelerationRate_ *
+								(1 -
+								 Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM_) -
+								 Math.pow((s_star_delta / (distanceToFrontVehicle - (double)vehicleLength_)), 2));
+					}
+				}
+				// if a vehicle is in front of the actual vehicle, we use the normal version of the IDM-function.
 				else {
 					// The distance between the vehicle and the vehicle in front in dependence of the driving direction
 					// startNode -> endNode OR endNode -> startNode
-					double distanceToFrontVehicle = curDirection_ ? next_.getCurPosition() - curPosition_ : curPosition_ - next_.getCurPosition();
+					double distanceToFrontVehicle = curDirection_ ? tmpNext.getCurPosition() - curPosition_ : curPosition_ - tmpNext.getCurPosition();
 					
 					double timeDistanceInSec =  (double)timeDistance_/1000;
-					double s_star_delta = minDistanceIDM + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - next_.getCurSpeed()) /
+					double s_star_delta = minDistanceIDM_ + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - tmpNext.getCurSpeed()) /
 							   2 * Math.sqrt(accelerationRate_ * brakingRate_));
-					s_star_delta = (s_star_delta > minDistanceIDM) ? s_star_delta : minDistanceIDM;
+					s_star_delta = (s_star_delta > minDistanceIDM_) ? s_star_delta : minDistanceIDM_;
 					accelerationByIDM = accelerationRate_ *
 							(1 -
-							 Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM) -
-							 Math.pow((s_star_delta / (distanceToFrontVehicle - vehicleLength_)), 2));
+							 Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM_) -
+							 Math.pow((s_star_delta / (distanceToFrontVehicle - (double)vehicleLength_)), 2));
 				}
 				
 				if (accelerationByIDM > accelerationRate_) accelerationByIDM = accelerationRate_;
 				if (accelerationByIDM < -brakingRate_) accelerationByIDM = -brakingRate_;
 				// After computing the acceleration with the IDM-function a new speed for the next simulation step is computed
+				if (accelerationByIDM > accelerationRate_) accelerationByIDM = accelerationRate_;
+				if (accelerationByIDM < -brakingRate_) accelerationByIDM = -brakingRate_;
 				newSpeed_ = curSpeed_ + (accelerationByIDM * (double)timePerStep/1000);
 				
 				
@@ -1025,10 +1059,9 @@ public class Vehicle extends LaneObject{
 				if(newSpeed_ > (maxSpeed_ + speedDeviation_)) newSpeed_ = (maxSpeed_ + speedDeviation_);
 				else if (newSpeed_ < 0) newSpeed_ = 0;	//no negative speed
 				if((curStreet_.getSpeed() + speedDeviation_) > 0 && newSpeed_ > (curStreet_.getSpeed() + speedDeviation_) && this != Renderer.getInstance().getAttackerVehicle() && !emergencyVehicle_) newSpeed_ = (curStreet_.getSpeed() + speedDeviation_);
-			
-			
 			}
 
+		
 			// ================================= 
 			// Step 6: Check message/beacons/penalties countdown and cleanup
 			// ================================= 
@@ -1432,14 +1465,14 @@ public class Vehicle extends LaneObject{
 							    knownMessages_.addMessage(message, false, true);
 
 							}
-							//System.out.println(time + ":fake message created: " + messageType);
+					//		System.out.println(time + ":fake message created: " + messageType);
 						}		
 						++fakeMessagesCreated_;
 					
 						fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 					}
 				}
-			}		
+			}
 		}
 	}
 
@@ -3093,7 +3126,7 @@ public class Vehicle extends LaneObject{
 					tmpLaneObject = tmpLaneObject.getNext();
 				}
 			}
-		}
+		} // TODO indepth referenz
 		// didn't need to brake because of vehicle directly in front of us
 		double distance;
 		if(curDirection_) distance = curStreet_.getLength() - curPosition_;
@@ -3196,6 +3229,144 @@ public class Vehicle extends LaneObject{
 
 	
 		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param lane
+	 * @return
+	 */
+	private double[] checkCurrentDistanceToVehicleInFront(int lane){
+		
+		double[] result = new double[3];
+		boolean foundNextVehicle = false;
+		double distance;
+		
+		if(curDirection_) distance = curStreet_.getLength() - curPosition_;
+		else distance = curPosition_;
+		// only do the big calculation if the current street is empty AND the remainder of the current street is shorter than the braking distance
+		if(distance < curBrakingDistance_){
+			Street tmpStreet = curStreet_;
+			LaneObject tmpLaneObject;
+			Node junctionNode, nextNode;
+			boolean tmpDirection = curDirection_;
+			boolean gotJunctionPermission = false;
+			int tmpLane = lane;
+			int i;
+			int j = routeStreets_.length-1;
+
+			// check next streets that we will visit. If routing is empty this automatically skips (which is what we actually want)
+			for(i = routePosition_; i < j;){
+				//check for junctions
+				if(tmpDirection) junctionNode = tmpStreet.getEndNode();
+				else junctionNode = tmpStreet.getStartNode();
+				if(junctionNode.getJunction() != null){
+	
+					if(junctionAllowed_ != junctionNode){
+						if(routeDirections_[i+1]) nextNode = routeStreets_[i+1].getEndNode();
+						else nextNode = routeStreets_[i+1].getStartNode();
+						if(junctionNode.isHasTrafficSignal_()){
+							if(junctionNode.getJunction().canPassTrafficLight(this, tmpStreet, nextNode)){	
+								junctionAllowed_ = junctionNode;
+								gotJunctionPermission = true;
+							}
+							else {
+								waitingForSignal_ = true;
+								result[0] = 1;
+								result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+								result[2] = 0;
+								return result;
+								//return 2;
+							}
+						}
+						else{
+							int priority;
+							if(tmpDirection) priority = junctionNode.getJunction().getJunctionPriority(tmpStreet.getStartNode(), nextNode);
+							else priority = junctionNode.getJunction().getJunctionPriority(tmpStreet.getEndNode(), nextNode);
+							if(priority != 1){	// don't do anything on priority streets
+								// don't turn off faster than about 35km/h
+								if(curSpeed_ > 1000){
+									result[0] = 1;
+									result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+									result[2] = 0;
+									return result;
+									//return 2;
+								} else if(priority > 2){
+									junctionNode.getJunction().addWaitingVehicle(this, priority);
+									if(!emergencyVehicle_ && !fakingMessages_ && !junctionNode.getJunction().canPassJunction(this, priority, nextNode)){
+										result[0] = 1;
+										result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+										result[2] = 0;
+										return result;
+										//return 2;
+									}
+									else {
+										junctionAllowed_ = junctionNode;
+										gotJunctionPermission = true;
+									}
+								}
+							}
+						}
+					}
+				}
+				//get next street
+				++i;
+				tmpDirection = routeDirections_[i];
+				tmpStreet = routeStreets_[i];
+				if(tmpLane > tmpStreet.getLanesCount()) tmpLane = tmpStreet.getLanesCount();
+
+				// Check if next street has smaller speed limit
+				if(tmpStreet.getSpeed() < curSpeed_) {
+					if(gotJunctionPermission) {
+						junctionAllowed_.getJunction().allowOtherVehicle();
+						junctionAllowed_ = null;
+					}
+					result[0] = 1;
+					result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+					result[2] = 0;
+					return result;
+					//return 2;
+				}
+
+				// Check if first lane object of next street on our lane forces us to stop
+				if(!foundNextVehicle){
+					tmpLaneObject = tmpStreet.getFirstLaneObject(tmpDirection);
+					while(tmpLaneObject != null){
+						if(tmpLaneObject.getCurLane() == tmpLane){
+							foundNextVehicle = true;
+							if((tmpDirection && tmpLaneObject.getCurPosition()+distance < curBrakingDistance_) || (!tmpDirection && tmpStreet.getLength()-tmpLaneObject.getCurPosition()+distance < curBrakingDistance_)){
+								if(curSpeed_ > tmpLaneObject.getCurSpeed()-brakingRate_){
+									if(gotJunctionPermission) {
+										junctionAllowed_.getJunction().allowOtherVehicle();
+										junctionAllowed_ = null;
+									}
+									result[0] = 1;
+									result[1] = distance + (tmpDirection ? tmpLaneObject.getCurPosition() : tmpStreet.getLength() - tmpLaneObject.getCurPosition());
+									result[2] = tmpLaneObject.getCurSpeed();
+									return result;
+									//return 1;
+								}
+							}
+							break;
+						}
+						tmpLaneObject = tmpLaneObject.getNext();
+					}
+				}
+
+				// calculate distance of the whole street.
+				distance += tmpStreet.getLength();
+				// We can stop processing the next one if we get longer than braking distance
+				if(distance > curBrakingDistance_) break;
+				if(tmpStreet == destinations_.peekFirst().getStreet()) break;
+
+			}		
+		}
+
+		result[0] = 0;
+		result[1] = 0;
+		result[2] = 0;
+		return result;
+		//return 0;
 	}
 	
 	/**
