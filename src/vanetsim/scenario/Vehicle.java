@@ -569,7 +569,6 @@ public class Vehicle extends LaneObject{
 	/** IDM-specific values used in the computation of the velocity based on the IDM function*/
 	private int deltaValueIDM_ = 4; //TODO
 	private double minDistanceIDM_ = 250;
-	//private double maxInFrontSearchDistanceIDM_;
 	
 
 	private int EVAMessageDelay_ = 3;
@@ -1037,11 +1036,10 @@ public class Vehicle extends LaneObject{
 							 Math.pow((s_star_delta / (distanceToFrontVehicle - (double)vehicleLength_)), 2));
 				}
 				
+				// Before computing the new velocity, the acceleration is adjusted by hard limits 
 				if (accelerationByIDM > accelerationRate_) accelerationByIDM = accelerationRate_;
 				if (accelerationByIDM < -brakingRate_) accelerationByIDM = -brakingRate_;
 				// After computing the acceleration with the IDM-function a new speed for the next simulation step is computed
-				if (accelerationByIDM > accelerationRate_) accelerationByIDM = accelerationRate_;
-				if (accelerationByIDM < -brakingRate_) accelerationByIDM = -brakingRate_;
 				newSpeed_ = curSpeed_ + (accelerationByIDM * (double)timePerStep/1000);
 				
 				
