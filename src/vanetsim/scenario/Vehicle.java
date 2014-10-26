@@ -1001,7 +1001,7 @@ public class Vehicle extends LaneObject{
 					boolean foundNextVehicle;
 					double distanceToFrontVehicle;
 					
-					double[] checkingResults = checkCurrentDistanceToVehicleInFront(curLane_);
+					double[] checkingResults = inDepthSearchForIDM(curLane_);
 					foundNextVehicle = !(checkingResults[0] == 0);
 					distanceToFrontVehicle = checkingResults[1];
 					speedOfFrontVehicle = checkingResults[2];
@@ -3234,7 +3234,7 @@ public class Vehicle extends LaneObject{
 	 * @param lane
 	 * @return
 	 */
-	private double[] checkCurrentDistanceToVehicleInFront(int lane){
+	private double[] inDepthSearchForIDM(int lane){
 		
 		double[] result = new double[3];
 		boolean foundNextVehicle = false;
