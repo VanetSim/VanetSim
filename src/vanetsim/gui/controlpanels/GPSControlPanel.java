@@ -51,6 +51,13 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 	/** A panel which includes the buttons for loading the GPS the simulation. Uses a <code>CardLayout</code>. */
 	private final JPanel LoadJPanel_;
 	
+	/** The input field for the minimum Line in Parsing File. */
+	private final JFormattedTextField minLine_;
+	
+	/** The input field for the maximum Line in Parsing File.. */
+	private final JFormattedTextField maxLine_;
+	
+	
 	/**
 	 * 
 	 */
@@ -100,9 +107,24 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				c.gridx = 1;
 				add(chooseGPSTraces_, c);
 				
-				//TODO:Infobox 
+				c.gridx = 0;
+				JLabel jLabel1 = new JLabel(Messages.getString("GPSControlPanel.minLine")); //$NON-NLS-1$
+				++c.gridy;
+				add(jLabel1,c);		
+				minLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+				minLine_.setPreferredSize(new Dimension(60,20));
+				c.gridx = 1;
+				add(minLine_,c);
+				c.gridx = 2; 
 				
-			
+				c.gridx = 0;
+				jLabel1 = new JLabel(Messages.getString("GPSControlPanel.maxLine")); //$NON-NLS-1$
+				++c.gridy;
+				add(jLabel1,c);		
+				maxLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+				maxLine_.setPreferredSize(new Dimension(60,20));;
+				c.gridx = 1;
+				add(maxLine_,c);
 				
 				//TODO: Load Button
 				LoadJPanel_ = new JPanel(new CardLayout());
@@ -138,6 +160,13 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		
 		String command = arg0.getActionCommand();
 
+		int minLineValue = 0;
+		int maxLineValue = 20;
+		
+		//minLineValue = ((Number)minLine_.getValue()).intValue();
+		//maxLineValue = ((Number)maxLine_.getValue()).intValue();
+		
+		
 		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 Hamburg
 		if("Trace File".equals(command)){	
 			//display Traces selection related gui elements
@@ -159,22 +188,29 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		if ("load".equals(command)){ //$NON-NLS-1$
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")){ 
 				//GPSPrecalculation.openMap(6); 
-				GPSPrecalculation.runParser(6);
+				GPSPrecalculation.runParser(6, 0, 0);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")){ 
 				//GPSPrecalculation.openMap(5); 
-				GPSPrecalculation.runParser(5);		
+				GPSPrecalculation.runParser(5, minLineValue, maxLineValue);		
 				System.out.println("Starting new method now!");
-				GPSPrecalculation.precalculateRoute(5);
+				GPSPrecalculation.precalculateRoute(5, minLineValue, maxLineValue);
+				System.out.println(minLineValue);
+				System.out.println(maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")){ 
 				//GPSPrecalculation.openMap(3); 
-				GPSPrecalculation.runParser(3);
+				GPSPrecalculation.runParser(3, minLineValue, maxLineValue);
+				GPSPrecalculation.precalculateRoute(3, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")){ 
 				//GPSPrecalculation.openMap(4); 
-				GPSPrecalculation.runParser(4);
+				GPSPrecalculation.runParser(4, minLineValue, maxLineValue);
+				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
+		
+
+			
 		}
 	}
 	

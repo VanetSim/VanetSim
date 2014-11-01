@@ -1,6 +1,7 @@
 package vanetsim.gpstracing;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -34,7 +35,13 @@ public class GPSTracesShanghai {
 		return INSTANCE;
 	}
 	
-	public ArrayList<String> getShanghaiTraces(){
+	/** The last Line the Parser reads */
+	private int maxLine_;
+	
+	/** The first Line the Parser reads */
+	private int minLine_;
+	
+	public ArrayList<String> getShanghaiTraces(int minLine_, int maxLine_){
 		 shTraces_ = new ArrayList<String>();
 		 
 		 File ShanghaiFile_ = new File("../VanetSim/GPX_Data/Shanghai_Traces/Shanghai_Taxi_traces.txt");
@@ -44,10 +51,18 @@ public class GPSTracesShanghai {
 	        {
 	          br = new BufferedReader(
 	          new FileReader(ShanghaiFile_));
-	            while ((sCurrentLine = br.readLine()) != null)
+	          int i = 0;
+	          
+	          
+	            while (((sCurrentLine = br.readLine()) != null) && i<= 200)
+	         
 	            {
+	            	i++;
 	            	//Parse here 
 	            	String[] columns = sCurrentLine.split(",");
+	            		       
+	            
+	            	
 	            	
 	            	//String ID = columns[0];  
                     String TaxiID = columns[1];  
@@ -60,21 +75,21 @@ public class GPSTracesShanghai {
                     //String EStatus = columns[8];  
                     //String Reversed = columns[9];  
                     
-                    System.out.println("TaxiID " + TaxiID);
-                    System.out.println("Lon " + Lon);
-                    System.out.println("Lat " + Lat);
-                    System.out.println("Time " + Time);
+                    //System.out.println("TaxiID " + TaxiID);
+                    //System.out.println("Lon " + Lon);
+                    //System.out.println("Lat " + Lat);
+                    //System.out.println("Time " + Time);
                     
-                    
+                    System.out.println("XX " + TaxiID);
                    //Add to Array List 
                     
                     shTraces_.add(TaxiID);
                     shTraces_.add(Lon);
                     shTraces_.add(Lat);
                     shTraces_.add(Time);
-   
-	                //System.out.println(sCurrentLine);
-	            }
+                  //  System.out.println(shTraces_);
+                    
+	            	}   
 	        }
 	        catch (IOException e)
 	        {

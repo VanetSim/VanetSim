@@ -18,36 +18,26 @@ import java.util.Date;
 
 public class GPSTracesNY {
 //TODO: Finish and Upload
-	/** The path of the CSV file*/
-	private String csvPath_;
-	//TODO: Alle 12 Dateien aufrufen und durchgehen
-	/** The default path and filename, used if no path is set*/
-	private String defaultPath_ = ".csv";
+	/** The last Line the Parser reads */
+	private int maxLine_;
 	
+	/** The first Line the Parser reads */
+	private int minLine_;
+
 	/** The ArrayList types collects all GPSDATA*/
 	public ArrayList<String> nyTraces_;
 	
-	/** If no path is set, the default path is used
-	 * @return */
-	public void NY_Traces_CSV(String path){
-		if(path == null) csvPath_ = defaultPath_;
-		else csvPath_ = path;		
-	}
-	
-	
 	/** The only instance of this class (singleton). */
 	private static final GPSTracesNY INSTANCE = new GPSTracesNY();
-	
-	
+	/** Instance for NY Traces. */
 	public static GPSTracesNY getInstance(){
 		return INSTANCE;
 	}
 	
-	
-	
-	public ArrayList<String> getNYTraces(){
+	public ArrayList<String> getNYTraces(int minLine_, int maxLine_){
 		 nyTraces_ = new ArrayList<String>();
-		 System.out.println("Ja ich bin in die Methode 5 gesprungen");
+		 
+		 int Counter = 0;
 		 //Parse CSV File
 		 //List is structured as followed: medallion, hack_licence, vendor_id
 		 //rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime, 
@@ -60,18 +50,25 @@ public class GPSTracesNY {
 		 if (fileArray != null) { 
 			    for (int i = 0; i < fileArray.length; i++) {
 			    	File actualFile_ = fileArray[i];
-			    	 //File actualFile_ = new File(fileArray[i]);
-			    	 System.out.println("Bin in die Schleife gewandert");
-			      System.out.print(fileArray[i].getAbsolutePath());
-		 
+			    	//TODO: Anzahl der gesamtzeilen bestimmen
+			    	
+			    	
+			    	int minLineValue_ = minLine_;
+			    	int maxLineValue_ = maxLine_;
+			    	
 
+			   
+			    		 
+			    	
 			      BufferedReader br = null;
 			        String sCurrentLine = null;
+			       
 			        try
 			        {
 			          br = new BufferedReader(
 			          new FileReader(actualFile_));
-			            while ((sCurrentLine = br.readLine()) != null){
+			          
+			            while (((sCurrentLine = br.readLine()) != null)){
 	            	//Parse here 
 	            	String[] columns = sCurrentLine.split(",");
 	            	 
@@ -90,6 +87,8 @@ public class GPSTracesNY {
                  String dropoff_longitude = columns[12]; 
                  String dropoff_latitude = columns[13]; 
                  
+                 Counter ++;
+                 
                  System.out.println("TaxiID " + medallion);
                  System.out.println("Lon " + pickup_longitude);
                  System.out.println("Lat " + pickup_latitude);
@@ -97,6 +96,7 @@ public class GPSTracesNY {
                  System.out.println("Triptime " + trip_time_in_secs);
                  System.out.println("Droppof lon " + dropoff_longitude);
                  System.out.println("Droppoff lat " + dropoff_latitude);
+                 System.out.println("Counter " + Counter);
                  
                 //Add to Array List 
                  
@@ -109,20 +109,20 @@ public class GPSTracesNY {
                  nyTraces_.add(dropoff_latitude);
 
 	                //System.out.println(sCurrentLine);
+			            
 	            }
+			          
+			        
 	        }
-	        catch (IOException e)
-	        {
+	        catch (IOException e){
 	            e.printStackTrace();
 	        }
-	        finally
-	        {
-	            try
-	            {
+	        finally{
+	            try{
 	                if (br != null)
 	                br.close();
-	            } catch (IOException ex)
-	            {
+	            } 
+	            catch (IOException ex){
 	                ex.printStackTrace();
 	            }
 	        }	 	 

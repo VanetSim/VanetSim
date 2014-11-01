@@ -20,33 +20,26 @@ import java.util.UUID;
 
 public class GPSTracesSanFrancisco {
 
-	/** The path of the TXT file*/
-	private String txtPath_;
-	
-	/** The default path and filename, used if no path is set*/
-	private String defaultPath_ = "";
 	
 	/** The ArrayList types collects all GPSDATA*/
 	public ArrayList<String> sfTraces_;
 	
-	/** If no path is set, the default path is used
-	 * @return */
-	public void SanFranciscoTraces_CSV(String path){
-		if(path == null) txtPath_ = defaultPath_;
-		else txtPath_ = path;		
-	}
+	/** The last Line the Parser reads */
+	private int maxLine_;
+	
+	/** The first Line the Parser reads */
+	private int minLine_;
 	
 	/** The only instance of this class (singleton). */
 	private static final GPSTracesSanFrancisco INSTANCE = new GPSTracesSanFrancisco();
 	
-	
+	/**Instance for San Francisco Traces. */
 	public static GPSTracesSanFrancisco getInstance(){
 		return INSTANCE;
 	}
 	
-	
-	
-	public ArrayList<String> getSanFranciscoTraces(){
+
+	public ArrayList<String> getSanFranciscoTraces(int minLine_, int maxLine_){
 		 sfTraces_ = new ArrayList<String>();
 		 
 		 System.out.println("Hier bin ich. ich bin die 4");
@@ -58,8 +51,7 @@ public class GPSTracesSanFrancisco {
 		 if (fileArray != null) { 
 			    for (int i = 0; i < fileArray.length; i++) {
 			    	File actualFile_ = fileArray[i];
-			    	 //File actualFile_ = new File(fileArray[i]);
-			    	 System.out.println("Bin in die Schleife gewandert");
+			    	 //File actualFile_ = new File(fileArray[i])
 			      System.out.print(fileArray[i].getAbsolutePath());
 			      UUID TaxiID = UUID.randomUUID();
 			      
@@ -73,10 +65,10 @@ public class GPSTracesSanFrancisco {
 			            	//Parse here 
 			            	String[] columns = sCurrentLine.split(" ");
 			            	//Structure of Files latitude, longitude, occupancy, time
-		                 String latitude = columns[0]; 
-		                 String longitude = columns[1]; 
-		                // String occupancy = columns[2]; 
-		                 String time = columns[3]; 
+			            	String latitude = columns[0]; 
+			            	String longitude = columns[1]; 
+			            	// String occupancy = columns[2]; 
+			            	String time = columns[3]; 
 		                 
 		                 //Convert String time to Long
 		                long long_time = Long.parseLong(time);
@@ -128,7 +120,6 @@ public class GPSTracesSanFrancisco {
 			   //   }
 			    }
 			  }
-		 System.out.println("File Array doesnt work");
 			  
 			  
 
