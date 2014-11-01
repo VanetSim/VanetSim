@@ -26,6 +26,49 @@ import vanetsim.scenario.Vehicle;
 public final class MapHelper{
 
 	/**
+	 * Translates real world GPS positions to the metric system of x- and y-coordinates,
+	 * which are used by the simulation system of VanetSim
+	 * 
+	 * @param longitute		the longitude of the GPS position
+	 * @param latitude		the latitude of the GPS position
+	 * @return the x and y coordinates given as an array of <code>int</code>.
+	 */
+	public static int[] translateGPSToMapMetric(double longitute, double latitude){
+		Map map = Map.getInstance();
+		int[] result = new int[2];
+		double minLongitude = map.getMinLongitude();
+		double maxLongitude = map.getMaxLongitude();
+		double minLatitude = map.getMinLatitude();
+		double maxLatitude = map.getMaxLatitude();
+		int maxX = map.getMapWidth();
+		int maxY = map.getMapHeight();
+		
+		double distanceLong = (maxLongitude < minLongitude) ?
+				360 + (maxLongitude - minLongitude) :
+					maxLongitude - minLongitude;
+		double distanceLat = (maxLatitude < minLatitude) ?
+				360 + (maxLatitude - minLatitude) :
+					maxLatitude - minLatitude;
+		double distanceToLongPoint = (longitute < minLongitude) ?
+				360 + (longitute - minLongitude) :
+					longitute - minLongitude;
+		double distanceToLatPoint = (latitude < minLatitude) ?
+				360 + (latitude - minLatitude) :
+					latitude - minLatitude;
+		if(distanceToLongPoint < 0 && distanceToLatPoint < 0){
+			return null;
+		}
+		else if(distanceToLongPoint > distanceLong && distanceToLatPoint > distanceLat){
+			return null;
+		}
+		else{
+			result[0] = (int)(distanceToLongPoint/distanceLong*maxX);
+			result[1] = (int)(distanceToLatPoint/distanceLat*maxY);
+			return result;
+		}
+	}
+	
+	/**
 	 * Calculate the distance between a point and a street.
 	 * 
 	 * @param street	the street given
