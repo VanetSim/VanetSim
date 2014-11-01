@@ -1,38 +1,49 @@
 package vanetsim.gpstracing;
 
 import java.util.ArrayList;
-
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import vanetsim.map.Map;
+//TODO:uploaded
 public class GPSTracesShanghai {
 
 	/** The path of the TXT file*/
 	private String txtPath_;
 	
 	/** The default path and filename, used if no path is set*/
-	private String defaultPath_ = "Shanghai_Taxi_traces.txt";
+	private String defaultPath_ = "/VanetSim/GPX_Data/Shanghai_Traces/Shanghai_Taxi_traces.txt";
 	
 	/** The ArrayList types collects all GPSDATA*/
 	public ArrayList<String> shTraces_;
 	
 	/** If no path is set, the default path is used
 	 * @return */
-	public void NY_Traces_CSV(String path){
-		if(path == null) txtPath_ = defaultPath_;
-		else txtPath_ = path;		
+	public void Shanghai_Traces_CSV(String path){
+		txtPath_ = defaultPath_;
+		//if(path == null) txtPath_ = defaultPath_;
+		//else txtPath_ = path;		
+	}
+	/** The only instance of this class (singleton). */
+	private static final GPSTracesShanghai INSTANCE = new GPSTracesShanghai();
+	
+	
+	public static GPSTracesShanghai getInstance(){
+		return INSTANCE;
 	}
 	
 	public ArrayList<String> getShanghaiTraces(){
 		 shTraces_ = new ArrayList<String>();
 		 
+		 File ShanghaiFile_ = new File("../VanetSim/GPX_Data/Shanghai_Traces/Shanghai_Taxi_traces.txt");
 		 BufferedReader br = null;
 	        String sCurrentLine = null;
 	        try
 	        {
-	            br = new BufferedReader(
-	            new FileReader("txtPath_"));
+	          br = new BufferedReader(
+	          new FileReader(ShanghaiFile_));
 	            while ((sCurrentLine = br.readLine()) != null)
 	            {
 	            	//Parse here 
@@ -49,10 +60,10 @@ public class GPSTracesShanghai {
                     //String EStatus = columns[8];  
                     //String Reversed = columns[9];  
                     
-                    System.out.println("TaxiID" + TaxiID);
-                    System.out.println("Lon" + Lon);
-                    System.out.println("Lat" + Lat);
-                    System.out.println("Time" + Time);
+                    System.out.println("TaxiID " + TaxiID);
+                    System.out.println("Lon " + Lon);
+                    System.out.println("Lat " + Lat);
+                    System.out.println("Time " + Time);
                     
                     
                    //Add to Array List 
@@ -83,4 +94,5 @@ public class GPSTracesShanghai {
 		 //Return Array List
 		 return shTraces_;
 	}
+	
 }

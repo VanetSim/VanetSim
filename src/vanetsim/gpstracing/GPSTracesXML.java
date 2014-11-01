@@ -21,7 +21,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
+//TODO: Fix Bug, Test and upload - Change to read all files ?
 
 /**
  * 
@@ -30,11 +30,17 @@ import org.w3c.dom.NodeList;
  */
 public class GPSTracesXML {
 	
-	//private int lontitude_;
-	//private int latitude_;
-	//private float speed_;
-	//private int ele_;
 	private static final SimpleDateFormat gpxDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	
+	
+
+	/** The only instance of this class (singleton). */
+	private static final GPSTracesXML INSTANCE = new GPSTracesXML();
+	
+	
+	public static GPSTracesXML getInstance(){
+		return INSTANCE;
+	}
 	
 	
 	/** The ArrayList types collects all GPX Traces*/
@@ -62,49 +68,32 @@ public class GPSTracesXML {
 		    if (status == JFileChooser.APPROVE_OPTION) {
 		    	//File selectedFile = fileChooser.getSelectedFile();
 		    	
-		    	File[] sf = fileChooser.getSelectedFiles();
-		    	String filelist = "nothing";
-		     	String filePath = "";
+		    	File[] fileArray = fileChooser.getSelectedFiles();
 
-		     		if(sf.length>0){
-		     			filelist = sf[0].getName();
-		     			filePath = sf[0].getPath();
-		            
-		            
-		     			for(int i=1;i<sf.length;i++){
-		     				filelist += "," + sf[i].getName();
+
+		     		if(fileArray != null){
+  
+		     			for(int i=0;i<fileArray.length;i++){
+		     				System.out.println(fileArray.length);
+		     				System.out.println(fileArray[i]);
 		     				
-		     				//Parse File
+		     				//Parse File dsd
 		             
-		     				File file = new File(filePath);
+		     				File actualFile_ = fileArray[i];
 		             
-		     				System.out.println(filePath);
 		     				List<Location> points = null;
 		     				try{
-		     					if(file.isFile()){
+		     						String time_ = null;
+		     					
 		     						//Create ID per File
 		     						UUID idOne = UUID.randomUUID();
 		     						
-		     						/*
-		     						// Initial setup
-		     						FileInputStream inputStream = new FileInputStream(file);
-		     						InputStreamReader inputStreamReader = new InputStreamReader(inputStream);			
-		     						BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-		     						StringBuilder stringBuilder = new StringBuilder();
-		      
-		     						// Read everything into a StringBuilder
-		     						stringBuilder.append(bufferedReader.readLine());
-		     						while(bufferedReader.ready())
-		     						{
-		     						stringBuilder.append("\r\n");
-		     						stringBuilder.append(bufferedReader.readLine());				
-		     						}*/
-		     						
+	
 		     						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		     						DocumentBuilder builder = factory.newDocumentBuilder();
 
-		     						FileInputStream fis = new FileInputStream(file);
-		     						org.w3c.dom.Document dom = builder.parse(fis);
+		     						FileInputStream fis = new FileInputStream(actualFile_);
+		     						org.w3c.dom.Document dom = builder.parse(fis);	
 		     						Element root = (Element) dom.getDocumentElement();
 		     						NodeList items = root.getElementsByTagName("trkpt");
 
@@ -114,8 +103,8 @@ public class GPSTracesXML {
 		     							NamedNodeMap attrs = item.getAttributes();
 		     							NodeList props = item.getChildNodes();
 
-		     							Float longtitude_ = (float) Double.parseDouble(attrs.getNamedItem("lat").getTextContent());
-		     							Float latitude_ = (float) Double.parseDouble(attrs.getNamedItem("lon").getTextContent());
+		     							float longtitude_ = (float) Double.parseDouble(attrs.getNamedItem("lat").getTextContent());
+		     							float latitude_ = (float) Double.parseDouble(attrs.getNamedItem("lon").getTextContent());
 		     							//The element ele is measuring the height in meters - not relevant at the moment
 		     							//Float ele_ = (float) Double.parseDouble(attrs.getNamedItem("ele").getTextContent());
 		     							//Float speed_ = (float) Double.parseDouble(attrs.getNamedItem("speed").getTextContent());
@@ -124,12 +113,10 @@ public class GPSTracesXML {
 		     								Node item2 = props.item (k);
 		     								String name = item2.getNodeName();
 		     								if(!name.equalsIgnoreCase("time")) continue;
-		     								try{
-		     									Long time_ = (getDateFormatter().parse(item2.getFirstChild().getNodeValue())).getTime();
-		     									System.out.println("Time" + time_);
-		     								}catch(ParseException ex){
-		     									ex.printStackTrace();
-		     								}
+		     								time_ = (item2.getFirstChild().getNodeValue());
+		     									
+		     									
+		     							
 		     								//This can be adapted if the speed is necessary. In this case, the speed will be calculated by the IDM traffic model
 		     								/*
 		     								for(int z = 0; z<props.getLength(); z++){
@@ -143,6 +130,7 @@ public class GPSTracesXML {
 		     								}*/
 		     	                
 		     							}
+		     						
 		     							/*
 		     							for(int y = 0; y<props.getLength(); y++){
 		     								Node item3 = props.item(y);
@@ -154,17 +142,24 @@ public class GPSTracesXML {
 		     							System.out.println("UUID One: " + idOne);
 		     							System.out.println("lon" + longtitude_);
 		     							System.out.println("lat" + latitude_);
+		     							System.out.println("TIME " + time_);
 		     							//System.out.println(ele_);
 		     							//System.out.println("Speed" + speed_);
 		     							
-		     							//Add elements to ArrayList
+		     							//CAST
+		     							String lon_ = valueOf(longtitude_);
+		     							String lat_ = valueOf(latitude_);
 		     							
+		     							
+		     							//Add elements to ArrayList
+		     							     							
 		     							GPXTraces_.add(idOne.toString());
-		     							GPXTraces_.add(longtitude_.toString());
-		     							GPXTraces_.add(latitude_.toString());
+		     							GPXTraces_.add(lon_);
+		     							GPXTraces_.add(lat_);
+		     							GPXTraces_.add(time_);
 		     						}
 		     						fis.close();
-		     					}
+		     					
 		     				}catch (Exception e) { 
 		     					System.out.println("Uuups this went wrong");
 		     					e.printStackTrace(); 
@@ -179,9 +174,17 @@ public class GPSTracesXML {
 	 }
 
 		    
-	 public static SimpleDateFormat getDateFormatter(){
+	 private String valueOf(float longtitude_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public static SimpleDateFormat getDateFormatter(){
 		return (SimpleDateFormat)gpxDate.clone();
 		}
+	 
+		
 	}
 	
 
