@@ -7,14 +7,19 @@ import vanetsim.gui.helpers.VehicleType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
 
 public class GPSTracesNY {
 //TODO: Finish and Upload
@@ -26,6 +31,8 @@ public class GPSTracesNY {
 	
 	/** The ArrayList types collects all GPSDATA*/
 	public ArrayList<String> nyTraces_;
+	
+	private List<long[]> traceInfo_ = new ArrayList<long[]>();
 	
 	/** If no path is set, the default path is used
 	 * @return */
@@ -43,7 +50,78 @@ public class GPSTracesNY {
 		return INSTANCE;
 	}
 	
-	
+	/**
+	 * Function for determine the amount of lines within the data set/traces, which
+	 * are needed for further calculation and precalculations
+	 */
+	public void getTraceInfo(){
+		
+		// If the trace info file exists, it will be read and the information will be stored in traceInfo_
+		File traceInfoFile = new File("../VanetSim/GPX_Data/traceInfoFileNY.txt");
+		if(traceInfoFile.exists() && !traceInfoFile.isDirectory()){
+			Scanner sc;
+			try {
+				sc = new Scanner(traceInfoFile);
+				while(sc.hasNextLine()){
+					String[] parsedLine = sc.nextLine().split(";");
+					long[] parsedNumbers = new long[2];
+					parsedNumbers[0] = Long.parseLong(parsedLine[0]);
+					parsedNumbers[1] = Long.parseLong(parsedLine[1]);
+					traceInfo_.add(parsedNumbers);
+				}
+				sc.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		// If the trace info file doesn't exist, the information will be parsed from the trace files
+		// and will be stored in traceInfo_
+		else{
+			File f = new File("../VanetSim/GPX_Data/NY_Traces");
+			File[] fileArray = f.listFiles();
+			
+			if (fileArray != null) {
+				long lines = -1;
+				for (int i=0; i < fileArray.length; i++){
+					try {
+						Scanner sc = new Scanner(fileArray[i]);
+						lines++;
+						long[] parsedNumbers = new long[2];
+						parsedNumbers[0] = lines;
+						while (sc.hasNextLine()){
+							sc.nextLine();
+							lines++;
+						}
+						sc.close();
+						parsedNumbers[1] = lines;
+						traceInfo_.add(parsedNumbers);
+					}
+					catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				// After parsing the trace info from the trace files, it will be written into a trace file to store
+				// the information persistantly.
+				try {
+					PrintWriter writer = new PrintWriter("../VanetSim/GPX_Data/traceInfoFileNY.txt",
+							"UTF-8");
+					for(int i=0; i < traceInfo_.size(); i++){
+						writer.println(traceInfo_.get(i)[0] + ";" + traceInfo_.get(i)[1]);
+					}
+					writer.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}			
+		}
+	}
 	
 	public ArrayList<String> getNYTraces(){
 		 nyTraces_ = new ArrayList<String>();
