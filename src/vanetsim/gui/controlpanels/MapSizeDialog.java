@@ -160,7 +160,7 @@ public final class MapSizeDialog extends JDialog implements ActionListener{
 		mapHeight_ = Math.max(mapHeight_, ((Number)heightTextField_.getValue()).intValue());
 		regionWidth_ = Math.max(1000, ((Number)regionWidthTextField_.getValue()).intValue());
 		regionHeight_ = Math.max(1000, ((Number)regionHeightTextField_.getValue()).intValue());
-		Map.getInstance().initNewMap(mapWidth_, mapHeight_, regionWidth_, regionHeight_);
+		Map.getInstance().initNewMap(mapWidth_, mapHeight_, 0, 0, 0, 0, regionWidth_, regionHeight_);
 		try {
 			barrier_.await(2, TimeUnit.SECONDS);
 		} catch (Exception e2) {}

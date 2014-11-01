@@ -115,7 +115,7 @@ public final class VanetSimStart implements Runnable {
 
 		simulationMaster_ = new SimulationMaster();
 		simulationMaster_.start();
-		Map.getInstance().initNewMap(100000, 100000, 10000, 10000);
+		Map.getInstance().initNewMap(100000, 100000, 0, 0, 0, 0, 10000, 10000);
 		Map.getInstance().signalMapLoaded();
 		ReRenderManager.getInstance().start();
 		MouseClickManager.getInstance().setDrawArea(drawarea);
