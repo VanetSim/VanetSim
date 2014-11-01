@@ -93,15 +93,15 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 		selectModel_.setSelected(true);
 		group.add(selectModel_);
 		++c.gridy;
-		add(selectModel_,c);
-				
+	//	add(selectModel_,c);
+			/**	
 		selectTraces_ = new JRadioButton(Messages.getString("EditTrafficControlPanel.traces")); //$NON-NLS-1$
 		selectTraces_.setActionCommand("traces"); //$NON-NLS-1$
 		selectTraces_.addActionListener(this);
 		group.add(selectTraces_);
 		++c.gridy;
 		add(selectTraces_,c);
-			
+		*/	
 		
 		c.gridx = 0;
 		chooseTrafficModelLabel_ = new JLabel(Messages.getString("EditTrafficControlPanel.comboBoxModel")); //$NON-NLS-1$
@@ -115,7 +115,7 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 		c.gridx = 1;
 		add(chooseTrafficModel_, c);
 		
-		
+		/**
 		c.gridx = 0;
 		chooseTracesLabel_ = new JLabel(Messages.getString("EditTrafficControlPanel.comboBoxTraces")); //$NON-NLS-1$
 		++c.gridy;
@@ -129,7 +129,7 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 		add(chooseTraces_, c);
 		chooseTraces_.setVisible(false);
 		chooseTracesLabel_.setVisible(false);
-		
+		*/
 		
 		
 		//to consume the rest of the space
@@ -153,9 +153,10 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 			
 			chooseTrafficModelLabel_.setVisible(true);
 			chooseTrafficModel_.setVisible(true);
-			chooseTraces_.setVisible(false);
-			chooseTracesLabel_.setVisible(false);
+		//	chooseTraces_.setVisible(false);
+		//	chooseTracesLabel_.setVisible(false);
 		}
+		/**
 		else if("traces".equals(command)){
 			//display traces selection related gui elements
 			
@@ -166,15 +167,18 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 			chooseTrafficModel_.setVisible(false);
 			chooseTrafficModelLabel_.setVisible(false);
 		}
+		*/
 		else if("chooseTrafficModel".equals(command)){
 			
 			if(((String)chooseTrafficModel_.getSelectedItem()).equals("VANETSim classic")) WorkerThread.setSimulationMode_(1);
 			else if(((String)chooseTrafficModel_.getSelectedItem()).equals("IDM/MOBIL")) WorkerThread.setSimulationMode_(2);
 		}
+		/**
 		else if("chooseTraces".equals(command)){
 			if(((String)chooseTraces_.getSelectedItem()).equals("sjtu taxi traces")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseTraces_.getSelectedItem()).equals("San Francisco traces")) WorkerThread.setSimulationMode_(4);
-		}		
+		}	
+		*/	
 	}
 
 }

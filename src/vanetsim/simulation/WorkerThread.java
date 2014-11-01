@@ -23,6 +23,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import vanetsim.ErrorLog;
+import vanetsim.gpstracing.GPSPrecalculation;
 import vanetsim.gui.Renderer;
 import vanetsim.localization.Messages;
 import vanetsim.map.Node;
@@ -55,7 +56,7 @@ public final class WorkerThread extends Thread {
 	/** The <code>CyclicBarrier</code> called after performing all tasks. */
 	private CyclicBarrier barrierFinish_;
 	
-	/** Select the simuation mode and switches between models and traces. 1 --> model VANETSim; 2 --> model IDS/MOBIL; 3 --> traces SJTU; 4 --> traces San Francisco */
+	/** Select the simuation mode and switches between models and traces. 1 --> model VANETSim; 2 --> model IDS/MOBIL; 3 --> traces SJTU; 4 --> traces San Francisco  5 --> New York --> 6 Hamburg*/
 	private static int simulationMode_ = 1;
 	
 	/**
@@ -635,7 +636,7 @@ public final class WorkerThread extends Thread {
 				
 			}
 		}
-		
+		//TODO: Number 3 -> Shanghai
 		if(simulationMode_ == 3){
 			while(true){
 				// ================================= 
@@ -661,7 +662,7 @@ public final class WorkerThread extends Thread {
 				} catch (Exception e){
 					//e.printStackTrace();
 				}
-
+				
 				// ================================= 
 				// Step 3: Adjust speed, do message cleanup and create jam messages
 				// ================================= 
@@ -671,7 +672,8 @@ public final class WorkerThread extends Thread {
 						vehicleSubarray = vehicles[i];
 						length = vehicleSubarray.length;
 						for(j = 0; j < length; ++j){
-							vehicleSubarray[j].adjustSpeedWithSJTUTraceFiles(timePerStep_);
+						//	vehicleSubarray[j].adjustSpeedWithSJTUTraceFiles(timePerStep_);
+							vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 						}
 					}
 					
@@ -873,7 +875,7 @@ public final class WorkerThread extends Thread {
 				
 			}
 		}
-		
+		//TODO: Number 4  -> San Francisco
 		if(simulationMode_ == 4){
 			while(true){
 				// ================================= 
@@ -909,7 +911,8 @@ public final class WorkerThread extends Thread {
 						vehicleSubarray = vehicles[i];
 						length = vehicleSubarray.length;
 						for(j = 0; j < length; ++j){
-							vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
+							//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
+							vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 						}
 					}
 					
@@ -1120,6 +1123,506 @@ public final class WorkerThread extends Thread {
 				}
 				*/
 				
+				//TODO: Add Simulation stuff 5 (New York) and 6 (Hamburg)
+				
+				if(simulationMode_ == 5){
+					while(true){
+						// ================================= 
+						// Step 1: Update changed regions with new vehicle arrays
+						// ================================= 
+						if(changedRegions_.size() > 0){
+							changedRegionIterator = changedRegions_.iterator();
+							while(changedRegionIterator.hasNext()){
+								tmp = changedRegionIterator.next().intValue();
+								vehicles[tmp] = ourRegions_[tmp].getVehicleArray();
+							}
+							changedRegions_.clear();
+						}
+						// ================================= 
+						// Step 2: Wait for SimulationMaster to start
+						// ================================= 		
+						try{
+							barrierStart_.await();
+						} catch (InterruptedException e){	// master wants us to stop!
+							break;
+						} catch (BrokenBarrierException e){	// master wants us to stop!
+							break;
+						} catch (Exception e){
+							//e.printStackTrace();
+						}
+
+						// ================================= 
+						// Step 3: Adjust speed, do message cleanup and create jam messages
+						// ================================= 
+						try{
+							//vehicles: adjustSpeed()
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
+									vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
+								}
+							}
+							
+							//rsus: cleanup old messages
+							for(i = 0; i < ourRegionsLength; ++i){
+								rsuSubarray = rsus[i];
+								length = rsuSubarray.length;
+								for(j = 0; j < length; ++j){
+									rsuSubarray[j].cleanup(timePerStep_);
+								}
+							}
+
+							
+							// Wait for all concurrent threads to synchronize			
+							
+							barrierDuringWork_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+							//e.printStackTrace();
+							try{
+								barrierDuringWork_.await();
+							}catch (Exception e2){}
+						}
+							
+						// ================================= 
+						// Step 4: Send messages.
+						// ================================= 
+						if(communicationEnabled){
+							try{
+								//vehicles send messages
+							
+								for(i = 0; i < ourRegionsLength; ++i){
+									vehicleSubarray = vehicles[i];
+									length = vehicleSubarray.length;
+									for(j = 0; j < length; ++j){
+										vehicle = vehicleSubarray[j];
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getCommunicationCountdown() < 1){
+											vehicle.sendMessages();
+										}
+									}
+								}
+								
+								//rsus: send messages
+								for(i = 0; i < ourRegionsLength; ++i){
+									rsuSubarray = rsus[i];
+									length = rsuSubarray.length;
+									for(j = 0; j < length; ++j){
+										rsu = rsuSubarray[j];
+										if(rsu.getCommunicationCountdown() < 1 && !rsu.isEncrypted_()){
+											rsuSubarray[j].sendMessages();	
+										}
+									}
+								}
+								
+								// Wait for all concurrent threads to synchronize
+								
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}
+						
+						// ================================= 
+						// Step 4b: IDS calculations
+						// ================================= 
+					
+						if(idsEnabled){	
+							try{
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									vehicle = vehicleSubarray[j];
+									if(vehicle.isCheckIDSProcessors_()){
+										vehicle.getIdsProcessorList_().fireIDSProcessors();
+									}
+								}
+							}
+								
+								// Wait for all concurrent threads to synchronize
+							
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}	
+
+						// ================================= 
+						// Step 5a:  Send beacons. Beacons are sent here so that they are not considered in the current step yet!
+						//          Putting this in the movement step is not possible!
+						// ================================= 
+						if(communicationEnabled && beaconsEnabled){
+							try{
+							//handle silent periods
+							if(Vehicle.isSilentPeriodsOn()){
+								tmpTimePassed = Renderer.getInstance().getTimePassed();
+								if(tmpTimePassed > silentPeriodFrequency && tmpTimePassed%(silentPeriodDuration + silentPeriodFrequency) < 240){
+									tmpTimePassedSaved = tmpTimePassed;
+									Vehicle.setSilent_period(true);
+								}
+								else if(Vehicle.isSilent_period() && tmpTimePassed > (tmpTimePassedSaved + silentPeriodDuration)) Vehicle.setSilent_period(false);
+							}
+
+								//vehicles: send beacons
+								for(i = 0; i < ourRegionsLength; ++i){
+									vehicleSubarray = vehicles[i];
+									length = vehicleSubarray.length;
+									for(j = 0; j < length; ++j){
+										vehicle = vehicleSubarray[j];
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getBeaconCountdown() < 1 && !vehicle.isInMixZone()){
+											vehicle.sendBeacons();
+										}
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getBeaconCountdown() < 1 && vehicle.isInMixZone() && vehicle.getCurMixNode_() != null && vehicle.getCurMixNode_().getEncryptedRSU_() != null){
+											vehicle.sendEncryptedBeacons();
+										}
+									}
+								}
+
+								//rsu: send beacons
+								for(i = 0; i < ourRegionsLength; ++i){
+									rsuSubarray = rsus[i];
+									length = rsuSubarray.length;
+									for(j = 0; j < length; ++j){
+										rsu = rsuSubarray[j];
+										if(rsu.getBeaconCountdown() < 1 && !rsu.isEncrypted_()) rsu.sendBeacons();
+										if(rsu.getBeaconCountdown() < 1 && rsu.isEncrypted_()) rsu.sendEncryptedBeacons();
+									}
+								}
+								
+								// Wait for all concurrent threads to synchronize
+								
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}
+
+						// ================================= 
+						// Step 5b: Move attacker
+						// ================================= 
+						
+						/*
+							if(Renderer.getInstance().getAttackerVehicle() != null) Renderer.getInstance().getAttackerVehicle().moveAttacker();
+						*/
+							
+						// ================================= 
+						// Step 6: Move all vehicles one step further
+						// ================================= 
+						try{
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									if(vehicleSubarray[j].isActive()) vehicleSubarray[j].move(timePerStep_);
+									else if(recyclingEnabled && vehicleSubarray[j].getMayBeRecycled() && !vehicleSubarray[j].isDoNotRecycle_()) vehicleSubarray[j].reset();
+									
+								}
+							}
+							
+							// Wait for all concurrent threads to synchronize	
+							
+							barrierFinish_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+							//e.printStackTrace();
+							try{
+								barrierFinish_.await();	//need to wait again...
+							}catch (Exception e2){}
+						}		
+
+						
+						// ================================= 
+						// Step 7: Check the states of all traffic lights and change if necessary
+						// ================================= 
+						/*
+						try{
+							
+							Node[] tmpNodes = null;
+							for(i = 0; i < ourRegions_.length; i++){
+								tmpNodes = ourRegions_[i].getNodes();
+								for(j = 0; j < tmpNodes.length; j++){
+									if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
+										tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
+								}
+							}
+						}
+
+
+							barrierFinish_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+						//e.printStackTrace();
+							try{
+								barrierFinish_.await();	//need to wait again...
+							}catch (Exception e2){}
+						}
+						*/	
+			
+				}
+				}
+				//TODO: Number 6 -> Hamburg
+				if(simulationMode_ == 6){
+					while(true){
+						// ================================= 
+						// Step 1: Update changed regions with new vehicle arrays
+						// ================================= 
+						if(changedRegions_.size() > 0){
+							changedRegionIterator = changedRegions_.iterator();
+							while(changedRegionIterator.hasNext()){
+								tmp = changedRegionIterator.next().intValue();
+								vehicles[tmp] = ourRegions_[tmp].getVehicleArray();
+							}
+							changedRegions_.clear();
+						}
+						// ================================= 
+						// Step 2: Wait for SimulationMaster to start
+						// ================================= 		
+						try{
+							barrierStart_.await();
+						} catch (InterruptedException e){	// master wants us to stop!
+							break;
+						} catch (BrokenBarrierException e){	// master wants us to stop!
+							break;
+						} catch (Exception e){
+							//e.printStackTrace();
+						}
+
+						// ================================= 
+						// Step 3: Adjust speed, do message cleanup and create jam messages
+						// ================================= 
+						try{
+							//vehicles: adjustSpeed()
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
+									vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
+								}
+							}
+							
+							//rsus: cleanup old messages
+							for(i = 0; i < ourRegionsLength; ++i){
+								rsuSubarray = rsus[i];
+								length = rsuSubarray.length;
+								for(j = 0; j < length; ++j){
+									rsuSubarray[j].cleanup(timePerStep_);
+								}
+							}
+
+							
+							// Wait for all concurrent threads to synchronize			
+							
+							barrierDuringWork_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+							//e.printStackTrace();
+							try{
+								barrierDuringWork_.await();
+							}catch (Exception e2){}
+						}
+							
+						// ================================= 
+						// Step 4: Send messages.
+						// ================================= 
+						if(communicationEnabled){
+							try{
+								//vehicles send messages
+							
+								for(i = 0; i < ourRegionsLength; ++i){
+									vehicleSubarray = vehicles[i];
+									length = vehicleSubarray.length;
+									for(j = 0; j < length; ++j){
+										vehicle = vehicleSubarray[j];
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getCommunicationCountdown() < 1){
+											vehicle.sendMessages();
+										}
+									}
+								}
+								
+								//rsus: send messages
+								for(i = 0; i < ourRegionsLength; ++i){
+									rsuSubarray = rsus[i];
+									length = rsuSubarray.length;
+									for(j = 0; j < length; ++j){
+										rsu = rsuSubarray[j];
+										if(rsu.getCommunicationCountdown() < 1 && !rsu.isEncrypted_()){
+											rsuSubarray[j].sendMessages();	
+										}
+									}
+								}
+								
+								// Wait for all concurrent threads to synchronize
+								
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}
+						
+						// ================================= 
+						// Step 4b: IDS calculations
+						// ================================= 
+					
+						if(idsEnabled){	
+							try{
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									vehicle = vehicleSubarray[j];
+									if(vehicle.isCheckIDSProcessors_()){
+										vehicle.getIdsProcessorList_().fireIDSProcessors();
+									}
+								}
+							}
+								
+								// Wait for all concurrent threads to synchronize
+							
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}	
+
+						// ================================= 
+						// Step 5a:  Send beacons. Beacons are sent here so that they are not considered in the current step yet!
+						//          Putting this in the movement step is not possible!
+						// ================================= 
+						if(communicationEnabled && beaconsEnabled){
+							try{
+							//handle silent periods
+							if(Vehicle.isSilentPeriodsOn()){
+								tmpTimePassed = Renderer.getInstance().getTimePassed();
+								if(tmpTimePassed > silentPeriodFrequency && tmpTimePassed%(silentPeriodDuration + silentPeriodFrequency) < 240){
+									tmpTimePassedSaved = tmpTimePassed;
+									Vehicle.setSilent_period(true);
+								}
+								else if(Vehicle.isSilent_period() && tmpTimePassed > (tmpTimePassedSaved + silentPeriodDuration)) Vehicle.setSilent_period(false);
+							}
+
+								//vehicles: send beacons
+								for(i = 0; i < ourRegionsLength; ++i){
+									vehicleSubarray = vehicles[i];
+									length = vehicleSubarray.length;
+									for(j = 0; j < length; ++j){
+										vehicle = vehicleSubarray[j];
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getBeaconCountdown() < 1 && !vehicle.isInMixZone()){
+											vehicle.sendBeacons();
+										}
+										if(vehicle.isActive() && vehicle.isWiFiEnabled() && vehicle.getBeaconCountdown() < 1 && vehicle.isInMixZone() && vehicle.getCurMixNode_() != null && vehicle.getCurMixNode_().getEncryptedRSU_() != null){
+											vehicle.sendEncryptedBeacons();
+										}
+									}
+								}
+
+								//rsu: send beacons
+								for(i = 0; i < ourRegionsLength; ++i){
+									rsuSubarray = rsus[i];
+									length = rsuSubarray.length;
+									for(j = 0; j < length; ++j){
+										rsu = rsuSubarray[j];
+										if(rsu.getBeaconCountdown() < 1 && !rsu.isEncrypted_()) rsu.sendBeacons();
+										if(rsu.getBeaconCountdown() < 1 && rsu.isEncrypted_()) rsu.sendEncryptedBeacons();
+									}
+								}
+								
+								// Wait for all concurrent threads to synchronize
+								
+								barrierDuringWork_.await();
+							} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+							} catch (Exception e){
+								//e.printStackTrace();
+								try{
+									barrierDuringWork_.await();
+								}catch (Exception e2){}
+							}
+						}
+
+						// ================================= 
+						// Step 5b: Move attacker
+						// ================================= 
+						
+						/*
+							if(Renderer.getInstance().getAttackerVehicle() != null) Renderer.getInstance().getAttackerVehicle().moveAttacker();
+						*/
+							
+						// ================================= 
+						// Step 6: Move all vehicles one step further
+						// ================================= 
+						try{
+							for(i = 0; i < ourRegionsLength; ++i){
+								vehicleSubarray = vehicles[i];
+								length = vehicleSubarray.length;
+								for(j = 0; j < length; ++j){
+									if(vehicleSubarray[j].isActive()) vehicleSubarray[j].move(timePerStep_);
+									else if(recyclingEnabled && vehicleSubarray[j].getMayBeRecycled() && !vehicleSubarray[j].isDoNotRecycle_()) vehicleSubarray[j].reset();
+									
+								}
+							}
+							
+							// Wait for all concurrent threads to synchronize	
+							
+							barrierFinish_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+							//e.printStackTrace();
+							try{
+								barrierFinish_.await();	//need to wait again...
+							}catch (Exception e2){}
+						}		
+
+						
+						// ================================= 
+						// Step 7: Check the states of all traffic lights and change if necessary
+						// ================================= 
+						/*
+						try{
+							
+							Node[] tmpNodes = null;
+							for(i = 0; i < ourRegions_.length; i++){
+								tmpNodes = ourRegions_[i].getNodes();
+								for(j = 0; j < tmpNodes.length; j++){
+									if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
+										tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
+								}
+							}
+						}
+
+
+							barrierFinish_.await();
+						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
+						} catch (Exception e){
+						//e.printStackTrace();
+							try{
+								barrierFinish_.await();	//need to wait again...
+							}catch (Exception e2){}
+						}
+						*/	
+				}
+				
 			}
 		}
 		// remove the backlinks from the regions so that garbage collection can really remove everything
@@ -1128,6 +1631,8 @@ public final class WorkerThread extends Thread {
 		}
 		
 		ErrorLog.log(Messages.getString("WorkerThread.workerExited"), 1, this.getName(), "run", null); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+		
 	}
 
 	public static int getSimulationMode_() {

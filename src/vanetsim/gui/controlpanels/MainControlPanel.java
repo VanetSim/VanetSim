@@ -72,6 +72,11 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 	/** flag to toggle the bar*/
 	private boolean hideBar_ = false;
 	
+	//TODO:Corvin Input here **********************
+	/** The GPS control panel. */
+	private final GPSControlPanel gpsPanel_ = new GPSControlPanel();
+	//******************************
+	
 	/**
 	 * Constructor for the main control panel.
 	 */
@@ -137,6 +142,9 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 		
 		
 		tabbedPane_.addTab(Messages.getString("MainControlPanel.simulateTab"), simulatePanel_); //$NON-NLS-1$
+		//TODO: Corvin *************************
+		tabbedPane_.addTab(Messages.getString("GPSControlPanel.gpsTab"), gpsPanel_); //$NON-NLS-1$	
+		//**************************
 		tabbedPane_.addTab(Messages.getString("MainControlPanel.editTab"), editPanel_); //$NON-NLS-1$
 		tabbedPane_.addTab(Messages.getString("MainControlPanel.reporting"), reportingPanel_); //$NON-NLS-1$
 		tabbedPane_.addTab(Messages.getString("MainControlPanel.about"), aboutPanel_); //$NON-NLS-1$
@@ -152,6 +160,9 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 		JScrollPane scrollPane = new JScrollPane(tabbedPane_);
 		tabbedPane_.setOpaque(false);
 		simulatePanel_.setOpaque(false);
+		//**************************
+		gpsPanel_.setOpaque(false);
+		//***********************
 		editPanel_.setOpaque(false);
 		reportingPanel_.setOpaque(false);
 		aboutPanel_.setOpaque(false);
@@ -235,6 +246,17 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 	public SimulateControlPanel getSimulatePanel(){
 		return simulatePanel_;
 	}
+
+	/**
+	 * Gets the control panel on the GPS tab.
+	 * 
+	 * @return the control panel
+	 */
+	public GPSControlPanel getGPSPanel(){
+		return gpsPanel_;
+	}	
+	
+	
 
 	/**
 	 * Gets the control panel on the edit tab.

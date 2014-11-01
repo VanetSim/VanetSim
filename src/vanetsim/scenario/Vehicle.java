@@ -1450,6 +1450,38 @@ public class Vehicle extends LaneObject{
 		//Check implementation of checkLaneFree(int) to get ideas!
 		return true;
 	}
+	//***************************************************
+	// This method is build to have a generic function to 
+	// calculate Speed for the GPS Traces
+	//
+	//***************************************************
+	/**
+	 * A method to be filled when implementing GPS
+	 * @param timePerStep
+	 */
+	
+	//TODO: Adjust Speed GPS
+	public void adjustSpeedWithGPS(int timePerStep){
+		
+		
+		
+		
+		
+		// start vehicle
+
+		//needs to be set for vehicle to start driving
+		active_ = true;
+		
+		//the time the vehicle will wait until it starts driving
+		curWaitTime_ = 0;
+		
+		//add the vehicle to the current lane object
+		curStreet_.addLaneObject(this, curDirection_);
+
+		//as a result of this method a newSpeed_ must be set
+		newSpeed_ = 1800;	
+		//Speed needs to be calculated. Time between 2 Waypoints and the distance between two waypoints v=s/t
+	}
 	
 	
 	/**
