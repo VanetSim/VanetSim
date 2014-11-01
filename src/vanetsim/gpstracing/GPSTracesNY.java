@@ -54,7 +54,7 @@ public class GPSTracesNY {
 	 * Function for determine the amount of lines within the data set/traces, which
 	 * are needed for further calculation and precalculations
 	 */
-	public void getTraceInfo(){
+	public void loadTraceInfoFromFile(){
 		
 		// If the trace info file exists, it will be read and the information will be stored in traceInfo_
 		File traceInfoFile = new File("../VanetSim/GPX_Data/traceInfoFileNY.txt");
@@ -121,6 +121,14 @@ public class GPSTracesNY {
 				}
 			}			
 		}
+	}
+	
+	/**
+	 * Getter function for the TraceFileInfo
+	 * @return trace infos
+	 */
+	public List<long[]> getTraceFileInfo(){
+		return traceInfo_;
 	}
 	
 	public ArrayList<String> getNYTraces(){
