@@ -50,10 +50,10 @@ public final class MapHelper{
 				360 + (maxLatitude - minLatitude) :
 					maxLatitude - minLatitude;
 		double distanceToLongPoint = (longitute < minLongitude) ?
-				360 + (longitute - minLongitude) :
+				180 + (longitute - minLongitude) :
 					longitute - minLongitude;
 		double distanceToLatPoint = (latitude < minLatitude) ?
-				360 + (latitude - minLatitude) :
+				180 + (latitude - minLatitude) :
 					latitude - minLatitude;
 		if(distanceToLongPoint < 0 && distanceToLatPoint < 0){
 			return false;
@@ -62,8 +62,9 @@ public final class MapHelper{
 			return false;
 		}
 		else{
-			result[0] = (int)(distanceToLongPoint/distanceLong*maxX);
-			result[1] = (int)(distanceToLatPoint/distanceLat*maxY);
+			
+			result[0] = (int)(distanceToLongPoint/distanceLong*(double)maxX);
+			result[1] = (int)(distanceToLatPoint/distanceLat*(double)maxY);
 			return true;
 		}
 	}
