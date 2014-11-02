@@ -285,7 +285,7 @@ public final class Map{
 							} catch (Exception e) {}
 						} else if(setting.equals("max_longitude")){ //$NON-NLS-1$
 							try{
-								newMaxLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+								newMaxLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
 							} catch (Exception e) {}
 						} else if(setting.equals("min_latitude")){ //$NON-NLS-1$
 							try{
