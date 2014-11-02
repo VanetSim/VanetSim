@@ -76,7 +76,7 @@ public final class ConsoleStart implements Runnable {
 		simulationMaster_.start();
 		System.out.println(Messages.getString("ConsoleStart.SimMasterInited"));
 		
-		Map.getInstance().initNewMap(100000, 100000, 10000, 10000);
+		Map.getInstance().initNewMap(100000, 100000, 0, 0, 0, 0, 10000, 10000);
 		Map.getInstance().signalMapLoaded();
 		
 		System.out.println(Messages.getString("ConsoleStart.MapLoad"));

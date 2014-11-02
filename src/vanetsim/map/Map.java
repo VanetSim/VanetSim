@@ -72,6 +72,18 @@ public final class Map{
 	/** The width of a single lane (3m). Used in various other places in this program! */
 	public static final int LANE_WIDTH = 300;
 
+	/** The map's minimum longitude */
+	private double minLongitude_ = 0;
+	
+	/** The map's maximum longitude */
+	private double maxLongitude_ = 0;
+	
+	/** The map's minimum latitude */
+	private double minLatitude_ = 0;
+	
+	/** The map's maximum latitude */
+	private double maxLatitude_ = 0;
+	
 	/** The width of the map in cm. */
 	private int width_ = 0;
 
@@ -124,7 +136,7 @@ public final class Map{
 	 * @param regionWidth	the width of a region
 	 * @param regionHeight	the height of a region
 	 */
-	public void initNewMap(int width, int height, int regionWidth, int regionHeight){
+	public void initNewMap(int width, int height, double minLongitude, double maxLongitude, double minLatitude, double maxLatitude, int regionWidth, int regionHeight){
 		int i, j;
 		if(ready_ == true){
 			ready_ = false;
@@ -138,6 +150,10 @@ public final class Map{
 			Node.resetNodeID();
 			width_ = width;
 			height_ = height;
+			minLongitude_ = minLongitude;
+			maxLongitude_ = maxLongitude;
+			minLatitude_ = minLatitude;
+			maxLatitude_ = maxLatitude;
 			regionWidth_ = regionWidth;
 			regionHeight_ = regionHeight;
 
@@ -216,6 +232,7 @@ public final class Map{
 			if(!Renderer.getInstance().isConsoleStart())VanetSimStart.setProgressBar(true);
 			String childtype, setting, streetName, streetType, trafficSignalException, amenity ="";
 			int x = 0, y = 0, maxSpeed, isOneway, lanes, newMapWidth, newMapHeight, newRegionWidth, newRegionHeight;
+			double newMinLongitude, newMaxLongitude, newMinLatitude, newMaxLatitude;
 			Color displayColor;
 			boolean xSet, ySet, trafficSignal;
 			Node startNode, endNode;
@@ -245,6 +262,10 @@ public final class Map{
 				if(childCrsr.getLocalName().toLowerCase().equals("settings")){		// The settings section must be present! //$NON-NLS-1$
 					newMapWidth = 0;
 					newMapHeight = 0;
+					newMinLongitude = 0;
+					newMaxLongitude = 0;
+					newMinLatitude = 0;
+					newMaxLatitude = 0; 
 					newRegionWidth = 0;
 					newRegionHeight = 0;
 					settingsCrsr = childCrsr.childElementCursor();
@@ -255,6 +276,22 @@ public final class Map{
 								newMapHeight = Integer.parseInt(settingsCrsr.collectDescendantText(false));
 							} catch (Exception e) {}
 						} else if(setting.equals("map_width")){ //$NON-NLS-1$
+							try{
+								newMinLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+							} catch (Exception e) {}
+						} else if(setting.equals("min_longitude")){ //$NON-NLS-1$
+							try{
+								newMaxLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+							} catch (Exception e) {}
+						} else if(setting.equals("max_longitude")){ //$NON-NLS-1$
+							try{
+								newMinLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+							} catch (Exception e) {}
+						} else if(setting.equals("min_latitude")){ //$NON-NLS-1$
+							try{
+								newMaxLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+							} catch (Exception e) {}
+						} else if(setting.equals("max_latitude")){ //$NON-NLS-1$
 							try{
 								newMapWidth = Integer.parseInt(settingsCrsr.collectDescendantText(false));
 							} catch (Exception e) {}
@@ -278,7 +315,7 @@ public final class Map{
 						//		barrier.await();
 						//	} catch (Exception e) {}
 						}
-						else Map.getInstance().initNewMap(newMapWidth, newMapHeight, newRegionWidth, newRegionHeight);
+						else Map.getInstance().initNewMap(newMapWidth, newMapHeight, newMinLongitude, newMaxLongitude, newMinLatitude, newMaxLatitude, newRegionWidth, newRegionHeight);
 						int addX = (width_ - newMapWidth)/2;
 						int addY = (height_ - newMapHeight)/2;
 						if(!Renderer.getInstance().isConsoleStart())VanetSimStart.setProgressBar(true);
@@ -432,6 +469,14 @@ public final class Map{
 			level2.addValue(height_);
 			level2 = level1.addElement("Map_width"); //$NON-NLS-1$
 			level2.addValue(width_);
+			level2 = level1.addElement("Min_longitude"); //$NON-NLS-1$
+			level2.addValue((long)(minLongitude_*1000000000));
+			level2 = level1.addElement("Max_longitude"); //$NON-NLS-1$
+			level2.addValue((long)(maxLongitude_*1000000000));
+			level2 = level1.addElement("Min_latitude"); //$NON-NLS-1$
+			level2.addValue((long)(minLatitude_*1000000000));
+			level2 = level1.addElement("Max_latitude"); //$NON-NLS-1$
+			level2.addValue((long)(maxLatitude_*1000000000));
 			level2 = level1.addElement("Region_height"); //$NON-NLS-1$
 			level2.addValue(regionHeight_);
 			level2 = level1.addElement("Region_width"); //$NON-NLS-1$
@@ -1022,6 +1067,42 @@ public final class Map{
 	 */
 	public int getMapHeight(){
 		return height_;
+	}
+	
+	/**
+	 * Gets the minimum longitude.
+	 * 
+	 * @return the map's minimum longitude
+	 */
+	public double getMinLongitude(){
+		return minLongitude_;
+	}
+	
+	/**
+	 * Gets the maximum longitude.
+	 * 
+	 * @return the map's maximum longitude
+	 */
+	public double getMaxLongitude(){
+		return maxLongitude_;
+	}
+	
+	/**
+	 * Gets the minimum latitude.
+	 * 
+	 * @return the map's minimum latitude
+	 */
+	public double getMinLatitude(){
+		return minLatitude_;
+	}
+	
+	/**
+	 * Gets the maximum latitude.
+	 * 
+	 * @return the map's maximum latitude
+	 */
+	public double getMaxLatitude(){
+		return maxLatitude_;
 	}
 
 	/**

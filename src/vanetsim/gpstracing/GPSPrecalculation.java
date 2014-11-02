@@ -14,25 +14,25 @@ import vanetsim.routing.WayPoint;
 public class GPSPrecalculation {
 
 	//TODO: Create Maps and save them :) No maps there yet, expect for NY (might need a new one though)
-	public static void openMap (int simulationMode_){
+	public static void openMap (int simulationMode){
 		
 		//Traces Shanghai
-		if(simulationMode_ == 3){
+		if(simulationMode == 3){
 			 File ShanghaiFile_ = new File("../Vanetsim/Shanghai_noTS");
 			 Map.getInstance().load(ShanghaiFile_, false);
 		}
 		//Traces San Francisco
-		else if(simulationMode_ == 4){
+		else if(simulationMode == 4){
 			 File SanFranciscoFile_ = new File("../Vanetsim/SanFrancisco_noTS.xml");
 			 Map.getInstance().load(SanFranciscoFile_, false);
 		}
 		//Traces New York
-		else if(simulationMode_ == 5){
+		else if(simulationMode == 5){
 			 File NYFile_ = new File("../VanetSim/NewYork_noTS.xml");
 			 Map.getInstance().load(NYFile_, false);
 		}
 		//Traces Hamburg
-		else if(simulationMode_ == 6){
+		else if(simulationMode == 6){
 			 File HHFile_ = new File("../Vanetsim/HH_noTS");
 			 Map.getInstance().load(HHFile_, false);
 		}
@@ -41,43 +41,42 @@ public class GPSPrecalculation {
 	
 
 	//TODO: Run method according to selected Traces
-	public static void runParser(int simulationMode_, int minLine_, int maxLine_){
+	public static void runParser(int simulationMode, int minLine, int maxLine){
 		//Traces Shanghai
-				if(simulationMode_ == 3){
-					GPSTracesShanghai.getInstance().getShanghaiTraces(minLine_, maxLine_);
+				if(simulationMode == 3){
+					GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 				}
 				//Traces San Francisco
-				else if(simulationMode_ == 4){
-					GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine_, maxLine_);
+				else if(simulationMode == 4){
+					GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 				}
 				//Traces New York
-				else if(simulationMode_ == 5){
-					GPSTracesNY.getInstance().getNYTraces(minLine_, maxLine_);
+				else if(simulationMode == 5){
+					GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
 					
 				}
 				//Traces Hamburg
-				else if(simulationMode_ == 6){
+				else if(simulationMode == 6){
 					GPSTracesXML.getInstance().getGpxTraces();
 				}
 	}
 	
 	
 	//TODO: Calculate Route
-	public static void precalculateRoute(int simulationMode_, int minLine_, int maxLine_){
-		
+	public static void precalculateRoute(int simulationMode, int minLine, int maxLine){
+
 
 		//TODO: Precalculate relative Times
 		
 		//TODO: Create Waypoints
 		ArrayDeque<WayPoint> destinations = null;
 		
+		//TODO: simulationMode wird zu Testzwecken immer gleich NY gesetzt
+		simulationMode = 5;
 		
-		//TODO: Hier muss noch die Fallunterscheidung hin...
-		if(simulationMode_ == 5){ //NY
-		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine_, maxLine_); 
-		System.out.println(parsedTraces_.get(0));
-		System.out.println(parsedTraces_.size());
-		
+		if(simulationMode == 5){ //NY
+		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine); 
+
 		
 			for(int i = 0; i < parsedTraces_.size(); i=i+7){ //TODO: Create vehicle				
 				
@@ -128,8 +127,8 @@ public class GPSPrecalculation {
 		
 			}
 
-		else if(simulationMode_ == 4){ //San Francisco
-			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine_, maxLine_);
+		else if(simulationMode == 4){ //San Francisco
+			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 		
 		
 			for (int i = 0; i<= parsedTraces_.size(); i=i+4){
@@ -170,37 +169,14 @@ public class GPSPrecalculation {
 					//System.out.println(t_);
 					System.out.println(x_);
 					System.out.println(y_);
-					
-					//WayPoint tmpWayPoint = new GPXtoMetric(x_,y_,t_);
-					//	destinations.add(tmpWayPoint);
-					
 				}
-				else{
-					System.out.println("Hier bin ich im else " + i);
-					//get new vehicle
-				}
-				
-				
 			}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		}
-		else if(simulationMode_ == 6){ //HH - OSM
+		else if(simulationMode == 6){ //HH - OSM
 			ArrayList<String> parsedTraces_ = GPSTracesXML.getInstance().getGpxTraces();
 		}
-		else if(simulationMode_ == 3){ //Shanghai
-			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine_, maxLine_);
+		else if(simulationMode == 3){ //Shanghai
+			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 			
 			//Filter for ID
 			ArrayList<String> IDs = new ArrayList<String>();
