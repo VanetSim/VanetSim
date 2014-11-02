@@ -277,23 +277,23 @@ public final class Map{
 							} catch (Exception e) {}
 						} else if(setting.equals("map_width")){ //$NON-NLS-1$
 							try{
-								newMinLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+								newMapWidth = Integer.parseInt(settingsCrsr.collectDescendantText(false));
 							} catch (Exception e) {}
 						} else if(setting.equals("min_longitude")){ //$NON-NLS-1$
 							try{
-								newMaxLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+								newMinLongitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
 							} catch (Exception e) {}
 						} else if(setting.equals("max_longitude")){ //$NON-NLS-1$
 							try{
-								newMinLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+								newMaxLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
 							} catch (Exception e) {}
 						} else if(setting.equals("min_latitude")){ //$NON-NLS-1$
 							try{
-								newMaxLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
+								newMinLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
 							} catch (Exception e) {}
 						} else if(setting.equals("max_latitude")){ //$NON-NLS-1$
 							try{
-								newMapWidth = Integer.parseInt(settingsCrsr.collectDescendantText(false));
+								newMaxLatitude = Double.parseDouble(settingsCrsr.collectDescendantText(false))/1000000000;
 							} catch (Exception e) {}
 						} else if(setting.equals("region_height")){ //$NON-NLS-1$
 							try{
