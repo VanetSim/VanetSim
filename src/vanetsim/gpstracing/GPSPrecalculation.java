@@ -1,8 +1,11 @@
 package vanetsim.gpstracing;
 
+import java.awt.Color;
 import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.swing.JFormattedTextField;
 
@@ -10,10 +13,10 @@ import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.map.*;
 import vanetsim.routing.WayPoint;
+import vanetsim.scenario.Vehicle;
 
 public class GPSPrecalculation {
-
-	//TODO: Create Maps and save them :) No maps there yet, expect for NY (might need a new one though)
+	//TODO: MAPS
 	public static void openMap (int simulationMode){
 		
 		//Traces Shanghai
@@ -39,8 +42,6 @@ public class GPSPrecalculation {
 		
 	}
 	
-
-	//TODO: Run method according to selected Traces
 	public static void runParser(int simulationMode, int minLine, int maxLine){
 		//Traces Shanghai
 				if(simulationMode == 3){
@@ -68,17 +69,15 @@ public class GPSPrecalculation {
 
 		//TODO: Precalculate relative Times
 		
-		//TODO: Create Waypoints
-		ArrayDeque<WayPoint> destinations = null;
 		
-		//TODO: simulationMode wird zu Testzwecken immer gleich NY gesetzt
-		simulationMode = 5;
+		ArrayDeque<WayPoint> destinations = null;
 		
 		if(simulationMode == 5){ //NY
 		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine); 
 
+		Vehicle tmpVehicle;
 		
-			for(int i = 0; i < parsedTraces_.size(); i=i+7){ //TODO: Create vehicle				
+			for(int i = 0; i < parsedTraces_.size(); i=i+7){				
 				
 				destinations = new ArrayDeque<WayPoint>(2);			
 					
@@ -122,7 +121,15 @@ public class GPSPrecalculation {
 					} catch (Exception e) {
 						System.out.println("Routing failed");
 					}
-				
+					//Create vehicle
+					try {
+						tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+						Map.getInstance().addVehicle(tmpVehicle);
+					} catch (ParseException e) {
+						
+						e.printStackTrace();
+					}
+					
 				}
 		
 			}
@@ -130,12 +137,14 @@ public class GPSPrecalculation {
 		else if(simulationMode == 4){ //San Francisco
 			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 		
-		
+			Vehicle tmpVehicle;
+			
+			destinations = new ArrayDeque<WayPoint>();	
 			for (int i = 0; i<= parsedTraces_.size(); i=i+4){
-				System.out.println(i);
+				
 				if (i==0){
-					//Create first vehicle
-					destinations = new ArrayDeque<WayPoint>();	
+					
+					
 					double x_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
 					
@@ -144,20 +153,16 @@ public class GPSPrecalculation {
 					
 					//long t_ = (long)(Long.parseLong(parsedTraces_.get(i+4)) - (long)(Long.parseLong(parsedTraces_.get(i+8))));
 					//System.out.println(t_);
-					System.out.println(x_);
-					System.out.println(y_);
+					
 					
 					//WayPoint tmpWayPoint = new GPXtoMetric(x_,y_,t_);
 					//	destinations.add(tmpWayPoint);
-					System.out.println(i);
+					
 					continue;
 				}
-				System.out.println(i);
-				System.out.println(parsedTraces_.get(i));
-				System.out.println(parsedTraces_.get(i+4));
-				if(parsedTraces_.get(i)==parsedTraces_.get(i-4)){
+				else if(parsedTraces_.get(i)==parsedTraces_.get(i-4)){
 					//Put shit in Metricstuff
-					System.out.println("Schleife " + i);
+					
 					
 					double x_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
@@ -167,41 +172,88 @@ public class GPSPrecalculation {
 					
 					//long t_ = (long)(Long.parseLong(parsedTraces_.get(i+4)) - (long)(Long.parseLong(parsedTraces_.get(i+8))));
 					//System.out.println(t_);
-					System.out.println(x_);
-					System.out.println(y_);
+					continue;
+				}
+				else if(parsedTraces_.get(i)!=parsedTraces_.get(i-4)){
+					//Initialize new vehicle
+					try {
+						tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+						Map.getInstance().addVehicle(tmpVehicle);
+					} catch (ParseException e) {
+						
+						e.printStackTrace();
+					}
+					
+					
+					//empty destinations
+					destinations.clear();
+					
+					double x_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
+					double y_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
+					
+					//WayPoint tmpWayPoint = new GPXtoMetric(x_,y_,t_);
+					//	destinations.add(tmpWayPoint);
+					
 				}
 			}
 		}
 		else if(simulationMode == 6){ //HH - OSM
 			ArrayList<String> parsedTraces_ = GPSTracesXML.getInstance().getGpxTraces();
+			
+			
+			
+			
+			
 		}
 		else if(simulationMode == 3){ //Shanghai
 			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
-			
+			Vehicle tmpVehicle;
+			destinations = new ArrayDeque<WayPoint>();	
 			//Filter for ID
-			ArrayList<String> IDs = new ArrayList<String>();
-			int j = 0;
-			IDs.add(0, parsedTraces_.get(0));
-
-			for (int i = 0; i<= parsedTraces_.size(); i=i+4){
-				
-				for (j=1; j <= IDs.size(); j++){
-					if (IDs.get(j) == parsedTraces_.get(i)){					
+			HashSet<String> IDs = new HashSet<String>();
+			for (int i = 0; i < parsedTraces_.size(); i=i+4){
+					IDs.add(parsedTraces_.get(i));
+			}
+			for (String s : IDs){
+				for (int j = 0; j < parsedTraces_.size(); j=j+4){
+					if (s.equals(parsedTraces_.get(j))){
+						
+						double x_ = (double)Double.parseDouble(parsedTraces_.get(j+1));
+						double y_ = (double)Double.parseDouble(parsedTraces_.get(j+2));
+						
+						//WayPoint tmpWayPoint = new GPXtoMetric(x_,y_,t_);
+						//	destinations.add(tmpWayPoint);	
 					}
 					else {
-						IDs.add(j, parsedTraces_.get(i));
+						try {
+							tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+							Map.getInstance().addVehicle(tmpVehicle);
+						} catch (ParseException e) {
+							
+							e.printStackTrace();
+						}
+						
+						//empty destinations
+						destinations.clear();
+						
+						double x_ = (double)Double.parseDouble(parsedTraces_.get(j+1));
+						double y_ = (double)Double.parseDouble(parsedTraces_.get(j+2));
+						
+						//WayPoint tmpWayPoint = new GPXtoMetric(x_,y_,t_);
+						//	destinations.add(tmpWayPoint);
+						
 					}
 				}
-
-			
 			}
+			
+			
 			
 		}
 		
 				
 		
 		
-		//TODO: Initialize Vehicles
+		
 		
 		//TODO: Update GUI
 		//Renderer.getInstance().setShowVehicles(true);

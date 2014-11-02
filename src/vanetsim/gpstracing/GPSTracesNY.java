@@ -118,7 +118,7 @@ public class GPSTracesNY {
 
 		 nyTraces_ = new ArrayList<String>();
 		 
-		 int Counter = 0;
+		 int Counter = 0; 
 		 //Parse CSV File
 		 //List is structured as followed: medallion, hack_licence, vendor_id
 		 //rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime, 

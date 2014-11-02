@@ -124,25 +124,19 @@ public class GPSTracesShanghai {
 
 		 shTraces_ = new ArrayList<String>();
 		 
-		 File ShanghaiFile_ = new File("../VanetSim/GPX_Data/Shanghai_Traces/Shanghai_Taxi_traces.txt");
+		 File ShanghaiFile_ = new File("../VanetSim/GPX_Data/Shanghai_Traces/TestSH.txt"); //TODO: File 
 		 BufferedReader br = null;
 	        String sCurrentLine = null;
 	        try
 	        {
 	          br = new BufferedReader(
 	          new FileReader(ShanghaiFile_));
-	          int i = 0;
-	          
-	          
-	            while (((sCurrentLine = br.readLine()) != null) && i<= 200)
+	          while ((sCurrentLine = br.readLine()) != null)
 	         
 	            {
-	            	i++;
 	            	//Parse here 
+	        	  System.out.println("Hier splitte ich");
 	            	String[] columns = sCurrentLine.split(",");
-	            		       
-	            
-	            	
 	            	
 	            	//String ID = columns[0];  
                     String TaxiID = columns[1];  
@@ -154,21 +148,15 @@ public class GPSTracesShanghai {
                     //String Status = columns[7];  
                     //String EStatus = columns[8];  
                     //String Reversed = columns[9];  
-                    
-                    //System.out.println("TaxiID " + TaxiID);
-                    //System.out.println("Lon " + Lon);
-                    //System.out.println("Lat " + Lat);
-                    //System.out.println("Time " + Time);
-                    
-                    System.out.println("XX " + TaxiID);
-                   //Add to Array List 
-                    
+
+                    //Add to Array List 
+                    System.out.println("Add to Array");
+                    System.out.println("ID " + TaxiID);
                     shTraces_.add(TaxiID);
                     shTraces_.add(Lon);
                     shTraces_.add(Lat);
                     shTraces_.add(Time);
-                  //  System.out.println(shTraces_);
-                    
+                 
 	            	}   
 	        }
 	        catch (IOException e)
