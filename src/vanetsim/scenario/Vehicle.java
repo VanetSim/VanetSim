@@ -569,6 +569,7 @@ public class Vehicle extends LaneObject{
 	/** IDM-specific values used in the computation of the velocity based on the IDM function*/
 	private int deltaValueIDM_ = 4; //TODO
 	private double minDistanceIDM_ = 250;
+	private double distanceToJunction_ = 150;
 	
 
 	private int EVAMessageDelay_ = 3;
@@ -985,7 +986,6 @@ public class Vehicle extends LaneObject{
 				// acceleration computed using the intellegent driver model (IDM) //TODO
 				double accelerationByIDM = 0;
 				double desiredSpeed = (curStreet_.getSpeed() < maxSpeed_) ? curStreet_.getSpeed() : maxSpeed_;
-				double speedOfFrontVehicle;
 				
 				// First we search for the first vehicle in front of the actual vehicle in the actual laneContainer.
 				// The vehicle in front has to be on the same lane, too.
@@ -999,17 +999,17 @@ public class Vehicle extends LaneObject{
 				// vehicle on the on oncoming streets. 
 				if (tmpNext == null){
 					boolean foundNextVehicle;
-					double distanceToFrontVehicle;
 					
-					double[] checkingResults = inDepthSearchForIDM(curLane_);
-					foundNextVehicle = !(checkingResults[0] == 0);
-					distanceToFrontVehicle = checkingResults[1];
-					speedOfFrontVehicle = checkingResults[2];
+					double[] checkingResults = new double[2];
+					foundNextVehicle = inDepthSearchForIDM(checkingResults, curLane_);
 					
 					if (!foundNextVehicle){
 						accelerationByIDM = accelerationRate_ * (1 - Math.pow((curSpeed_ / desiredSpeed), deltaValueIDM_));
 					}
 					else {							
+						double distanceToFrontVehicle = checkingResults[0];
+						double speedOfFrontVehicle = checkingResults[1];
+						
 						double timeDistanceInSec =  (double)timeDistance_/1000;
 						double s_star_delta = minDistanceIDM_ + timeDistanceInSec * curSpeed_ + (curSpeed_ * (curSpeed_ - speedOfFrontVehicle) /
 								   2 * Math.sqrt(accelerationRate_ * brakingRate_));
@@ -3266,9 +3266,8 @@ public class Vehicle extends LaneObject{
 	 * @param lane
 	 * @return
 	 */
-	private double[] inDepthSearchForIDM(int lane){
+	private boolean inDepthSearchForIDM(double[] result, int lane){
 		
-		double[] result = new double[3];
 		boolean foundNextVehicle = false;
 		double distance;
 		
@@ -3302,10 +3301,9 @@ public class Vehicle extends LaneObject{
 							}
 							else {
 								waitingForSignal_ = true;
-								result[0] = 1;
-								result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
-								result[2] = 0;
-								return result;
+								result[0] = distance + tmpStreet.getLength()-distanceToJunction_;
+								result[1] = 0;
+								return true;
 								//return 2;
 							}
 						}
@@ -3316,18 +3314,16 @@ public class Vehicle extends LaneObject{
 							if(priority != 1){	// don't do anything on priority streets
 								// don't turn off faster than about 35km/h
 								if(curSpeed_ > 1000){
-									result[0] = 1;
-									result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
-									result[2] = 0;
-									return result;
+									result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+									result[1] = 0;
+									return true;
 									//return 2;
 								} else if(priority > 2){
 									junctionNode.getJunction().addWaitingVehicle(this, priority);
 									if(!emergencyVehicle_ && !fakingMessages_ && !junctionNode.getJunction().canPassJunction(this, priority, nextNode)){
-										result[0] = 1;
-										result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
-										result[2] = 0;
-										return result;
+										result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+										result[1] = 0;
+										return true;
 										//return 2;
 									}
 									else {
@@ -3345,18 +3341,17 @@ public class Vehicle extends LaneObject{
 				tmpStreet = routeStreets_[i];
 				if(tmpLane > tmpStreet.getLanesCount()) tmpLane = tmpStreet.getLanesCount();
 
-				// Check if next street has smaller speed limit
+				/*// Check if next street has smaller speed limit
 				if(tmpStreet.getSpeed() < curSpeed_) {
 					if(gotJunctionPermission) {
 						junctionAllowed_.getJunction().allowOtherVehicle();
 						junctionAllowed_ = null;
 					}
-					result[0] = 1;
-					result[1] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
-					result[2] = 0;
-					return result;
+					result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+					result[1] = 0;
+					return true;
 					//return 2;
-				}
+				}*/
 
 				// Check if first lane object of next street on our lane forces us to stop
 				if(!foundNextVehicle){
@@ -3370,10 +3365,9 @@ public class Vehicle extends LaneObject{
 										junctionAllowed_.getJunction().allowOtherVehicle();
 										junctionAllowed_ = null;
 									}
-									result[0] = 1;
-									result[1] = distance + (tmpDirection ? tmpLaneObject.getCurPosition() : tmpStreet.getLength() - tmpLaneObject.getCurPosition());
-									result[2] = tmpLaneObject.getCurSpeed();
-									return result;
+									result[0] = distance + (tmpDirection ? tmpLaneObject.getCurPosition() : tmpStreet.getLength() - tmpLaneObject.getCurPosition());
+									result[1] = tmpLaneObject.getCurSpeed();
+									return true;
 									//return 1;
 								}
 							}
@@ -3392,10 +3386,7 @@ public class Vehicle extends LaneObject{
 			}		
 		}
 
-		result[0] = 0;
-		result[1] = 0;
-		result[2] = 0;
-		return result;
+		return false;
 		//return 0;
 	}
 	
