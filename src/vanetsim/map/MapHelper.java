@@ -33,9 +33,8 @@ public final class MapHelper{
 	 * @param latitude		the latitude of the GPS position
 	 * @return the x and y coordinates given as an array of <code>int</code>.
 	 */
-	public static int[] translateGPSToMapMetric(double longitute, double latitude){
+	public static boolean translateGPSToMapMetric(int[] result, double longitute, double latitude){
 		Map map = Map.getInstance();
-		int[] result = new int[2];
 		double minLongitude = map.getMinLongitude();
 		double maxLongitude = map.getMaxLongitude();
 		double minLatitude = map.getMinLatitude();
@@ -56,15 +55,15 @@ public final class MapHelper{
 				360 + (latitude - minLatitude) :
 					latitude - minLatitude;
 		if(distanceToLongPoint < 0 && distanceToLatPoint < 0){
-			return null;
+			return false;
 		}
 		else if(distanceToLongPoint > distanceLong && distanceToLatPoint > distanceLat){
-			return null;
+			return false;
 		}
 		else{
 			result[0] = (int)(distanceToLongPoint/distanceLong*maxX);
 			result[1] = (int)(distanceToLatPoint/distanceLat*maxY);
-			return result;
+			return true;
 		}
 	}
 	
