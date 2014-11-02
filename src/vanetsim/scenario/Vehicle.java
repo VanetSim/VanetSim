@@ -3301,10 +3301,10 @@ public class Vehicle extends LaneObject{
 							}
 							else {
 								waitingForSignal_ = true;
-								result[0] = distance + tmpStreet.getLength()-distanceToJunction_;
+								double correctedDistance = distance + tmpStreet.getLength()-distanceToJunction_; 
+								result[0] = (correctedDistance > 0) ? correctedDistance : 0;
 								result[1] = 0;
 								return true;
-								//return 2;
 							}
 						}
 						else{
@@ -3314,7 +3314,8 @@ public class Vehicle extends LaneObject{
 							if(priority != 1){	// don't do anything on priority streets
 								// don't turn off faster than about 35km/h
 								if(curSpeed_ > 1000){
-									result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
+									double correctedDistance = distance + tmpStreet.getLength()-distanceToJunction_; 
+									result[0] = (correctedDistance > 0) ? correctedDistance : 0;
 									result[1] = 0;
 									return true;
 									//return 2;
@@ -3324,7 +3325,6 @@ public class Vehicle extends LaneObject{
 										result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
 										result[1] = 0;
 										return true;
-										//return 2;
 									}
 									else {
 										junctionAllowed_ = junctionNode;
@@ -3341,18 +3341,6 @@ public class Vehicle extends LaneObject{
 				tmpStreet = routeStreets_[i];
 				if(tmpLane > tmpStreet.getLanesCount()) tmpLane = tmpStreet.getLanesCount();
 
-				/*// Check if next street has smaller speed limit
-				if(tmpStreet.getSpeed() < curSpeed_) {
-					if(gotJunctionPermission) {
-						junctionAllowed_.getJunction().allowOtherVehicle();
-						junctionAllowed_ = null;
-					}
-					result[0] = distance + tmpStreet.getLength()-(double)(tmpStreet.getLength()*10/100);
-					result[1] = 0;
-					return true;
-					//return 2;
-				}*/
-
 				// Check if first lane object of next street on our lane forces us to stop
 				if(!foundNextVehicle){
 					tmpLaneObject = tmpStreet.getFirstLaneObject(tmpDirection);
@@ -3368,7 +3356,6 @@ public class Vehicle extends LaneObject{
 									result[0] = distance + (tmpDirection ? tmpLaneObject.getCurPosition() : tmpStreet.getLength() - tmpLaneObject.getCurPosition());
 									result[1] = tmpLaneObject.getCurSpeed();
 									return true;
-									//return 1;
 								}
 							}
 							break;
@@ -3387,7 +3374,6 @@ public class Vehicle extends LaneObject{
 		}
 
 		return false;
-		//return 0;
 	}
 	
 	/**
