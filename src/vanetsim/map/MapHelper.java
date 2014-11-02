@@ -47,10 +47,10 @@ public final class MapHelper{
 				360 + (maxLongitude - minLongitude) :
 					maxLongitude - minLongitude;
 		double distanceLat = (maxLatitude < minLatitude) ?
-				360 + (maxLatitude - minLatitude) :
+				180 + (maxLatitude - minLatitude) :
 					maxLatitude - minLatitude;
 		double distanceToLongPoint = (longitute < minLongitude) ?
-				180 + (longitute - minLongitude) :
+				360 + (longitute - minLongitude) :
 					longitute - minLongitude;
 		double distanceToLatPoint = (latitude < minLatitude) ?
 				180 + (latitude - minLatitude) :
