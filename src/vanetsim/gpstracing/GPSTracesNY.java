@@ -23,33 +23,41 @@ import java.util.Scanner;
 
 public class GPSTracesNY {
 
-
-	/** The ArrayList types collects all GPSDATA*/
+	/** The ArrayList types collects all GPSDATA */
 	public ArrayList<String> nyTraces_;
-	
+
 	private List<long[]> traceInfo_ = new ArrayList<long[]>();
-	
-	
+
 	/** The only instance of this class (singleton). */
 	private static final GPSTracesNY INSTANCE = new GPSTracesNY();
+
 	/** Instance for NY Traces. */
-	public static GPSTracesNY getInstance(){
+	public static GPSTracesNY getInstance() {
 		return INSTANCE;
 	}
-	
+
 	/**
-	 * Function for determine the amount of lines within the data set/traces, which
-	 * are needed for further calculation and precalculations
+	 * Constructor
 	 */
-	public void loadTraceInfoFromFile(){
-		
-		// If the trace info file exists, it will be read and the information will be stored in traceInfo_
-		File traceInfoFile = new File("../VanetSim/GPX_Data/traceInfoFileNY.txt");
-		if(traceInfoFile.exists() && !traceInfoFile.isDirectory()){
+	public GPSTracesNY() {
+		loadTraceInfoFromFile();
+	}
+
+	/**
+	 * Function for determine the amount of lines within the data set/traces,
+	 * which are needed for further calculation and precalculations
+	 */
+	public void loadTraceInfoFromFile() {
+
+		// If the trace info file exists, it will be read and the information
+		// will be stored in traceInfo_
+		File traceInfoFile = new File(
+				"../VanetSim/GPX_Data/traceInfoFileNY.txt");
+		if (traceInfoFile.exists() && !traceInfoFile.isDirectory()) {
 			Scanner sc;
 			try {
 				sc = new Scanner(traceInfoFile);
-				while(sc.hasNextLine()){
+				while (sc.hasNextLine()) {
 					String[] parsedLine = sc.nextLine().split(";");
 					long[] parsedNumbers = new long[2];
 					parsedNumbers[0] = Long.parseLong(parsedLine[0]);
@@ -61,40 +69,42 @@ public class GPSTracesNY {
 				e.printStackTrace();
 			}
 		}
-		// If the trace info file doesn't exist, the information will be parsed from the trace files
+		// If the trace info file doesn't exist, the information will be parsed
+		// from the trace files
 		// and will be stored in traceInfo_
-		else{
+		else {
 			File f = new File("../VanetSim/GPX_Data/NY_Traces");
 			File[] fileArray = f.listFiles();
-			
+
 			if (fileArray != null) {
 				long lines = -1;
-				for (int i=0; i < fileArray.length; i++){
+				for (int i = 0; i < fileArray.length; i++) {
 					try {
 						Scanner sc = new Scanner(fileArray[i]);
 						lines++;
 						long[] parsedNumbers = new long[2];
 						parsedNumbers[0] = lines;
-						while (sc.hasNextLine()){
+						while (sc.hasNextLine()) {
 							sc.nextLine();
 							lines++;
 						}
 						sc.close();
 						parsedNumbers[1] = lines;
 						traceInfo_.add(parsedNumbers);
-					}
-					catch (FileNotFoundException e) {
+					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}
 				}
-				
-				// After parsing the trace info from the trace files, it will be written into a trace file to store
+
+				// After parsing the trace info from the trace files, it will be
+				// written into a trace file to store
 				// the information persistantly.
 				try {
-					PrintWriter writer = new PrintWriter("../VanetSim/GPX_Data/traceInfoFileNY.txt",
-							"UTF-8");
-					for(int i=0; i < traceInfo_.size(); i++){
-						writer.println(traceInfo_.get(i)[0] + ";" + traceInfo_.get(i)[1]);
+					PrintWriter writer = new PrintWriter(
+							"../VanetSim/GPX_Data/traceInfoFileNY.txt", "UTF-8");
+					for (int i = 0; i < traceInfo_.size(); i++) {
+						writer.println(traceInfo_.get(i)[0] + ";"
+								+ traceInfo_.get(i)[1]);
 					}
 					writer.close();
 				} catch (FileNotFoundException e) {
@@ -102,108 +112,109 @@ public class GPSTracesNY {
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
-			}			
+			}
 		}
 	}
-	
+
 	/**
 	 * Getter function for the TraceFileInfo
+	 * 
 	 * @return trace infos
 	 */
-	public List<long[]> getTraceFileInfo(){
+	public List<long[]> getTraceFileInfo() {
 		return traceInfo_;
 	}
-	
-	public ArrayList<String> getNYTraces(int minLine, int maxLine){
 
-		 nyTraces_ = new ArrayList<String>();
-		 
-		 int Counter = 0; 
-		 //Parse CSV File
-		 //List is structured as followed: medallion, hack_licence, vendor_id
-		 //rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime, 
-		 //passenger_count, trip_time_in_secs, trip_distance, pickup_longitude, 
-		 //pickup_latitude, dropoff_longitude, dropoff_latitude
-		 
-		 File f = new File("../VanetSim/GPX_Data/NY_Traces");
-		 File[] fileArray = f.listFiles();
-		 
-		 if (fileArray != null) { 
-			    for (int i = 0; i < fileArray.length; i++) {
-			    	File actualFile_ = fileArray[i];	    		 
-			    	
-			      BufferedReader br = null;
-			        String sCurrentLine = null;
-			       
-			        try
-			        {
-			          br = new BufferedReader(
-			          new FileReader(actualFile_));
-			          
-			            while (((sCurrentLine = br.readLine()) != null)){
-	            	//Parse here 
-	            	String[] columns = sCurrentLine.split(",");
-	            	 
-                 String medallion = columns[0]; //ID
-                 //String hack_licence = columns[0];  
-                 //String vendor_id = columns[0]; 
-                 //String rate_code = columns[0]; 
-                 //String store_and_foward_flag = columns[0]; 
-                 String pickup_datetime = columns[6]; 
-                 String dropoff_datetime = columns[7]; 
-                 //String passenger_count = columns[0]; 
-                 String trip_time_in_secs = columns[9]; 
-                 //String trip_distance = columns[0]; 
-                 String pickup_longitude = columns[10]; 
-                 String pickup_latitude = columns[11]; 
-                 String dropoff_longitude = columns[12]; 
-                 String dropoff_latitude = columns[13]; 
-                 
-                 Counter ++;
-                 
-                 System.out.println("TaxiID " + medallion);
-                 System.out.println("Lon " + pickup_longitude);
-                 System.out.println("Lat " + pickup_latitude);
-                 System.out.println("Time " + pickup_datetime);
-                 System.out.println("Triptime " + trip_time_in_secs);
-                 System.out.println("Droppof lon " + dropoff_longitude);
-                 System.out.println("Droppoff lat " + dropoff_latitude);
-                 System.out.println("Counter " + Counter);
-                 
-                //Add to Array List 
-                 
-                 nyTraces_.add(medallion);
-                 nyTraces_.add(pickup_longitude);
-                 nyTraces_.add(pickup_latitude);
-                 nyTraces_.add(pickup_datetime);
-                 nyTraces_.add(trip_time_in_secs);
-                 nyTraces_.add(dropoff_longitude);
-                 nyTraces_.add(dropoff_latitude);
+	public ArrayList<String> getNYTraces(int minLine, int maxLine) {
 
-	                //System.out.println(sCurrentLine);
-			            
-	            }
-			          
-			        
-	        }
-	        catch (IOException e){
-	            e.printStackTrace();
-	        }
-	        finally{
-	            try{
-	                if (br != null)
-	                br.close();
-	            } 
-	            catch (IOException ex){
-	                ex.printStackTrace();
-	            }
-	        }	 	 
-		 
-			    }
-		 }
-		 
-		 //Return Array List
-		 return nyTraces_;
+		nyTraces_ = new ArrayList<String>();
+
+		int Counter = 0;
+		// Parse CSV File
+		// List is structured as followed: medallion, hack_licence, vendor_id
+		// rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime,
+		// passenger_count, trip_time_in_secs, trip_distance, pickup_longitude,
+		// pickup_latitude, dropoff_longitude, dropoff_latitude
+
+		File f = new File("../VanetSim/GPX_Data/NY_Traces");
+		File[] fileArray = f.listFiles();
+
+		if (fileArray != null) {
+			for (int i = 0; i < fileArray.length; i++) {
+				File actualFile_ = fileArray[i];
+
+				BufferedReader br = null;
+				String sCurrentLine = null;
+
+				try {
+					br = new BufferedReader(new FileReader(actualFile_));
+
+					while (((sCurrentLine = br.readLine()) != null)) {
+
+						if ((minLine >= Counter)
+								&& (maxLine <= Counter)) {
+							// Parse here
+							String[] columns = sCurrentLine.split(",");
+
+							String medallion = columns[0]; // ID
+							// String hack_licence = columns[0];
+							// String vendor_id = columns[0];
+							// String rate_code = columns[0];
+							// String store_and_foward_flag = columns[0];
+							String pickup_datetime = columns[6];
+							String dropoff_datetime = columns[7];
+							// String passenger_count = columns[0];
+							String trip_time_in_secs = columns[9];
+							// String trip_distance = columns[0];
+							String pickup_longitude = columns[10];
+							String pickup_latitude = columns[11];
+							String dropoff_longitude = columns[12];
+							String dropoff_latitude = columns[13];
+
+							System.out.println("TaxiID " + medallion);
+							System.out.println("Lon " + pickup_longitude);
+							System.out.println("Lat " + pickup_latitude);
+							System.out.println("Time " + pickup_datetime);
+							System.out.println("Triptime " + trip_time_in_secs);
+							System.out.println("Droppof lon "
+									+ dropoff_longitude);
+							System.out.println("Droppoff lat "
+									+ dropoff_latitude);
+							System.out.println("Counter " + Counter);
+
+							// Add to Array List
+
+							nyTraces_.add(medallion);
+							nyTraces_.add(pickup_longitude);
+							nyTraces_.add(pickup_latitude);
+							nyTraces_.add(pickup_datetime);
+							nyTraces_.add(trip_time_in_secs);
+							nyTraces_.add(dropoff_longitude);
+							nyTraces_.add(dropoff_latitude);
+						}
+
+						Counter++;
+
+						// System.out.println(sCurrentLine);
+
+					}
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (br != null)
+							br.close();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		// Return Array List
+		return nyTraces_;
 	}
-	
+
 }
