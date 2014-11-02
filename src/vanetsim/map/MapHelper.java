@@ -29,9 +29,10 @@ public final class MapHelper{
 	 * Translates real world GPS positions to the metric system of x- and y-coordinates,
 	 * which are used by the simulation system of VanetSim
 	 * 
+	 * @param result		an array in which the translation result will be saved in
 	 * @param longitute		the longitude of the GPS position
 	 * @param latitude		the latitude of the GPS position
-	 * @return the x and y coordinates given as an array of <code>int</code>.
+	 * @return <code>boolean</code>, which states whether the translation was successful or not
 	 */
 	public static boolean translateGPSToMapMetric(int[] result, double longitute, double latitude){
 		Map map = Map.getInstance();
