@@ -43,22 +43,25 @@ public final class MapHelper{
 		int maxX = map.getMapWidth();
 		int maxY = map.getMapHeight();
 		
+		// Compute the Distance between two longitudes/latitudes in degree
 		double distanceLong = (maxLongitude < minLongitude) ?
 				360 + (maxLongitude - minLongitude) :
 					maxLongitude - minLongitude;
 		double distanceLat = (maxLatitude < minLatitude) ?
 				180 + (maxLatitude - minLatitude) :
 					maxLatitude - minLatitude;
+				
+		// Compute the Distance between two longitudes/latitudes in degree				
 		double distanceToLongPoint = (longitute < minLongitude) ?
 				360 + (longitute - minLongitude) :
 					longitute - minLongitude;
 		double distanceToLatPoint = (latitude < minLatitude) ?
 				180 + (latitude - minLatitude) :
 					latitude - minLatitude;
-		if(distanceToLongPoint < 0 && distanceToLatPoint < 0){
+		if(distanceToLongPoint < 0 || distanceToLatPoint < 0){
 			return false;
 		}
-		else if(distanceToLongPoint > distanceLong && distanceToLatPoint > distanceLat){
+		else if(distanceToLongPoint > distanceLong || distanceToLatPoint > distanceLat){
 			return false;
 		}
 		else{
