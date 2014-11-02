@@ -310,7 +310,7 @@ public final class Map{
 						CyclicBarrier barrier = new CyclicBarrier(2);
 						if(!Renderer.getInstance().isConsoleStart()){
 							
-							new MapSizeDialog(newMapWidth, newMapHeight, newRegionWidth, newRegionHeight, barrier);	//initialize new map
+							new MapSizeDialog(newMapWidth, newMapHeight, 0, 0, 0, 0, newRegionWidth, newRegionHeight, barrier);	//initialize new map
 							//try {
 						//		barrier.await();
 						//	} catch (Exception e) {}

@@ -70,6 +70,11 @@ public final class MapSizeDialog extends JDialog implements ActionListener{
 	/** The initial value in the dialog for the height of a region. */
 	private int regionHeight_;
 	
+	double minLongitude_;
+	double maxLongitude_;
+	double minLatitude_;
+	double maxLatitude_;
+	
 	/**
 	 * Instantiates a new map size dialog.
 	 * 
@@ -79,11 +84,15 @@ public final class MapSizeDialog extends JDialog implements ActionListener{
 	 * @param regionHeight 	the initial value in the dialog for the height of a region
 	 * @param barrier		a barrier. You should wait on this barrier to get a clean thread synchronization!
 	 */
-	public MapSizeDialog(int mapWidth, int mapHeight, int regionWidth, int regionHeight, CyclicBarrier barrier){
+	public MapSizeDialog(int mapWidth, int mapHeight, double minLongitude, double maxLongitude, double minLatitude, double maxLatitude, int regionWidth, int regionHeight, CyclicBarrier barrier){
 		super(VanetSimStart.getMainFrame(),Messages.getString("MapSize.title"), true); //$NON-NLS-1$
 		
 		mapWidth_ = mapWidth;
 		mapHeight_ = mapHeight;
+		minLongitude_ = minLongitude;
+		maxLongitude_ = maxLongitude;
+		minLatitude_ = minLatitude;
+		maxLatitude_ = maxLatitude;
 		regionWidth_ = regionWidth;
 		regionHeight_ = regionHeight;
 		barrier_ = barrier;
@@ -120,7 +129,7 @@ public final class MapSizeDialog extends JDialog implements ActionListener{
 		heightTextField_.setValue(mapHeight);
 		add(heightTextField_, c);
 		c.gridx = 0;
-		
+		// TODO Labels und Field für Longitude und Latitude
 		++c.gridy;
 		add(new JLabel(Messages.getString("MapSize.regionWidth")), c); //$NON-NLS-1$
 		c.gridx = 1;
@@ -160,7 +169,7 @@ public final class MapSizeDialog extends JDialog implements ActionListener{
 		mapHeight_ = Math.max(mapHeight_, ((Number)heightTextField_.getValue()).intValue());
 		regionWidth_ = Math.max(1000, ((Number)regionWidthTextField_.getValue()).intValue());
 		regionHeight_ = Math.max(1000, ((Number)regionHeightTextField_.getValue()).intValue());
-		Map.getInstance().initNewMap(mapWidth_, mapHeight_, 0, 0, 0, 0, regionWidth_, regionHeight_);
+		Map.getInstance().initNewMap(mapWidth_, mapHeight_, minLongitude_, maxLongitude_, minLatitude_, maxLatitude_, regionWidth_, regionHeight_);
 		try {
 			barrier_.await(2, TimeUnit.SECONDS);
 		} catch (Exception e2) {}

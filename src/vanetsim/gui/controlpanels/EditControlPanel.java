@@ -350,7 +350,7 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			}
 		} else if ("newmap".equals(command)){ //$NON-NLS-1$
 			CyclicBarrier barrier = new CyclicBarrier(2);
-			new MapSizeDialog(100000, 100000, 50000, 50000, barrier);
+			new MapSizeDialog(100000, 100000, 0, 0, 0, 0, 50000, 50000, barrier);
 			try {
 				barrier.await();
 			} catch (Exception e2) {}

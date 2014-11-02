@@ -193,7 +193,7 @@ public final class OSMLoader{
 									int height = (int)Math.round((upperBound - lowerBound + 1000)* 100);
 									VanetSimStart.setProgressBar(false);
 									CyclicBarrier barrier = new CyclicBarrier(2);
-									new MapSizeDialog(width , height, 100000, 100000, barrier);
+									new MapSizeDialog(width , height, minLongitude, maxLongitude, minLatitude, maxLatitude, 100000, 100000, barrier);
 									try {
 										barrier.await();
 									} catch (Exception e2) {}									
