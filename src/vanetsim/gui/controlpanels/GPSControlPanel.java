@@ -112,6 +112,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				++c.gridy;
 				add(jLabel1,c);		
 				minLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+				minLine_.setValue(0);
 				minLine_.setPreferredSize(new Dimension(60,20));
 				c.gridx = 1;
 				add(minLine_,c);
@@ -122,6 +123,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				++c.gridy;
 				add(jLabel1,c);		
 				maxLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+				maxLine_.setValue(250);
 				maxLine_.setPreferredSize(new Dimension(60,20));;
 				c.gridx = 1;
 				add(maxLine_,c);
@@ -159,13 +161,10 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 	public void actionPerformed(ActionEvent arg0) {
 		
 		String command = arg0.getActionCommand();
-
-		int minLineValue = 0;
-		int maxLineValue = 20;
 		
-		//minLineValue = ((Number)minLine_.getValue()).intValue();
-		//maxLineValue = ((Number)maxLine_.getValue()).intValue();
 		
+		int minLineValue = ((Number)minLine_.getValue()).intValue();
+		int maxLineValue = ((Number)maxLine_.getValue()).intValue();		
 		
 		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 Hamburg
 		if("Trace File".equals(command)){	
@@ -187,25 +186,24 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		}
 		if ("load".equals(command)){ //$NON-NLS-1$
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")){ 
-				//GPSPrecalculation.openMap(6); 
-				GPSPrecalculation.runParser(6, 0, 0);
+				GPSPrecalculation.openMap(6); 
+				//GPSPrecalculation.runParser(6, 0, 0);
+				GPSPrecalculation.precalculateRoute(6, 0, 0);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")){ 
-				//GPSPrecalculation.openMap(5); 
-				GPSPrecalculation.runParser(5, minLineValue, maxLineValue);		
-				System.out.println("Starting new method now!");
+				GPSPrecalculation.openMap(5); 
+				//GPSPrecalculation.runParser(5, minLineValue, maxLineValue);
+				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(5, minLineValue, maxLineValue);
-				System.out.println(minLineValue);
-				System.out.println(maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")){ 
-				//GPSPrecalculation.openMap(3); 
-				GPSPrecalculation.runParser(3, minLineValue, maxLineValue);
+				GPSPrecalculation.openMap(3); 
+				//GPSPrecalculation.runParser(3, minLineValue, maxLineValue);
 				GPSPrecalculation.precalculateRoute(3, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")){ 
-				//GPSPrecalculation.openMap(4); 
-				GPSPrecalculation.runParser(4, minLineValue, maxLineValue);
+				GPSPrecalculation.openMap(4); 
+				//GPSPrecalculation.runParser(4, minLineValue, maxLineValue);
 				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
 		
@@ -224,14 +222,12 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	

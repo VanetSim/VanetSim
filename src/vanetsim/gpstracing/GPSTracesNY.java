@@ -145,14 +145,14 @@ public class GPSTracesNY {
 
 				BufferedReader br = null;
 				String sCurrentLine = null;
-
+				System.out.println("NY TRaces for");
 				try {
 					br = new BufferedReader(new FileReader(actualFile_));
 
 					while (((sCurrentLine = br.readLine()) != null)) {
 
-						if ((minLine >= Counter)
-								&& (maxLine <= Counter)) {
+						if ((minLine <= Counter)
+								&& (maxLine >= Counter)) {
 							// Parse here
 							String[] columns = sCurrentLine.split(",");
 

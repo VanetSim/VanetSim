@@ -1123,7 +1123,7 @@ public final class WorkerThread extends Thread {
 				}
 				*/
 				
-				//TODO: Add Simulation stuff 5 (New York) and 6 (Hamburg)
+				//TODO: Add Simulation stuff 5 (New York) 
 				
 				if(simulationMode_ == 5){
 					while(true){

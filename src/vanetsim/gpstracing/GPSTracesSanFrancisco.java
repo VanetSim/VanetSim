@@ -142,7 +142,6 @@ public class GPSTracesSanFrancisco {
 		if (fileArray != null) {
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
-				// File actualFile_ = new File(fileArray[i])
 				System.out.print(fileArray[i].getAbsolutePath());
 				UUID TaxiID = UUID.randomUUID();
 
@@ -152,7 +151,7 @@ public class GPSTracesSanFrancisco {
 					br = new BufferedReader(new FileReader(actualFile_));
 					while ((sCurrentLine = br.readLine()) != null) {
 
-						if ((minLine >= Counter) && (maxLine <= Counter)) {
+						if ((minLine <= Counter) && (maxLine >= Counter)) {
 							// Parse here
 							String[] columns = sCurrentLine.split(" ");
 							// Structure of Files latitude, longitude,
@@ -175,7 +174,6 @@ public class GPSTracesSanFrancisco {
 																// your date
 							sdf.setTimeZone(TimeZone.getTimeZone("GMT-7"));
 							String formattedDate = sdf.format(date);
-							// System.out.println(formattedDate);
 
 							// Add to Array List
 
@@ -203,13 +201,6 @@ public class GPSTracesSanFrancisco {
 						ex.printStackTrace();
 					}
 				}
-
-				// if (fileArray[i].isDirectory()) {
-				// System.out.print(" (Ordner)\n");
-				// }
-				// else {
-				// System.out.print(" (Datei)\n");
-				// }
 			}
 		}
 

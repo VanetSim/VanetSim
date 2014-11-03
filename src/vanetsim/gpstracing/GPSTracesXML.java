@@ -103,8 +103,11 @@ public class GPSTracesXML {
 		     							NamedNodeMap attrs = item.getAttributes();
 		     							NodeList props = item.getChildNodes();
 
-		     							float longtitude_ = (float) Double.parseDouble(attrs.getNamedItem("lat").getTextContent());
-		     							float latitude_ = (float) Double.parseDouble(attrs.getNamedItem("lon").getTextContent());
+		     							String longtitude_;
+		     							String latitude_;
+		     							
+		     							longtitude_ = (attrs.getNamedItem("lat").getTextContent());
+		     							latitude_ = (attrs.getNamedItem("lon").getTextContent());
 		     							//The element ele is measuring the height in meters - not relevant at the moment
 		     							//Float ele_ = (float) Double.parseDouble(attrs.getNamedItem("ele").getTextContent());
 		     							//Float speed_ = (float) Double.parseDouble(attrs.getNamedItem("speed").getTextContent());
@@ -113,32 +116,11 @@ public class GPSTracesXML {
 		     								Node item2 = props.item (k);
 		     								String name = item2.getNodeName();
 		     								if(!name.equalsIgnoreCase("time")) continue;
-		     								time_ = (item2.getFirstChild().getNodeValue());
-		     									
-		     									
-		     							
-		     								//This can be adapted if the speed is necessary. In this case, the speed will be calculated by the IDM traffic model
-		     								/*
-		     								for(int z = 0; z<props.getLength(); z++){
-		     								Node item3 = props.item(z);
-		     								String speed = item3.getNodeName();
-		     								if(!name.equalsIgnoreCase("extensions")) continue;
-		     									System.out.println("TEST");
-		     									if(!name.equalsIgnoreCase("speed")) continue;
-		     									Float speed_ = (float) Double.parseDouble(item3.getFirstChild().getNodeValue());
-												System.out.println("Speed" + speed_);
-		     								}*/
+		     								time_ = (item2.getFirstChild().getNodeValue());					
+		     					
 		     	                
 		     							}
 		     						
-		     							/*
-		     							for(int y = 0; y<props.getLength(); y++){
-		     								Node item3 = props.item(y);
-		     								String name = item3.getNodeName();
-		     								if(!name.equalsIgnoreCase("speed")) continue;
-		     								Float speed_ = (float) Double.parseDouble(item3.getFirstChild().getNodeValue());
-		     								
-		     							}*/
 		     							System.out.println("UUID One: " + idOne);
 		     							System.out.println("lon" + longtitude_);
 		     							System.out.println("lat" + latitude_);
@@ -146,16 +128,14 @@ public class GPSTracesXML {
 		     							//System.out.println(ele_);
 		     							//System.out.println("Speed" + speed_);
 		     							
-		     							//CAST
-		     							String lon_ = valueOf(longtitude_);
-		     							String lat_ = valueOf(latitude_);
+		     							
 		     							
 		     							
 		     							//Add elements to ArrayList
 		     							     							
 		     							GPXTraces_.add(idOne.toString());
-		     							GPXTraces_.add(lon_);
-		     							GPXTraces_.add(lat_);
+		     							GPXTraces_.add(longtitude_);
+		     							GPXTraces_.add(latitude_);
 		     							GPXTraces_.add(time_);
 		     						}
 		     						fis.close();
@@ -172,12 +152,6 @@ public class GPSTracesXML {
 		    }
 		    return GPXTraces_;
 	 }
-
-		    
-	 private String valueOf(float longtitude_) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 	public static SimpleDateFormat getDateFormatter(){

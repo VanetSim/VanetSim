@@ -139,7 +139,7 @@ public class GPSTracesShanghai {
 
 			while ((sCurrentLine = br.readLine()) != null) {
 
-				if ((minLine >= Counter) && (maxLine <= Counter)) {
+				if ((minLine <= Counter) && (maxLine >= Counter)) {
 					// Parse here
 					String[] columns = sCurrentLine.split(",");
 
