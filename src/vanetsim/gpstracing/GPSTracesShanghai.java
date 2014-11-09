@@ -26,7 +26,7 @@ public class GPSTracesShanghai {
 	/** The ArrayList types collects all GPSDATA */
 	public ArrayList<String> shTraces_;
 
-	private List<long[]> traceInfo_;
+	private List<long[]> traceInfo_  = new ArrayList<long[]>();
 
 	/** The only instance of this class (singleton). */
 	private static final GPSTracesShanghai INSTANCE = new GPSTracesShanghai();
