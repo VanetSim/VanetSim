@@ -37,7 +37,7 @@ public class GPSPrecalculation {
 		}
 		//Traces Hamburg
 		else if(simulationMode == 6){
-			 File HHFile_ = new File("../Vanetsim/Hamburg_GPS.xml");
+			 File HHFile_ = new File("../Vanetsim/Hamburg_kl.xml");
 			 Map.getInstance().load(HHFile_, false);
 		}
 		
@@ -152,6 +152,9 @@ public class GPSPrecalculation {
 					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						continue;
+					}
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
@@ -199,6 +202,9 @@ public class GPSPrecalculation {
 					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						continue;
+					}
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
@@ -235,7 +241,15 @@ public class GPSPrecalculation {
 					System.out.println(y);
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+					System.out.println("Coordinates 0 und 1");
+					System.out.println(Coordinates[0]);
+					System.out.println(Coordinates[1]);
+					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						continue;
+					}
 					WayPoint tmpWayPoint;
+					System.out.println(x);
+					System.out.println(y);
 					System.out.println(Coordinates[0]);
 					System.out.println(Coordinates[1]);
 					
@@ -268,6 +282,14 @@ public class GPSPrecalculation {
 					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+					System.out.println(x);
+					System.out.println(y);
+					System.out.println("Coordinates 0 und 1");
+					System.out.println(Coordinates[0]);
+					System.out.println(Coordinates[1]);
+					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						continue;
+					}
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
@@ -281,13 +303,9 @@ public class GPSPrecalculation {
 				}
 				}
 			}
+
 			
-			
-			
-			
-			
-			
-			
+
 		}
 		else if(simulationMode == 3){ //Shanghai
 		
@@ -309,6 +327,9 @@ public class GPSPrecalculation {
 						
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+						if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+							continue;
+						}
 						WayPoint tmpWayPoint;
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
@@ -338,6 +359,9 @@ public class GPSPrecalculation {
 						
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+						if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+							continue;
+						}
 						WayPoint tmpWayPoint;
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
@@ -359,7 +383,7 @@ public class GPSPrecalculation {
 		//TODO: Update GUI
 		
 		Renderer.getInstance().setShowVehicles(true);
-		Renderer.getInstance().ReRender(false, false);
+		Renderer.getInstance().ReRender(true, true);
 		System.out.println("Done :)");
 		VanetSimStart.setProgressBar(false);
 

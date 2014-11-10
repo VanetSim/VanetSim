@@ -94,7 +94,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				
 				//Auswahlbereich Traces
 				c.gridx = 0;
-				chooseGPSTracesLabel_ = new JLabel(Messages.getString("ChooseGPSTracesPanel")); //$NON-NLS-1$
+				chooseGPSTracesLabel_ = new JLabel(Messages.getString("GPSControlPanel.ChooseGPSTracesPanel")); //$NON-NLS-1$
 				++c.gridy;
 				add(chooseGPSTracesLabel_,c);
 				chooseGPSTraces_ = new JComboBox<String>();
