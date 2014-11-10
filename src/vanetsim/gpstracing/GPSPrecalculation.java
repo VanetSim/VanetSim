@@ -67,58 +67,38 @@ public class GPSPrecalculation {
 	//TODO: Calculate Route
 	public static void precalculateRoute(int simulationMode, int minLine, int maxLine){
 
-
+		VanetSimStart.setProgressBar(true);
 		//TODO: Precalculate relative Times
 		
 		
 		ArrayDeque<WayPoint> destinations = null;
 		
 		if(simulationMode == 5){ //NY
-			System.out.println("In der 5");
+			
 		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
-		System.out.println(parsedTraces_.size());
 
 		Vehicle tmpVehicle;
 		
 			for(int i = 0; i < parsedTraces_.size(); i=i+7){				
-				System.out.println("For Schleife");
 				destinations = new ArrayDeque<WayPoint>(2);			
 					
 					try{
-						System.out.println(parsedTraces_.get(i));
-
 						double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
 						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
 						int time_ = 0;				
-						System.out.println("Parsing Double 1 done");
-						
-						System.out.println("*************");
-						System.out.println(pickupX_);
-						System.out.println(pickupY_);
-						System.out.println("*************");
+
 						//Add first way points here
 						int[] CoordinatesPickup = new int[2];
 						
 						if (MapHelper.translateGPSToMapMetric(CoordinatesPickup, pickupX_, pickupY_) == false){
 							continue;
 						}
-						System.out.println("GPXtoMetric Worked");
-						
-						
-						System.out.println(CoordinatesPickup[0]);
-						System.out.println(Map.getInstance().getMapWidth());
-						System.out.println(CoordinatesPickup[1]);
-						System.out.println(Map.getInstance().getMapHeight());
-						
-						
+											
 						WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], time_);
-						System.out.println("Waypoint Worked");
 							destinations.add(tmpWayPoint);
-							System.out.println("Coordinates 1 created");
 
 						double dropoffX_ = (double)Double.parseDouble(parsedTraces_.get(i+5));
 						double dropoffY_ = (double)Double.parseDouble(parsedTraces_.get(i+6));							
-						System.out.println("Parsing Double 2 done");
 						//Add second way points here
 						int[] CoordinatesDropoff = new int[2];
 						
@@ -127,7 +107,6 @@ public class GPSPrecalculation {
 						}
 						WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], time_);
 							destinations.add(tmpWayPoint_2);
-							System.out.println("Coordinates 2 created");
 						
 					} catch (Exception e) {
 						System.out.println("Routing failed");
@@ -135,9 +114,6 @@ public class GPSPrecalculation {
 					//Create vehicle
 					try {
 						if(destinations.size() >= 2){
-						System.out.println("Before Vehicle created");
-						System.out.println(destinations.size());
-						System.out.println(destinations);
 						tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
 						
@@ -154,6 +130,7 @@ public class GPSPrecalculation {
 			}
 
 		else if(simulationMode == 4){ //San Francisco
+			
 			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 		
 			Vehicle tmpVehicle;
@@ -236,6 +213,7 @@ public class GPSPrecalculation {
 			}
 		}
 		else if(simulationMode == 6){ //HH - OSM
+			
 			ArrayList<String> parsedTraces_ = GPSTracesXML.getInstance().getGpxTraces();
 			
 			Vehicle tmpVehicle;
@@ -312,6 +290,7 @@ public class GPSPrecalculation {
 			
 		}
 		else if(simulationMode == 3){ //Shanghai
+		
 			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();	
@@ -382,7 +361,7 @@ public class GPSPrecalculation {
 		Renderer.getInstance().setShowVehicles(true);
 		Renderer.getInstance().ReRender(false, false);
 		System.out.println("Done :)");
-		//VanetSimStart.setProgressBar(true);
+		VanetSimStart.setProgressBar(false);
 
 	}
 	

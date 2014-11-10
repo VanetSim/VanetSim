@@ -1496,7 +1496,11 @@ public class Vehicle extends LaneObject{
 	//TODO: Adjust Speed GPS
 	public void adjustSpeedWithGPS(int timePerStep){
 		
+		//TODO: Get Waypoints and according Times
 		
+		//TODO: Calculate distance between wayPoints (Distance on streets) need to get all streets which are on routing path
+		
+		//TODO: Implement Speed and Acceleration
 		
 		
 		

@@ -145,7 +145,6 @@ public class GPSTracesNY {
 
 				BufferedReader br = null;
 				String sCurrentLine = null;
-				System.out.println("NY TRaces for");
 				try {
 					br = new BufferedReader(new FileReader(actualFile_));
 
@@ -170,17 +169,6 @@ public class GPSTracesNY {
 							String pickup_latitude = columns[11];
 							String dropoff_longitude = columns[12];
 							String dropoff_latitude = columns[13];
-
-							System.out.println("TaxiID " + medallion);
-							System.out.println("Lon " + pickup_longitude);
-							System.out.println("Lat " + pickup_latitude);
-							System.out.println("Time " + pickup_datetime);
-							System.out.println("Triptime " + trip_time_in_secs);
-							System.out.println("Droppof lon "
-									+ dropoff_longitude);
-							System.out.println("Droppoff lat "
-									+ dropoff_latitude);
-							System.out.println("Counter " + Counter);
 
 							// Add to Array List
 
