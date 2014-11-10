@@ -46,7 +46,7 @@ public final class MapHelper {
 	 *         successful or not
 	 */
 	public static boolean translateGPSToMapMetric(int[] result,
-			double longitute, double latitude) {
+			double longitude, double latitude) {
 		Map map = Map.getInstance();
 		double minLongitude = map.getMinLongitude();
 		double maxLongitude = map.getMaxLongitude();
@@ -103,14 +103,13 @@ public final class MapHelper {
 				: maxLatitude - minLatitude;
 
 		// Compute the Distance between two longitudes/latitudes in degree
-		double distanceToLongPoint = (longitute < minLongitude) ? 360 + (longitute - minLongitude)
-				: longitute - minLongitude;
+		double distanceToLongPoint = (longitude < minLongitude) ? 360 + (longitude - minLongitude)
+				: longitude - minLongitude;
 		double distanceToLatPoint = (latitude < minLatitude) ? 180 + (latitude - minLatitude)
 				: latitude - minLatitude;
 		if (distanceToLongPoint < 0 || distanceToLatPoint < 0) {
 			return false;
-		} else if (distanceToLongPoint > distanceLong
-				|| distanceToLatPoint > distanceLat) {
+		} else if (distanceToLongPoint > distanceLong || distanceToLatPoint > distanceLat) {
 			return false;
 		} else {
 
