@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class GPSTracesNY {
 
@@ -153,9 +154,10 @@ public class GPSTracesNY {
 						if ((minLine <= Counter)
 								&& (maxLine >= Counter)) {
 							// Parse here
+							UUID TaxiID = UUID.randomUUID();
 							String[] columns = sCurrentLine.split(",");
-
-							String medallion = columns[0]; // ID
+							
+							//String medallion = columns[0]; // ID
 							// String hack_licence = columns[0];
 							// String vendor_id = columns[0];
 							// String rate_code = columns[0];
@@ -172,7 +174,10 @@ public class GPSTracesNY {
 
 							// Add to Array List
 
-							nyTraces_.add(medallion);
+							nyTraces_.add(TaxiID.toString());
+							System.out.println(TaxiID);
+							System.out.println(Counter);
+							System.out.println(maxLine);
 							nyTraces_.add(pickup_longitude);
 							nyTraces_.add(pickup_latitude);
 							nyTraces_.add(pickup_datetime);
@@ -182,9 +187,9 @@ public class GPSTracesNY {
 						}
 
 						Counter++;
-
-						// System.out.println(sCurrentLine);
-
+						if(Counter >= maxLine){
+							break;
+						}
 					}
 
 				} catch (IOException e) {

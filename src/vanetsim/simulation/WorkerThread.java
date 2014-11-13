@@ -1149,7 +1149,7 @@ public final class WorkerThread extends Thread {
 						} catch (Exception e){
 							//e.printStackTrace();
 						}
-
+						
 						// ================================= 
 						// Step 3: Adjust speed, do message cleanup and create jam messages
 						// ================================= 
@@ -1159,8 +1159,7 @@ public final class WorkerThread extends Thread {
 								vehicleSubarray = vehicles[i];
 								length = vehicleSubarray.length;
 								for(j = 0; j < length; ++j){
-									//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
-									System.out.println("AdjustSpeed");
+								//	vehicleSubarray[j].adjustSpeedWithSJTUTraceFiles(timePerStep_);
 									vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 								}
 							}
@@ -1348,31 +1347,20 @@ public final class WorkerThread extends Thread {
 						// ================================= 
 						// Step 7: Check the states of all traffic lights and change if necessary
 						// ================================= 
-						/*
-						try{
-							
-							Node[] tmpNodes = null;
-							for(i = 0; i < ourRegions_.length; i++){
-								tmpNodes = ourRegions_[i].getNodes();
-								for(j = 0; j < tmpNodes.length; j++){
-									if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
-										tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
+					/*
+						Node[] tmpNodes = null;
+						for(i = 0; i < ourRegions_.length; i++){
+							tmpNodes = ourRegions_[i].getNodes();
+							for(j = 0; j < tmpNodes.length; j++){
+								if(tmpNodes[j].isHasTrafficSignal_() && tmpNodes[j].getJunction() != null && tmpNodes[j].getJunction().getNode().getTrafficLight_() != null){	
+									tmpNodes[j].getJunction().getNode().getTrafficLight_().changePhases(timePerStep_);						
 								}
 							}
 						}
 
-
-							barrierFinish_.await();
-						} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
-						} catch (Exception e){
-						//e.printStackTrace();
-							try{
-								barrierFinish_.await();	//need to wait again...
-							}catch (Exception e2){}
-						}
-						*/	
-			
-				}
+						*/
+						
+					}
 				}
 				//TODO: Number 6 -> Hamburg
 				if(simulationMode_ == 6){

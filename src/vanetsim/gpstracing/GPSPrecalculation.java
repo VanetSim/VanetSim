@@ -66,26 +66,21 @@ public class GPSPrecalculation {
 	
 	//TODO: Calculate Route
 	public static void precalculateRoute(int simulationMode, int minLine, int maxLine){
-
-		VanetSimStart.setProgressBar(true);
-		//TODO: Precalculate relative Times
-		
+	//	VanetSimStart.setProgressBar(true);
 		
 		ArrayDeque<WayPoint> destinations = null;
 		
 		if(simulationMode == 5){ //NY
-			
-		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
 
+		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
 		Vehicle tmpVehicle;
 		
-			for(int i = 0; i < parsedTraces_.size(); i=i+7){				
+			for(int i = 0; i < parsedTraces_.size(); i=i+7){	
+			
 				destinations = new ArrayDeque<WayPoint>(2);			
-					
 					try{
 						double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
-						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
-						int time_ = 0;				
+						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));		
 
 						//Add first way points here
 						int[] CoordinatesPickup = new int[2];
@@ -116,22 +111,10 @@ public class GPSPrecalculation {
 					//Create vehicle
 					try {
 						System.out.println(destinations.size());
-						if (destinations.size()==1){
-							destinations.clear();
-							continue;
-						}
-						else if (destinations.size()==0){
-							destinations.clear();
-							continue;
-						}
-						else if (destinations.isEmpty()){
-							destinations.clear();
-							continue;
-						}
-						else if(destinations.size() == 2){
+
+						if(!destinations.isEmpty()){
 						tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
-						
 						System.out.println("Vehicle created");
 						}
 					} catch (ParseException e) {
@@ -328,9 +311,6 @@ public class GPSPrecalculation {
 				}
 				}
 			}
-
-			
-
 		}
 		else if(simulationMode == 3){ //Shanghai
 		
