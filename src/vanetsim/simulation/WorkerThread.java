@@ -180,7 +180,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 3: Adjust speed, do message cleanup and create jam messages
 				// ================================= 
-				
+				try{	
 					//vehicles: adjustSpeed()
 					for(i = 0; i < ourRegionsLength; ++i){
 						vehicleSubarray = vehicles[i];
@@ -201,7 +201,6 @@ public final class WorkerThread extends Thread {
 
 					
 					// Wait for all concurrent threads to synchronize			
-					try{	
 					barrierDuringWork_.await();
 				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 				} catch (Exception e){
@@ -428,7 +427,7 @@ public final class WorkerThread extends Thread {
 				// ================================= 
 				// Step 3: Adjust speed, do message cleanup and create jam messages
 				// ================================= 
-				
+				try{	
 					//vehicles: adjustSpeed()
 					for(i = 0; i < ourRegionsLength; ++i){
 						vehicleSubarray = vehicles[i];
@@ -449,7 +448,7 @@ public final class WorkerThread extends Thread {
 
 					
 					// Wait for all concurrent threads to synchronize			
-					try{	
+					
 					barrierDuringWork_.await();
 				} catch (BrokenBarrierException e){	//don't try to "repair" if barrier is broken
 				} catch (Exception e){
