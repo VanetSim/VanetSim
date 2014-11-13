@@ -22,12 +22,12 @@ public class GPSPrecalculation {
 		
 		//Traces Shanghai
 		if(simulationMode == 3){
-			 File ShanghaiFile_ = new File("../Vanetsim/Shanghai_GPS.xml");
+			 File ShanghaiFile_ = new File("../Vanetsim/Shanghai_kl.xml");
 			 Map.getInstance().load(ShanghaiFile_, false);
 		}
 		//Traces San Francisco
 		else if(simulationMode == 4){
-			 File SanFranciscoFile_ = new File("../Vanetsim/SanFrancisco_GPS.xml");
+			 File SanFranciscoFile_ = new File("../Vanetsim/SanFrancisco_kl.xml");
 			 Map.getInstance().load(SanFranciscoFile_, false);
 		}
 		//Traces New York
@@ -185,7 +185,7 @@ public class GPSPrecalculation {
 					//Initialize new vehicle
 					try {
 						if(destinations.size() >= 2){
-						tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+							tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
 						}
 					} catch (ParseException e) {
@@ -266,7 +266,7 @@ public class GPSPrecalculation {
 				else {
 					try {
 						if(destinations.size() >= 2){
-						tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+							tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
 						}
 					} catch (ParseException e) {
@@ -343,7 +343,7 @@ public class GPSPrecalculation {
 					else {
 						try {
 							if(destinations.size() >= 2){
-							tmpVehicle = new Vehicle(destinations, 0, 0, 0, false, false, 0, 0, 0, 0, 0, new Color(0,255,0), false, "");
+							tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 							Map.getInstance().addVehicle(tmpVehicle);
 							}
 						} catch (ParseException e) {

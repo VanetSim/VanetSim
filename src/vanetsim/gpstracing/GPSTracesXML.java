@@ -106,8 +106,8 @@ public class GPSTracesXML {
 		     							String longtitude_;
 		     							String latitude_;
 		     							
-		     							longtitude_ = (attrs.getNamedItem("lat").getTextContent());
-		     							latitude_ = (attrs.getNamedItem("lon").getTextContent());
+		     							latitude_ = (attrs.getNamedItem("lat").getTextContent());
+		     							longtitude_ = (attrs.getNamedItem("lon").getTextContent());
 		     							//The element ele is measuring the height in meters - not relevant at the moment
 		     							//Float ele_ = (float) Double.parseDouble(attrs.getNamedItem("ele").getTextContent());
 		     							//Float speed_ = (float) Double.parseDouble(attrs.getNamedItem("speed").getTextContent());
