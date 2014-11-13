@@ -176,9 +176,6 @@ public class GPSTracesSanFrancisco {
 							String formattedDate = sdf.format(date);
 
 							// Add to Array List
-
-							System.out.println("Taxi ID" + TaxiID);
-
 							sfTraces_.add(TaxiID.toString());
 							sfTraces_.add(longitude);
 							sfTraces_.add(latitude);

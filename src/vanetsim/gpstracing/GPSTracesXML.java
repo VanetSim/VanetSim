@@ -119,18 +119,7 @@ public class GPSTracesXML {
 		     								time_ = (item2.getFirstChild().getNodeValue());					
 		     					
 		     	                
-		     							}
-		     						
-		     							System.out.println("UUID One: " + idOne);
-		     							System.out.println("lon" + longtitude_);
-		     							System.out.println("lat" + latitude_);
-		     							System.out.println("TIME " + time_);
-		     							//System.out.println(ele_);
-		     							//System.out.println("Speed" + speed_);
-		     							
-		     							
-		     							
-		     							
+		     							}	
 		     							//Add elements to ArrayList
 		     							     							
 		     							GPXTraces_.add(idOne.toString());
