@@ -142,7 +142,7 @@ public class GPSTracesSanFrancisco {
 		if (fileArray != null) {
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
-				System.out.print(fileArray[i].getAbsolutePath());
+				//System.out.print(fileArray[i].getAbsolutePath());
 				UUID TaxiID = UUID.randomUUID();
 
 				BufferedReader br = null;
@@ -178,18 +178,13 @@ public class GPSTracesSanFrancisco {
 							// Add to Array List
 
 							System.out.println("Taxi ID" + TaxiID);
-							System.out.println("Lon" + longitude);
-							System.out.println("Lat" + latitude);
-							System.out.println("Date" + formattedDate);
 
 							sfTraces_.add(TaxiID.toString());
-							sfTraces_.add(latitude);
 							sfTraces_.add(longitude);
+							sfTraces_.add(latitude);
 							sfTraces_.add(formattedDate);
 						}
 						Counter++;
-
-						// System.out.println(sCurrentLine);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

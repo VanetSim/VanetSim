@@ -1160,6 +1160,7 @@ public final class WorkerThread extends Thread {
 								length = vehicleSubarray.length;
 								for(j = 0; j < length; ++j){
 									//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
+									System.out.println("AdjustSpeed");
 									vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 								}
 							}

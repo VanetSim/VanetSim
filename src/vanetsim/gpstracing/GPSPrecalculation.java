@@ -32,7 +32,7 @@ public class GPSPrecalculation {
 		}
 		//Traces New York
 		else if(simulationMode == 5){
-			 File NYFile_ = new File("../VanetSim/NY_GPS_2.xml");
+			 File NYFile_ = new File("../VanetSim/NY_kl.xml");
 			 Map.getInstance().load(NYFile_, false);
 		}
 		//Traces Hamburg
@@ -91,10 +91,11 @@ public class GPSPrecalculation {
 						int[] CoordinatesPickup = new int[2];
 						
 						if (MapHelper.translateGPSToMapMetric(CoordinatesPickup, pickupX_, pickupY_) == false){
+							destinations.clear();
 							continue;
 						}
 											
-						WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], time_);
+						WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], 0);
 							destinations.add(tmpWayPoint);
 
 						double dropoffX_ = (double)Double.parseDouble(parsedTraces_.get(i+5));
@@ -103,9 +104,10 @@ public class GPSPrecalculation {
 						int[] CoordinatesDropoff = new int[2];
 						
 						if (MapHelper.translateGPSToMapMetric(CoordinatesDropoff, dropoffX_,dropoffY_) == false){
+							destinations.clear();
 							continue;
 						}
-						WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], time_);
+						WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], 0);
 							destinations.add(tmpWayPoint_2);
 						
 					} catch (Exception e) {
@@ -113,7 +115,20 @@ public class GPSPrecalculation {
 					}
 					//Create vehicle
 					try {
-						if(destinations.size() >= 2){
+						System.out.println(destinations.size());
+						if (destinations.size()==1){
+							destinations.clear();
+							continue;
+						}
+						else if (destinations.size()==0){
+							destinations.clear();
+							continue;
+						}
+						else if (destinations.isEmpty()){
+							destinations.clear();
+							continue;
+						}
+						else if(destinations.size() == 2){
 						tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
 						
@@ -134,13 +149,9 @@ public class GPSPrecalculation {
 			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 		
 			Vehicle tmpVehicle;
-			
 			destinations = new ArrayDeque<WayPoint>();	
-			for (int i = 0; i<= parsedTraces_.size(); i=i+4){
-				
-				if (i==0){
-					
-					
+			for (int i = 0; i< parsedTraces_.size(); i=i+4){				
+				if (i==0){	
 					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
 					
@@ -162,34 +173,53 @@ public class GPSPrecalculation {
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						continue;
 					}
 						
 					
 					continue;
 				}
-				else if(parsedTraces_.get(i)==parsedTraces_.get(i-4)){
+				else if(parsedTraces_.get(i).equals(parsedTraces_.get(i-4))){
+					//System.out.println(parsedTraces_.get(i));
+					
 					//Put shit in Metricstuff
+					//System.out.println("Else if i == i-4");
 					
-					
-					double x_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
-					double y_ = (double)Double.parseDouble(parsedTraces_.get(i+2));
+					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
+					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
 					
 					//Time - here the time is from the LAST point to the first one means
 					//Vehicles have to drive BACKWARDS :)
-					
+					int[] Coordinates = new int[2];
+					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+				
+					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						continue;
+					}
+					WayPoint tmpWayPoint;
+					try {
+						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
+						destinations.add(tmpWayPoint);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						continue;
+					}		
+
 					//long t_ = (long)(Long.parseLong(parsedTraces_.get(i+4)) - (long)(Long.parseLong(parsedTraces_.get(i+8))));
 					//System.out.println(t_);
 					continue;
 				}
-				else if(parsedTraces_.get(i)!=parsedTraces_.get(i-4)){
+				else if(!parsedTraces_.get(i).equals(parsedTraces_.get(i-4))){
 					//Initialize new vehicle
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 						Map.getInstance().addVehicle(tmpVehicle);
+						System.out.println("Vehicle created");
 						}
 					} catch (ParseException e) {
-						
+
 						e.printStackTrace();
 					}
 					
@@ -209,14 +239,26 @@ public class GPSPrecalculation {
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
+
 					} catch (ParseException e) {
+
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-						
-					
 				}
+				
 			}
+			try {
+				if(destinations.size() >= 2){
+					tmpVehicle = new Vehicle(destinations, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
+				Map.getInstance().addVehicle(tmpVehicle);
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+			
+			
 		}
 		else if(simulationMode == 6){ //HH - OSM
 			
@@ -232,31 +274,19 @@ public class GPSPrecalculation {
 		for (String s : IDs){
 			for (int j = 0; j < parsedTraces_.size(); j=j+4){
 				if (s.equals(parsedTraces_.get(j))){
-					System.out.println("Hier");
 					double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 					
-					
-					System.out.println(x);
-					System.out.println(y);
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
-					System.out.println("Coordinates 0 und 1");
-					System.out.println(Coordinates[0]);
-					System.out.println(Coordinates[1]);
 					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
 						continue;
 					}
 					WayPoint tmpWayPoint;
-					System.out.println(x);
-					System.out.println(y);
-					System.out.println(Coordinates[0]);
-					System.out.println(Coordinates[1]);
 					
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
-						System.out.println("Waypoint added");
 					} catch (ParseException e) {
 
 						e.printStackTrace();
@@ -282,11 +312,6 @@ public class GPSPrecalculation {
 					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
-					System.out.println(x);
-					System.out.println(y);
-					System.out.println("Coordinates 0 und 1");
-					System.out.println(Coordinates[0]);
-					System.out.println(Coordinates[1]);
 					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
 						continue;
 					}
