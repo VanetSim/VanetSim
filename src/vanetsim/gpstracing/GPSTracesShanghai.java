@@ -153,20 +153,13 @@ public class GPSTracesShanghai {
 					// String Status = columns[7];
 					// String EStatus = columns[8];
 					// String Reversed = columns[9];
-
-					// System.out.println("TaxiID " + TaxiID);
-					// System.out.println("Lon " + Lon);
-					// System.out.println("Lat " + Lat);
-					// System.out.println("Time " + Time);
-
-					System.out.println("XX " + TaxiID);
+					
 					// Add to Array List
 
 					shTraces_.add(TaxiID);
 					shTraces_.add(Lon);
 					shTraces_.add(Lat);
 					shTraces_.add(Time);
-					// System.out.println(shTraces_);
 				}
 				Counter++;
 			}

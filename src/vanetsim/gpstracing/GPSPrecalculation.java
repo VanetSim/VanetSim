@@ -43,32 +43,13 @@ public class GPSPrecalculation {
 		
 	}
 	
-	public static void runParser(int simulationMode, int minLine, int maxLine){
-		//Traces Shanghai
-				if(simulationMode == 3){
-					GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
-				}
-				//Traces San Francisco
-				else if(simulationMode == 4){
-					GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
-				}
-				//Traces New York
-				else if(simulationMode == 5){
-					GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
-					
-				}
-				//Traces Hamburg
-				else if(simulationMode == 6){
-					GPSTracesXML.getInstance().getGpxTraces();
-				}
-	}
-	
-	
-	//TODO: Calculate Route
 	public static void precalculateRoute(int simulationMode, int minLine, int maxLine){
 	//	VanetSimStart.setProgressBar(true);
 		
 		ArrayDeque<WayPoint> destinations = null;
+		
+		//TODO: Simulation does not start.
+		
 		
 		if(simulationMode == 5){ //NY
 
@@ -384,9 +365,7 @@ public class GPSPrecalculation {
 			
 			
 		}
-
-		//TODO: Update GUI
-		
+		//Update GUI
 		Renderer.getInstance().setShowVehicles(true);
 		Renderer.getInstance().ReRender(true, true);
 		System.out.println("Done :)");

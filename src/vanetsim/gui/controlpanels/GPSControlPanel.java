@@ -188,25 +188,21 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")){ 
 				GPSPrecalculation.openMap(6); 
 				System.out.println("Starting Parsing now");
-				//GPSPrecalculation.runParser(6, 0, 0);
 				GPSPrecalculation.precalculateRoute(6, 0, 0);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")){ 
 				GPSPrecalculation.openMap(5); 
-				//GPSPrecalculation.runParser(5, minLineValue, maxLineValue);
 				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(5, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")){ 
 				GPSPrecalculation.openMap(3); 
 				System.out.println("Starting Parsing now");
-				//GPSPrecalculation.runParser(3, minLineValue, maxLineValue);
 				GPSPrecalculation.precalculateRoute(3, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")){ 
 				GPSPrecalculation.openMap(4); 
 				System.out.println("Starting Parsing now");
-				//GPSPrecalculation.runParser(4, minLineValue, maxLineValue);
 				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
 		
