@@ -228,12 +228,24 @@ public class Vehicle extends LaneObject{
 	/** How many simulation steps we wait until we send the RHCN message */
 	private static int WAIT_TO_SEND_RHCN_ = 4;
 	
+	//TODO: maybe need to change this to be several configs in order to control behavior more precise.
+	/** is Position Verification globally enabled */
+	private static boolean positionVerifificationEnabled_ = true;
+	
+    /** is sending RSSI Values globally enabled */
+	private static boolean sendRssiEnabled_ = true;
+	
 	/** the counter for the rhcn message */
 	private int waitToSendRHCNCounter_ = -1;
 	
 //	private static int vehiclesInSlow = 0;
+	
 	// object variables begin here
 
+	//TODO: change this to real Implementation and migrate to class
+	// dummy setting for the propagation modell
+	private String propagationModell_ = "Propagation.FreeSpace";
+	
 	/** The destinations this vehicle wants to visit. */
 	public ArrayDeque<WayPoint> originalDestinations_;
 	
@@ -3020,6 +3032,7 @@ public class Vehicle extends LaneObject{
 			RegionMaxY = tmpregion.getY();
 			long maxCommDistanceSquared = (long)maxCommDistance_ * maxCommDistance_;
 			long dx, dy;
+            double currentRssi = 0;
 
 
 			// only iterate through those regions which are within the distance
@@ -3035,9 +3048,15 @@ public class Vehicle extends LaneObject{
 							dx = vehicle.getX() - curX_;
 							dy = vehicle.getY() - curY_;
 							if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+                                
+							    // if Position Verification is globaly enabled we need to calculate the RSSI here
+							    if (positionVerifificationEnabled_) {
+							        currentRssi = calculateRSSI(dx, dy);
+                                }
+							    
 								if(emergencyBeacons > 0){
 									vehicle.getIdsProcessorList_().updateProcessor((ID_-1), curX_, curY_, curSpeed_, curLane_);
-									vehicle.getKnownVehiclesList().updateVehicle(this, (ID_-1), curX_, curY_, curSpeed_, vehicle.getID(), false,false);
+									vehicle.getKnownVehiclesList().updateVehicle(this, (ID_-1), curX_, curY_, curSpeed_, vehicle.getID(), false,false,currentRssi);
 								}
 								else if (emergencyBeacons == 0){
 									//fake messages
@@ -3094,12 +3113,10 @@ public class Vehicle extends LaneObject{
 									fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 								}
 								
+                                // TODO: check if RSSI send here actually works
+                                vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false, false, currentRssi);
+                                vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
 								
-									
-							
-								
-								vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false,false);
-								vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
 							}
 						}
 					}
@@ -3145,9 +3162,14 @@ public class Vehicle extends LaneObject{
 			    	dx = tempARSUList[l].getX() - curX_;
 			    	dy = tempARSUList[l].getY() - curY_;
 			    	
-			   
 					if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
-						if(Renderer.getInstance().getAttackerVehicle() != null && !Renderer.getInstance().getAttackerVehicle().equals(this))Renderer.getInstance().getAttackerVehicle().getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, tempARSUList[l].getArsuID_(), false, true);
+                        if (Renderer.getInstance().getAttackerVehicle() != null && !Renderer.getInstance().getAttackerVehicle().equals(this)) {
+                            //TODO: rssi wert berechnen
+                            currentRssi = 0;
+			   
+                            Renderer.getInstance().getAttackerVehicle().getKnownVehiclesList()
+                                    .updateVehicle(this, ID_, curX_, curY_, curSpeed_, tempARSUList[l].getArsuID_(), false, true, currentRssi);
+                        }
 					}	    	
 			      }
 
@@ -3167,6 +3189,32 @@ public class Vehicle extends LaneObject{
 				}
 			}
 		}
+	}
+	
+    // TODO: comment this!
+    private double calculateRSSI(long dx, long dy) {
+        // dummy implementation
+        // R=-10 * n *log10(d) + A
+        // n = Pathloss
+        // d = distance
+        // A = Signalstrength at 1m
+        double d = Math.sqrt(dy * dy + dx * dx);
+        double n = 2;
+        double A = -44.8;
+
+        double res = -10 * n * Math.log10(d) + A;
+
+        return res;
+    }
+
+	public String getPropagationModell() {
+        // TODO: Auto-generated method stub
+        return propagationModell_;
+    }
+
+	public void setPropagationModell(String modell){
+	 // TODO: Auto-generated method stub
+	    
 	}
 	
 	/**
@@ -3189,7 +3237,9 @@ public class Vehicle extends LaneObject{
 
 			if(curMixNode_.getEncryptedRSU_() != null){
 				tmpRSU = curMixNode_.getEncryptedRSU_();
-				tmpRSU.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, tmpRSU.getRSUID(), true, false);
+				// rssi=0 is send due to changes in updateVehicle Method
+				//TODO: maybe overload Method?
+				tmpRSU.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, tmpRSU.getRSUID(), true, false,0);
 
 				// allow beacon monitoring
 				if(beaconMonitorEnabled_){
@@ -4198,6 +4248,16 @@ public class Vehicle extends LaneObject{
 		beaconsEnabled_ = state;
 	}
 
+	/**
+     * Sets if Location Verification is enabled or not. Common to all vehicles.
+     * 
+     * @param state
+     *            <code>true</code> to enable verification, else <code>false</code>
+     */
+    public static void setLocationVerificationEnabled(boolean state) {
+        positionVerifificationEnabled_ = state;
+    }
+	
 	/**
 	 * Sets if mix zones are enabled or not. Common to all vehicles.
 	 * 

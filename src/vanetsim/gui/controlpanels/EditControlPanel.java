@@ -93,6 +93,14 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** The control panel to edit location verification settings. */
 	private final EditLocationVerificationControlPanel editLocationVerificationPanel_ = new EditLocationVerificationControlPanel();
 	
+    // TODO: implement this
+    /** The control panel to edit the propagation modell and RSSI generation. */
+    // private final EditLocationVerificationPropagationModellPanel editLocationVerificationPropagationModellPanel_ = new EditPropagationControlPanel();
+
+    // TODO: implement this
+    /** The control panel to edit the Location Technique. */
+    // private final EditEventControlPanel editLocationVerificationTechniquePanel_ = new EditLocationTechniqueControlPanel();
+	
 	/** The control panel to edit silent periods. */
 	private final SilentPeriodPanel editSilentPeriodPanel_ = new SilentPeriodPanel();
 	
@@ -137,6 +145,10 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	
 	/** Tabbed pane for events. */
 	private final JTabbedPane tabbedPaneEvents_;
+	
+	//TODO: implement
+	/** Tabbed pane for location verification. */
+//    private final JTabbedPane tabbedPaneLocationVerification_;
 	
 	/**
 	 * Constructor for this ControlPanel.
@@ -217,9 +229,24 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		editStreetPanel_.setOpaque(false);
 		editCardPanel_.add(editTrafficLightsPanel_, "trafficLights"); //$NON-NLS-1$
 		editTrafficLightsPanel_.setOpaque(false);
+		
+		
+        // TODO: elmo check Tabbed Interface
+        // --- old locationVerification interface
 		editCardPanel_.add(editLocationVerificationPanel_, "locationVerification"); //$NON-NLS-1$
 		editLocationVerificationPanel_.setOpaque(false);
 		
+		// tabbed pane for location verification
+//        tabbedPaneLocationVerification_ = new JTabbedPane();
+//        tabbedPaneLocationVerification_.setOpaque(false);
+//        editLocationVerificationPropagationModellPanel_.setOpaque(false);
+//        editLocationVerificationTechniquePanel_.setOpaque(false);
+//        tabbedPaneEvents_
+//                .add(Messages.getString("EditLovationVerificationControlPanel.propagation"), editLocationVerificationPropagationModellPanel_);
+//        tabbedPaneEvents_.add(Messages.getString("EditLovationVerificationControlPanel.technique"), editLocationVerificationTechniquePanel_);
+//        editCardPanel_.add(tabbedPaneLocationVerification_, "locationVerification"); //$NON-NLS-1$
+		
+        
 		//tabbed pane for events
 		tabbedPaneEvents_ = new JTabbedPane();
 		tabbedPaneEvents_.setOpaque(false);

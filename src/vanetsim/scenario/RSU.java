@@ -293,6 +293,7 @@ public final class RSU {
 						dx = vehicle.getX() - x_;
 						dy = vehicle.getY() - y_;
 						if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+						//TODO: maybe need to send RSSI here
 							vehicle.getKnownRSUsList().updateRSU(this, rsuID_, x_, y_, isEncrypted_);
 						}
 					}
@@ -567,7 +568,8 @@ public final class RSU {
 					//send beacons and color vehicles
 					for(int k = 0; k < vehicleBehind_.length; k++){
 						if(vehicleBehind_[k] != null){
-							vehicleBehind_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false);
+                        vehicleBehind_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_) {
 								coloredVehicles.add(vehicleBehind_[k]);
 								vehicleBehind_[k].setColor(Color.red);
@@ -575,7 +577,8 @@ public final class RSU {
 							}
 						}
 						if(vehicleFront_[k] != null){
-							vehicleFront_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false);
+                        vehicleFront_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 								coloredVehicles.add(vehicleFront_[k]);
 								vehicleFront_[k].setColor(Color.red);
@@ -583,7 +586,8 @@ public final class RSU {
 							}
 						}
 						if(vehicleToward_[k] != null){
-							vehicleToward_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false);
+                        vehicleToward_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 								coloredVehicles.add(vehicleToward_[k]);
 								vehicleToward_[k].setColor(Color.red);
@@ -592,7 +596,8 @@ public final class RSU {
 						}
 					}	
 					for(Vehicle v : tmpVehicles.values()) {
-						v.getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false);
+                    v.getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(),
+                            senderVehicle.getCurSpeed(), rsuID_, true, false, 0);// FIXME
 						if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 							coloredVehicles.add(v);
 							v.setColor(Color.red);

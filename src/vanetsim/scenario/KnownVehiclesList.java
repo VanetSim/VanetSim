@@ -71,8 +71,9 @@ public class KnownVehiclesList{
 	 * @param sourceID	ID of the source
 	 * @param isEncrypted	if Beacon was encrypted
 	 * @param isARSU	if Beacon was sent from an ARSU
+	 * @param rssi      the rssi received in this beacon, <code>0</code> if no rssi was send
 	 */
-	public synchronized void updateVehicle(Vehicle vehicle, long ID, int x, int y, double speed, long sourceID, boolean isEncrypted, boolean isARSU){
+	public synchronized void updateVehicle(Vehicle vehicle, long ID, int x, int y, double speed, long sourceID, boolean isEncrypted, boolean isARSU, double rssi){
 		boolean found = false;
 		int hash = (int)(ID % HASH_SIZE);
 		if(hash < 0) hash = -hash;
@@ -88,6 +89,7 @@ public class KnownVehiclesList{
 					next.getSavedY_()[counter] = next.getY();
 					next.getSavedSpeed_()[counter] = next.getSpeed();
 					next.getSavedLastUpdate_()[counter] = next.getLastUpdate();
+					//TODO: add rssi 
 				}
 				
 				next.setX(x);
@@ -96,6 +98,7 @@ public class KnownVehiclesList{
 				next.setLastUpdate(timePassed_);
 				next.setSpeed(speed);
 				next.setEncrypted_(isEncrypted);
+				next.setRssi(rssi);
 				
 				found = true;
 
@@ -105,7 +108,7 @@ public class KnownVehiclesList{
 		}					
 		
 		if(!found){
-			next = new KnownVehicle(vehicle, ID, x, y, timePassed_ + VALID_TIME, speed, isEncrypted, timePassed_);
+			next = new KnownVehicle(vehicle, ID, x, y, timePassed_ + VALID_TIME, speed, isEncrypted, timePassed_,rssi);
 			next.setNext(head_[hash]);
 			next.setPrevious(null);
 			if(head_[hash] != null) head_[hash].setPrevious(next);

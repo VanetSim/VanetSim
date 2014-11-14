@@ -42,6 +42,9 @@ public class KnownVehicle{
 	/** The current speed. */
 	private double speed_;
 	
+	/** the last received rssi value */
+	private double rssi_;
+	
 	/** If the beacon is encrypted */
 	private boolean isEncrypted_;
 	
@@ -83,13 +86,16 @@ public class KnownVehicle{
 	 * @param time		the current time
 	 * @param speed		the current speed
 	 * @param isEncrypted	if Beacon was encrypted
+	 * @param rssi      the received rssi in the latest beacon
 	 */
-	public KnownVehicle(Vehicle vehicle, long ID, int x, int y, int time, double speed, boolean isEncrypted, int timePassed){
+	public KnownVehicle(Vehicle vehicle, long ID, int x, int y, int time, double speed, boolean isEncrypted, int timePassed, double rssi){
+		//elmo
 		vehicle_ = vehicle;
 		ID_ = ID;
 		x_ = x;
 		y_ = y;
 		speed_ = speed;
+		rssi_ = rssi;
 		lastUpdate_ = time;
 		isEncrypted_ = isEncrypted;
 		firstContact_ = timePassed;
@@ -100,6 +106,7 @@ public class KnownVehicle{
 			savedSpeed_ = new double[amountOfSavedBeacons_];
 			for(int i = 0; i < amountOfSavedBeacons_;i++) savedSpeed_[i] = -1;
 			savedLastUpdate_ = new int[amountOfSavedBeacons_];
+			//TODO: save rssi here
 		}
 		
 		
@@ -441,4 +448,22 @@ public class KnownVehicle{
 		return firstContact_;
 	}
 
+	
+    /**
+     * Set the lates received rssi value
+     * 
+     * @param rssi
+     */
+    public void setRssi(double rssi) {
+        rssi_ = rssi;
+    }
+
+    /**
+     * Gets the RSSI
+     * 
+     * @return the rssi
+     */
+    public double getRssi() {
+        return rssi_;
+    }
 }
