@@ -143,6 +143,10 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 	/** Collects waypoints, when adding new vehicle. */
 	private ArrayDeque<WayPoint> destinations = null;
 	
+	/** Collects Trip Times, when adding new vehicle. */
+	private ArrayDeque<Double> tripTimes = null;
+	
+	
 	/** Create/Save button for vehicles. */
 	private JButton createVehicle_;
 	
@@ -557,7 +561,7 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 			try {
 				for(int i = 0; i < ((Number)vehicleAmount_.getValue()).intValue() ;i++){
 					destinations.peekFirst().setWaittime(i*timeBetween * 1000 + ((Number)wait_.getValue()).intValue());
-					tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), (int)Math.round(((Number)speed_.getValue()).intValue() * 100000.0/3600), ((Number)commDist_.getValue()).intValue()*100, wifi_.isSelected(), emergencyVehicle_.isSelected(), ((Number) brakingRate_.getValue()).intValue(), ((Number)accelerationRate_.getValue()).intValue(), ((Number)timeDistance_.getValue()).intValue(), ((Number)politeness_.getValue()).intValue(), (int)Math.round(((Number)deviationFromSpeedLimit_.getValue()).intValue() * 100000.0/3600), getColorPreview().getBackground(), fakingVehicle_.isSelected(), fakeMessagesTypes_.getSelectedItem().toString());
+					tmpVehicle = new Vehicle(destinations, tripTimes, ((Number)vehicleLength_.getValue()).intValue(), (int)Math.round(((Number)speed_.getValue()).intValue() * 100000.0/3600), ((Number)commDist_.getValue()).intValue()*100, wifi_.isSelected(), emergencyVehicle_.isSelected(), ((Number) brakingRate_.getValue()).intValue(), ((Number)accelerationRate_.getValue()).intValue(), ((Number)timeDistance_.getValue()).intValue(), ((Number)politeness_.getValue()).intValue(), (int)Math.round(((Number)deviationFromSpeedLimit_.getValue()).intValue() * 100000.0/3600), getColorPreview().getBackground(), fakingVehicle_.isSelected(), fakeMessagesTypes_.getSelectedItem().toString());
 					Map.getInstance().addVehicle(tmpVehicle);
 					Renderer.getInstance().setMarkedVehicle(tmpVehicle);
 				}

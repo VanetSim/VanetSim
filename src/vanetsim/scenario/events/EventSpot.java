@@ -136,6 +136,8 @@ public class EventSpot{
 	    	WayPoint tmpWayPoint = null;
 
 			ArrayDeque<WayPoint> destinations = null;
+			/** Collects Trip Times, when adding new vehicle. */
+			ArrayDeque<Double> tripTimes = null;
 			Vehicle tmpVehicle;
 			
 			int k = 0;	
@@ -177,7 +179,7 @@ public class EventSpot{
 
 			if(k < 99999) {
 				try {
-					tmpVehicle = new Vehicle(destinations, 600, 4722, 10000, true, true, 800, 300, 100, 0, 833,  new Color(124,148,235), false, "");
+					tmpVehicle = new Vehicle(destinations, tripTimes, 600, 4722, 10000, true, true, 800, 300, 100, 0, 833,  new Color(124,148,235), false, "");
 					tmpVehicle.setDoNotRecycle_(true);
 					Map.getInstance().addVehicle(tmpVehicle);
 				} catch (Exception e) {e.printStackTrace();}				

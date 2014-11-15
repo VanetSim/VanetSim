@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import java.util.ArrayDeque;
 
 import javax.xml.stream.XMLInputFactory;
@@ -151,6 +150,8 @@ public final class Scenario{
 			boolean tmpBoolean, wifi, emergencyVehicle, tmpAttacker, tmpAttacked, isEncrypted, mixHasRSU, isFake, fakingMessages;
 			long seed;
 			ArrayDeque<WayPoint> destinations;
+			/** Collects Trip Times, when adding new vehicle. */
+			ArrayDeque<Double> tripTimes = null;
 			WayPoint tmpWayPoint;
 			Vehicle tmpVehicle;
 			Node[] tmpNodes;
@@ -638,7 +639,7 @@ public final class Scenario{
 								}
 								if(maxCommDistance != -1 && maxSpeed != -1 && destinations.size() > 1){
 									try{
-										tmpVehicle = new Vehicle(destinations, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType);
+										tmpVehicle = new Vehicle(destinations, tripTimes, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType);
 										Map.getInstance().addVehicle(tmpVehicle);
 										if(tmpAttacker) Renderer.getInstance().setAttackerVehicle(tmpVehicle);
 										if(tmpAttacked) {

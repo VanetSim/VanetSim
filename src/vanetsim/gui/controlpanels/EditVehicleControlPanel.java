@@ -30,7 +30,6 @@ import java.awt.event.MouseListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Random;
-
 import java.util.ArrayDeque;
 
 import javax.swing.JButton;
@@ -681,7 +680,9 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 						j = 0;
 						k = 0;						
 						++l;
-						destinations = new ArrayDeque<WayPoint>(2);			
+						destinations = new ArrayDeque<WayPoint>(2);	
+						/** Collects Trip Times, when adding new vehicle. */
+						ArrayDeque<Double> tripTimes = null;
 						while(j < 2 && k < 20){	// if snapping fails more than 20 times break
 							try{
 								++k;
@@ -703,7 +704,7 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 								else emergencyEnabled = false;
 								if(getRandomRange(0, 99, random) < vehiclesFaking) fakingEnabled = true;
 								else fakingEnabled = false;
-								tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  colorPreview_.getBackground(), fakingEnabled, fakeMessagesTypes_.getSelectedItem().toString());
+								tmpVehicle = new Vehicle(destinations, tripTimes, ((Number)vehicleLength_.getValue()).intValue(), getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  colorPreview_.getBackground(), fakingEnabled, fakeMessagesTypes_.getSelectedItem().toString());
 								Map.getInstance().addVehicle(tmpVehicle);
 								++i;
 							} catch (Exception e) {}				

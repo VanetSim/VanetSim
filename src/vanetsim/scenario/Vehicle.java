@@ -603,7 +603,7 @@ public class Vehicle extends LaneObject{
 	 * @param politeness		the politeness
 	 * @throws ParseException an Exception indicating that you did not supply a valid destination list.
 	 */
-	public Vehicle(ArrayDeque<WayPoint> destinations, int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
+	public Vehicle(ArrayDeque<WayPoint> destinations, ArrayDeque<Double> triptimes ,int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
 		if(destinations != null && destinations.size()>1){
 			originalDestinations_ = destinations; 
 			destinations_ = originalDestinations_.clone();			
@@ -775,7 +775,7 @@ public class Vehicle extends LaneObject{
 	}
 
 	/**
-	 * A method to be filled when implementing IDE
+	 * A method to be filled when implementing IDM
 	 * @param timePerStep
 	 */
 	
@@ -1495,10 +1495,31 @@ public class Vehicle extends LaneObject{
 	
 	//TODO: Adjust Speed GPS
 	public void adjustSpeedWithGPS(int timePerStep){
-		
-		//TODO: Get Waypoints and according Times
+
 		
 		//TODO: Calculate distance between wayPoints (Distance on streets) need to get all streets which are on routing path
+		double distance = 0, tmpPosition = curPosition_; //distance between two routing points
+		Street tmpStreet = curStreet_;
+		boolean tmpDirection = curDirection_;
+		int i;
+		int j = routeStreets_.length-1;
+		for(i = routePosition_; i < j;){
+			if(tmpDirection) distance += tmpStreet.getLength() - tmpPosition;
+			else distance += tmpPosition;
+			++i;
+			//Not sure if needed
+			tmpDirection = routeDirections_[i];
+			tmpStreet = routeStreets_[i];
+			if(tmpDirection) tmpPosition = 0;
+			else tmpPosition = tmpStreet.getLength();
+		}
+		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
+		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
+		
+		//TODO: Calculate Times between two points
+		
+		
+		
 		
 		//TODO: Implement Speed and Acceleration
 		

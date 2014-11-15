@@ -32,7 +32,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-
 import java.util.ArrayDeque;
 
 import javax.swing.DefaultListModel;
@@ -562,6 +561,8 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 									boolean emergencyEnabled;
 									boolean fakingEnabled;
 									ArrayDeque<WayPoint> destinations = null;
+									/** Collects Trip Times, when adding new vehicle. */
+									ArrayDeque<Double> tripTimes = null;
 									Vehicle tmpVehicle;
 									Random random = new Random();
 									int tmpRandom = -1;
@@ -678,7 +679,7 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 												else emergencyEnabled = false;
 												if(getRandomRange(0, 99, random) < vehiclesFaking) fakingEnabled = true;
 												else fakingEnabled = false;
-												tmpVehicle = new Vehicle(destinations, vehicleLength, getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  vehicleSet.getColor_(), fakingEnabled, vehicleSet.getFakeMessagesTypes_());
+												tmpVehicle = new Vehicle(destinations, tripTimes, vehicleLength, getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  vehicleSet.getColor_(), fakingEnabled, vehicleSet.getFakeMessagesTypes_());
 												Map.getInstance().addVehicle(tmpVehicle);
 												++i;
 											} catch (Exception e) {}				

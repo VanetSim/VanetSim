@@ -175,9 +175,6 @@ public class GPSTracesNY {
 							// Add to Array List
 
 							nyTraces_.add(TaxiID.toString());
-							System.out.println(TaxiID);
-							System.out.println(Counter);
-							System.out.println(maxLine);
 							nyTraces_.add(pickup_longitude);
 							nyTraces_.add(pickup_latitude);
 							nyTraces_.add(pickup_datetime);
