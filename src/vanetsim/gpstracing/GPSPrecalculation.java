@@ -49,7 +49,7 @@ public class GPSPrecalculation {
 	//	VanetSimStart.setProgressBar(true);
 		
 		ArrayDeque<WayPoint> destinations = null;
-		ArrayDeque<Double> tripTimes = null;
+		//ArrayDeque<Double> tripTimes = null;
 		
 		//TODO: Simulation does not start.
 		
@@ -61,10 +61,15 @@ public class GPSPrecalculation {
 		
 			for(int i = 0; i < parsedTraces_.size(); i=i+7){
 				
-				double tripTime = (double)Double.parseDouble(parsedTraces_.get(i+5));
+				
+				ArrayDeque<Double> tripTimes = new ArrayDeque<Double>((parsedTraces_.size()/7));		
+				
 			
-				destinations = new ArrayDeque<WayPoint>(2);			
+				destinations = new ArrayDeque<WayPoint>(2);		
 					try{
+						
+					
+						
 						double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
 						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));		
 
@@ -122,6 +127,7 @@ public class GPSPrecalculation {
 		
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();	
+			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>((parsedTraces_.size()/4));
 			
 			for (int i = 0; i< parsedTraces_.size(); i=i+4){				
 				if (i==0){	
@@ -168,10 +174,6 @@ public class GPSPrecalculation {
 					continue;
 				}
 				else if(parsedTraces_.get(i).equals(parsedTraces_.get(i-4))){
-					//System.out.println(parsedTraces_.get(i));
-					
-					//Put shit in Metricstuff
-					//System.out.println("Else if i == i-4");
 					
 					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
@@ -179,12 +181,13 @@ public class GPSPrecalculation {
 					Date t1;
 					Date t2;
 					try {
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+8));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4));
+						if(i+7 < parsedTraces_.size()){
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
 						
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
-						
+						}
 						
 					} catch (ParseException e1) {
 						System.out.println("Parsing Times in SF Traces Failed");
@@ -207,7 +210,7 @@ public class GPSPrecalculation {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 						continue;
 					}		
@@ -240,12 +243,13 @@ public class GPSPrecalculation {
 					Date t1;
 					Date t2;
 					try {
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+8));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4));
+						if(i+7 < parsedTraces_.size()){
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
 						
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
-						
+						}
 						
 					} catch (ParseException e1) {
 						System.out.println("Parsing Times in SF Traces Failed");
@@ -264,7 +268,7 @@ public class GPSPrecalculation {
 
 					} catch (ParseException e) {
 
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}
@@ -287,7 +291,8 @@ public class GPSPrecalculation {
 			ArrayList<String> parsedTraces_ = GPSTracesXML.getInstance().getGpxTraces();
 			
 			Vehicle tmpVehicle;
-			destinations = new ArrayDeque<WayPoint>();	
+			destinations = new ArrayDeque<WayPoint>();
+			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>((parsedTraces_.size()/4));
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
 			for (int i = 0; i < parsedTraces_.size(); i=i+4){
@@ -302,12 +307,13 @@ public class GPSPrecalculation {
 					Date t1;
 					Date t2;
 					try {
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+8));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+4));
+						if(j+7 < parsedTraces_.size()){
+						t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
+						t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
 						
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
-						
+						}
 						
 					} catch (ParseException e1) {
 						System.out.println("Parsing Times in HH Traces Failed");
@@ -355,12 +361,14 @@ public class GPSPrecalculation {
 					Date t1;
 					Date t2;
 					try {
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+8));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+4));
+						//2014-07-18T09:37:41Z
+						if(j+7 < parsedTraces_.size()){
+						t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
+						t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
 						
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
-						
+						}
 						
 					} catch (ParseException e1) {
 						System.out.println("Parsing Times in HH Traces Failed");
@@ -395,6 +403,7 @@ public class GPSPrecalculation {
 			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();	
+			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>((parsedTraces_.size()/4));
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
 			//HashSet<String> IDs = new HashSet<String>();
@@ -408,16 +417,14 @@ public class GPSPrecalculation {
 						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 						
-						
 						Date t1;
-						Date t2;
 						try {
-							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+8));
-							t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+4));
-							
-							double timeDif = t1.getTime() - t2.getTime();
+							if(j+7 < parsedTraces_.size()){
+							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));			
+							double timeDif = t1.getTime();
+							System.out.println(t1.getTime());
 							tripTimes.add(timeDif);
-							
+							}
 							
 						} catch (ParseException e1) {
 							System.out.println("Parsing Times in SH Traces Failed");
@@ -460,15 +467,13 @@ public class GPSPrecalculation {
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 						
 						Date t1;
-						Date t2;
 						try {
-							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+8));
-							t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(j+4));
-							
-							double timeDif = t1.getTime() - t2.getTime();
+							if(j+7 < parsedTraces_.size()){
+							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));			
+							double timeDif = t1.getTime();
 							tripTimes.add(timeDif);
 							
-							
+							}
 						} catch (ParseException e1) {
 							System.out.println("Parsing Times in SH Traces Failed");
 							e1.printStackTrace();

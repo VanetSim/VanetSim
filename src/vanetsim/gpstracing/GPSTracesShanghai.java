@@ -159,6 +159,7 @@ public class GPSTracesShanghai {
 					shTraces_.add(TaxiID);
 					shTraces_.add(Lon);
 					shTraces_.add(Lat);
+					System.out.println(Time);
 					shTraces_.add(Time);
 				}
 				Counter++;
