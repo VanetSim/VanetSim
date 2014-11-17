@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.ArrayDeque;
 
 
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -43,6 +44,7 @@ import vanetsim.routing.A_Star.A_Star_Algorithm;
 import vanetsim.scenario.events.BlockingObject;
 import vanetsim.scenario.messages.Message;
 import vanetsim.scenario.messages.PenaltyMessage;
+import vanetsim.scenario.propagation.PropagationModel;
 
 /**
  * A vehicle which can move and communicate (if wifi is enabled).
@@ -240,12 +242,11 @@ public class Vehicle extends LaneObject{
 	
 //	private static int vehiclesInSlow = 0;
 	
+	//TODO: check
+	private PropagationModel propagationModel_ = null;
+	
 	// object variables begin here
 
-	//TODO: change this to real Implementation and migrate to class
-	// dummy setting for the propagation modell
-	private String propagationModell_ = "Propagation.FreeSpace";
-	
 	/** The destinations this vehicle wants to visit. */
 	public ArrayDeque<WayPoint> originalDestinations_;
 	
@@ -3049,11 +3050,15 @@ public class Vehicle extends LaneObject{
 							dy = vehicle.getY() - curY_;
 							if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
                                 
-							    // if Position Verification is globaly enabled we need to calculate the RSSI here
-							    if (positionVerifificationEnabled_) {
-							        currentRssi = calculateRSSI(dx, dy);
+							    // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
+                                if (sendRssiEnabled_) {
+                                    if (propagationModel_ == null) {
+                                        propagationModel_ = PropagationModel.getInstance();
+                                    }
+                                    // TODO: get used Prop-Modell from global field
+                                    currentRssi = propagationModel_.calculateRSSI(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, dx, dy);
                                 }
-							    
+
 								if(emergencyBeacons > 0){
 									vehicle.getIdsProcessorList_().updateProcessor((ID_-1), curX_, curY_, curSpeed_, curLane_);
 									vehicle.getKnownVehiclesList().updateVehicle(this, (ID_-1), curX_, curY_, curSpeed_, vehicle.getID(), false,false,currentRssi);
@@ -3164,7 +3169,7 @@ public class Vehicle extends LaneObject{
 			    	
 					if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
                         if (Renderer.getInstance().getAttackerVehicle() != null && !Renderer.getInstance().getAttackerVehicle().equals(this)) {
-                            //TODO: rssi wert berechnen
+                            //TODO: calculate RSSI here
                             currentRssi = 0;
 			   
                             Renderer.getInstance().getAttackerVehicle().getKnownVehiclesList()
@@ -3190,33 +3195,7 @@ public class Vehicle extends LaneObject{
 			}
 		}
 	}
-	
-    // TODO: comment this!
-    private double calculateRSSI(long dx, long dy) {
-        // dummy implementation
-        // R=-10 * n *log10(d) + A
-        // n = Pathloss
-        // d = distance
-        // A = Signalstrength at 1m
-        double d = Math.sqrt(dy * dy + dx * dx);
-        double n = 2;
-        double A = -44.8;
 
-        double res = -10 * n * Math.log10(d) + A;
-
-        return res;
-    }
-
-	public String getPropagationModell() {
-        // TODO: Auto-generated method stub
-        return propagationModell_;
-    }
-
-	public void setPropagationModell(String modell){
-	 // TODO: Auto-generated method stub
-	    
-	}
-	
 	/**
 	 * Find vehicles nearest in neighborhood and send encrypted beacons to them. Please check the following conditions before calling this function:
 	 * <ul>
@@ -3238,7 +3217,7 @@ public class Vehicle extends LaneObject{
 			if(curMixNode_.getEncryptedRSU_() != null){
 				tmpRSU = curMixNode_.getEncryptedRSU_();
 				// rssi=0 is send due to changes in updateVehicle Method
-				//TODO: maybe overload Method?
+				//TODO: maybe need to change method updateVehicles
 				tmpRSU.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, tmpRSU.getRSUID(), true, false,0);
 
 				// allow beacon monitoring
