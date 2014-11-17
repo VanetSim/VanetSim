@@ -230,11 +230,12 @@ public class Vehicle extends LaneObject{
 	/** How many simulation steps we wait until we send the RHCN message */
 	private static int WAIT_TO_SEND_RHCN_ = 4;
 	
-	//TODO: maybe need to change this to be several configs in order to control behavior more precise.
 	/** is Position Verification globally enabled */
+    //TODO: this must be set by GUI, default must be false
 	private static boolean positionVerifificationEnabled_ = true;
 	
     /** is sending RSSI Values globally enabled */
+	//TODO: this must be set by GUI, default must be false
 	private static boolean sendRssiEnabled_ = true;
 	
 	/** the counter for the rhcn message */
@@ -2997,7 +2998,9 @@ public class Vehicle extends LaneObject{
 			int i, j, k, size = 0, MapMinX, MapMinY, MapMaxX, MapMaxY, RegionMinX, RegionMinY, RegionMaxX, RegionMaxY;
 			Vehicle[] vehicles = null;
 			Vehicle vehicle = null;
-		
+			RSU[] rsus = null;
+			RSU rsu = null;
+			
 
 			// Minimum x coordinate to be considered for sending beacons
 			long tmp = curX_ - maxCommDistance_;
@@ -3041,7 +3044,8 @@ public class Vehicle extends LaneObject{
 				for(j = RegionMinY; j <= RegionMaxY; ++j){
 					vehicles = regions_[i][j].getVehicleArray();	//use the array as it's MUCH faster!
 					size = vehicles.length;
-
+					
+					// send beacons to vehicles
 					for(k = 0; k < size; ++k){
 						vehicle = vehicles[k];
 						// precheck if the vehicle is near enough and valid (check is not exact as its a rectangular box and not circle)
@@ -3055,8 +3059,7 @@ public class Vehicle extends LaneObject{
                                     if (propagationModel_ == null) {
                                         propagationModel_ = PropagationModel.getInstance();
                                     }
-                                    // TODO: get used Prop-Modell from global field
-                                    currentRssi = propagationModel_.calculateRSSI(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, dx, dy);
+                                    currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
                                 }
 
 								if(emergencyBeacons > 0){
@@ -3117,16 +3120,38 @@ public class Vehicle extends LaneObject{
 									
 									fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 								}
-								
-                                // TODO: check if RSSI send here actually works
                                 vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false, false, currentRssi);
                                 vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
-								
 							}
 						}
 					}
-				}
-			}
+					
+                    // send beacons to RSUs
+                    rsus = regions_[i][j].getRSUs();
+                    size = rsus.length;
+                    currentRssi = 0;
+                    
+                    for (i = 0; i < size; ++i) {
+                        rsu = rsus[i];
+                        if (rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
+                            dx = rsu.getX() - curX_;
+                            dy = rsu.getY() - curY_;
+                            if ((dx * dx + dy * dy) <= maxCommDistanceSquared) { // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed
+                                                                                 // Math.sqrt to save a little bit performance
+                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
+                                if (sendRssiEnabled_) {
+                                    if (propagationModel_ == null) {
+                                        propagationModel_ = PropagationModel.getInstance();
+                                    }
+                                    currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                }
+                                rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
+                                        currentRssi);
+                            }
+                        }
+                    }
+                }
+            }
  
 			if(emergencyBeacons >= 0) emergencyBeacons--;
 				/*
