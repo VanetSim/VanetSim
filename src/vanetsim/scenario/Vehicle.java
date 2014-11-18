@@ -1516,6 +1516,8 @@ public class Vehicle extends LaneObject{
 		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
 		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
 		
+		System.out.println(distance);
+		
 		//TODO: Calculate Times between two points
 		
 		
