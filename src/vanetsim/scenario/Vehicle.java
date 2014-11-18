@@ -303,6 +303,9 @@ public class Vehicle extends LaneObject{
 	
 	/** The destinations this vehicle wants to visit. */
 	private ArrayDeque<WayPoint> destinations_;
+	
+	/** The TripTimes this vehicle has between two Waypoints (except for Shanghai - needs to be calculated on the fly). */
+	private ArrayDeque<Double> tripTimes_;
 
 	/** The new speed after the step. <code>curSpeed_</code> will be set to this in the moving-process to circumvent synchronisation problems. */
 	private double newSpeed_;
@@ -605,6 +608,7 @@ public class Vehicle extends LaneObject{
 	 */
 	public Vehicle(ArrayDeque<WayPoint> destinations, ArrayDeque<Double> triptimes ,int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
 		if(destinations != null && destinations.size()>1){
+			tripTimes_ = triptimes;
 			originalDestinations_ = destinations; 
 			destinations_ = originalDestinations_.clone();			
 			ID_ = RANDOM.nextLong();
@@ -1516,17 +1520,12 @@ public class Vehicle extends LaneObject{
 		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
 		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
 		
-		System.out.println(distance);
-		
-		//TODO: Calculate Times between two points
-		
-		
-		
-		
-		//TODO: Implement Speed and Acceleration
-		
-		
-		
+		//System.out.println(distance);
+
+		for (int k=0; k>=destinations_.size(); k++){
+			
+			double desiredSpeed = (distance / tripTimes_.pollFirst());
+			
 		// start vehicle
 
 		//needs to be set for vehicle to start driving
@@ -1539,9 +1538,14 @@ public class Vehicle extends LaneObject{
 		curStreet_.addLaneObject(this, curDirection_);
 
 		//as a result of this method a newSpeed_ must be set
-		newSpeed_ = 1800;	
+		newSpeed_= desiredSpeed;
+		System.out.println(newSpeed_);
+	//	newSpeed_ = 1800;	
 		//Speed needs to be calculated. Time between 2 Waypoints and the distance between two waypoints v=s/t
+
+		}
 	}
+		
 	
 	
 	/**
