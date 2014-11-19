@@ -232,7 +232,7 @@ public class Vehicle extends LaneObject{
 	
 	/** is Position Verification globally enabled */
     //TODO: this must be set by GUI, default must be false
-	private static boolean positionVerifificationEnabled_ = true;
+	private static boolean positionVerifificationEnabled_ = false;
 	
     /** is sending RSSI Values globally enabled */
 	//TODO: this must be set by GUI, default must be false
@@ -3130,15 +3130,15 @@ public class Vehicle extends LaneObject{
                     rsus = regions_[i][j].getRSUs();
                     size = rsus.length;
                     currentRssi = 0;
-                    
-                    for (i = 0; i < size; ++i) {
-                        rsu = rsus[i];
+                    for (int index = 0; index < size; ++index) {
+                        rsu = rsus[index];
                         if (rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
                             dx = rsu.getX() - curX_;
                             dy = rsu.getY() - curY_;
-                            if ((dx * dx + dy * dy) <= maxCommDistanceSquared) { // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed
+                           if ((dx * dx + dy * dy) <= maxCommDistanceSquared) { // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed
                                                                                  // Math.sqrt to save a little bit performance
-                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
+                               //System.out.println("Ping: "+"Vehicle: "+this.getID()+" RSU: "+rsu.getRSUID()+" dist: "+ Math.sqrt((dx * dx + dy * dy)/10000));                               
+                               // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
                                 if (sendRssiEnabled_) {
                                     if (propagationModel_ == null) {
                                         propagationModel_ = PropagationModel.getInstance();
