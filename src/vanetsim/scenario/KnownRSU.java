@@ -38,6 +38,9 @@ public class KnownRSU{
 	/** If the beacon is encrypted */
 	private boolean isEncrypted_;	
 	
+	/** the last received rssi value */
+    private double rssi_;
+	
 	/** The time when the RSU was last updated in milliseconds. */
 	private int lastUpdate_;
 	
@@ -56,12 +59,14 @@ public class KnownRSU{
 	 * @param y			the y coordinate
 	 * @param time		the current time
 	 * @param isEncrypted	if RSU sends encrypted
+	 * @param rssi     he received rssi in the latest beacon
 	 */
-	public KnownRSU(RSU rsu, long ID, int x, int y, boolean isEncrypted, int time){
+	public KnownRSU(RSU rsu, long ID, int x, int y, boolean isEncrypted, int time, double rssi){
 		rsu_ = rsu;
 		ID_ = ID;
 		x_ = x;
 		y_ = y;
+		rssi_ = rssi;
 		isEncrypted_ = isEncrypted;
 		lastUpdate_ = time;
 	}
@@ -186,4 +191,14 @@ public class KnownRSU{
 	public void setEncrypted(boolean isEncrypted) {
 		this.isEncrypted_ = isEncrypted;
 	}
+
+	/** sets the rssi for this Known RSU **/
+    public void setRssi(double rssi) {
+        rssi_ = rssi;
+    }
+    
+    /** return the last received RSSI value **/
+    public double getRssi(){
+        return rssi_;
+    }
 }

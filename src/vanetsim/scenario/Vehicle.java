@@ -243,7 +243,7 @@ public class Vehicle extends LaneObject{
 	
 //	private static int vehiclesInSlow = 0;
 	
-	//TODO: check
+	/** a reference to the used Propagation Model **/
 	private PropagationModel propagationModel_ = null;
 	
 	// object variables begin here
@@ -422,8 +422,6 @@ public class Vehicle extends LaneObject{
 	
 	/** How much time has passed since the last fake message was created*/
 	//private int lastFAKEMessageCreated = 0;
-
-	
 	
 	/** How long this vehicle is waiting in a jam (in milliseconds). */
 	private int stopTime_ = 0;
@@ -433,7 +431,6 @@ public class Vehicle extends LaneObject{
 	
 	/** How many messages this vehicle has created. Used to give the messages unique ids (vehicle id + messageCounter; note that a collusion is possible but unlikely) */
 	private int messagesCounter_ = 0;
-	
 	
 	/** How many messages this vehicle has created. */
 	private int pcnMessagesCreated_ = 0;
@@ -572,7 +569,6 @@ public class Vehicle extends LaneObject{
 	
 	/** a counter to save the amount of found spamers */
 	private int spamCounter_ = 0;
-	
 
 	private int EVAMessageDelay_ = 3;
 
@@ -3036,7 +3032,7 @@ public class Vehicle extends LaneObject{
 			RegionMaxY = tmpregion.getY();
 			long maxCommDistanceSquared = (long)maxCommDistance_ * maxCommDistance_;
 			long dx, dy;
-            double currentRssi = 0;
+            double currentRssi = Double.NaN;
 
 
 			// only iterate through those regions which are within the distance
@@ -3137,7 +3133,6 @@ public class Vehicle extends LaneObject{
                             dy = rsu.getY() - curY_;
                            if ((dx * dx + dy * dy) <= maxCommDistanceSquared) { // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed
                                                                                  // Math.sqrt to save a little bit performance
-                               //System.out.println("Ping: "+"Vehicle: "+this.getID()+" RSU: "+rsu.getRSUID()+" dist: "+ Math.sqrt((dx * dx + dy * dy)/10000));                               
                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
                                 if (sendRssiEnabled_) {
                                     if (propagationModel_ == null) {
@@ -3194,8 +3189,8 @@ public class Vehicle extends LaneObject{
 			    	
 					if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
                         if (Renderer.getInstance().getAttackerVehicle() != null && !Renderer.getInstance().getAttackerVehicle().equals(this)) {
-                            //TODO: calculate RSSI here
-                            currentRssi = 0;
+                            //TODO: calculate RSSI here?
+                            currentRssi = Double.NaN;
 			   
                             Renderer.getInstance().getAttackerVehicle().getKnownVehiclesList()
                                     .updateVehicle(this, ID_, curX_, curY_, curSpeed_, tempARSUList[l].getArsuID_(), false, true, currentRssi);

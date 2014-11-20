@@ -43,8 +43,8 @@ public class KnownVehicle{
 	private double speed_;
 	
 	/** the last received rssi value */
-	private double rssi_;
-	
+    private double rssi_ = Double.NaN;
+
 	/** If the beacon is encrypted */
 	private boolean isEncrypted_;
 	
@@ -89,7 +89,6 @@ public class KnownVehicle{
 	 * @param rssi      the received rssi in the latest beacon
 	 */
 	public KnownVehicle(Vehicle vehicle, long ID, int x, int y, int time, double speed, boolean isEncrypted, int timePassed, double rssi){
-		//elmo
 		vehicle_ = vehicle;
 		ID_ = ID;
 		x_ = x;
@@ -108,7 +107,6 @@ public class KnownVehicle{
 			savedLastUpdate_ = new int[amountOfSavedBeacons_];
 			//TODO: save rssi here
 		}
-		
 		
 	}
 
@@ -461,7 +459,7 @@ public class KnownVehicle{
     /**
      * Gets the RSSI
      * 
-     * @return the rssi
+     * @return the rssi, <code>NaN</code> if there is no RSSI value
      */
     public double getRssi() {
         return rssi_;

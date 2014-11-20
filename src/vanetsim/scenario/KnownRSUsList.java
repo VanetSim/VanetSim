@@ -64,8 +64,9 @@ public class KnownRSUsList{
 	 * @param x			the x coordinate
 	 * @param y			the y coordinate
 	 * @param isEncrypted	if Beacon was encrypted
+	 * @param rssi         the rssi received in this beacon, <code>0</code> if no rssi was send
 	 */
-	public synchronized void updateRSU(RSU rsu, long ID, int x, int y, boolean isEncrypted){
+	public synchronized void updateRSU(RSU rsu, long ID, int x, int y, boolean isEncrypted, double rssi){
 		boolean found = false;
 		int hash = (int)(ID % HASH_SIZE);
 		if(hash < 0) hash = -hash;
@@ -75,6 +76,7 @@ public class KnownRSUsList{
 				next.setX(x);
 				next.setY(y);
 				next.setEncrypted(isEncrypted);
+				next.setRssi(rssi);
 				next.setLastUpdate(timePassed_+VALID_TIME);
 				found = true;
 				break;
@@ -83,7 +85,7 @@ public class KnownRSUsList{
 		}					
 		
 		if(!found){
-			next = new KnownRSU(rsu, ID, x, y, isEncrypted, timePassed_);
+			next = new KnownRSU(rsu, ID, x, y, isEncrypted, timePassed_,rssi);
 			next.setNext(head_[hash]);
 			next.setPrevious(null);
 			if(head_[hash] != null) head_[hash].setPrevious(next);

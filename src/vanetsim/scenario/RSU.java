@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.ArrayDeque;
 
 
+
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
 import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.map.Street;
 import vanetsim.scenario.messages.Message;
+import vanetsim.scenario.propagation.PropagationModel;
 import vanetsim.map.Map;
 
 
@@ -52,6 +54,14 @@ public final class RSU {
 	/** If communication is enabled */
 	private static boolean communicationEnabled_ = Vehicle.getCommunicationEnabled();	
 
+	/** is Position Verification globally enabled */
+    //TODO: this must be set by GUI, default must be false
+    private static boolean positionVerifificationEnabled_ = true;
+    
+    /** is sending RSSI Values globally enabled */
+    //TODO: this must be set by GUI, default must be false
+    private static boolean sendRssiEnabled_ = true;
+	
 	/** If beacons are enabled */
 	private static boolean beaconsEnabled_ = Vehicle.getBeaconsEnabled();
 	
@@ -84,6 +94,9 @@ public final class RSU {
 	
 	/** A countdown for sending beacons. */
 	private int beaconCountdown_;
+	
+	/** A reference to the used Propagation Model **/
+	private PropagationModel propagationModel_ = null;
 	
 	/** A countdown for communication. Also used for cleaning up outdated known messages. */
 	private int communicationCountdown_;
@@ -286,6 +299,8 @@ public final class RSU {
 			for(j = RegionMinY; j <= RegionMaxY; ++j){
 				vehicles = regions_[i][j].getVehicleArray();	//use the array as it's MUCH faster!
 				size = vehicles.length;
+				double currentRssi = Double.NaN;
+				
 				for(k = 0; k < size; ++k){
 					vehicle = vehicles[k];
 					// precheck if the vehicle is near enough and valid (check is not exact as its a rectangular box and not circle)
@@ -293,8 +308,16 @@ public final class RSU {
 						dx = vehicle.getX() - x_;
 						dy = vehicle.getY() - y_;
 						if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
-						//TODO: maybe need to send RSSI here
-							vehicle.getKnownRSUsList().updateRSU(this, rsuID_, x_, y_, isEncrypted_);
+						    
+						 // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
+                            if (sendRssiEnabled_) {
+                                if (propagationModel_ == null) {
+                                    propagationModel_ = PropagationModel.getInstance();
+                                }
+                                currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                            }
+						    
+							vehicle.getKnownRSUsList().updateRSU(this, rsuID_, x_, y_, isEncrypted_,currentRssi);
 						}
 					}
 				}
@@ -569,7 +592,7 @@ public final class RSU {
 					for(int k = 0; k < vehicleBehind_.length; k++){
 						if(vehicleBehind_[k] != null){
                         vehicleBehind_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
-                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,Double.NaN);
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_) {
 								coloredVehicles.add(vehicleBehind_[k]);
 								vehicleBehind_[k].setColor(Color.red);
@@ -578,7 +601,7 @@ public final class RSU {
 						}
 						if(vehicleFront_[k] != null){
                         vehicleFront_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
-                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,Double.NaN);
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 								coloredVehicles.add(vehicleFront_[k]);
 								vehicleFront_[k].setColor(Color.red);
@@ -587,7 +610,7 @@ public final class RSU {
 						}
 						if(vehicleToward_[k] != null){
                         vehicleToward_[k].getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(),
-                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,0);//FIXME
+                                senderVehicle.getY(), senderVehicle.getCurSpeed(), rsuID_, true, false,Double.NaN);
 							if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 								coloredVehicles.add(vehicleToward_[k]);
 								vehicleToward_[k].setColor(Color.red);
@@ -597,7 +620,7 @@ public final class RSU {
 					}	
 					for(Vehicle v : tmpVehicles.values()) {
                     v.getKnownVehiclesList().updateVehicle(senderVehicle, senderVehicle.getID(), senderVehicle.getX(), senderVehicle.getY(),
-                            senderVehicle.getCurSpeed(), rsuID_, true, false, 0);// FIXME
+                            senderVehicle.getCurSpeed(), rsuID_, true, false, Double.NaN);
 						if(senderVehicle.equals(Renderer.getInstance().getMarkedVehicle()) && showEncryptedBeaconsInMix_){
 							coloredVehicles.add(v);
 							v.setColor(Color.red);
