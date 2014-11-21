@@ -45,7 +45,7 @@ public class PropagationModel {
     // the wavelength is currently without any effect, it just shifts the RSSI for all vehicles.
     
     /** received signal strength at <code> referenceDistance_ </code> **/
-    double Pr_0 = 0;
+    double Pr_0 = Double.NaN;
 
     /** Empty constructor in order to disable instancing. */
     private PropagationModel() {
@@ -122,4 +122,41 @@ public class PropagationModel {
         return result;
     }
 
+    /**
+     * calculates a distance to the rssi value.
+     * 
+     * @param propagationModel
+     *            the propagationmodel to be used
+     * @param rssi
+     *            the rssi value to which the distance should be calculated
+     * @return the distance in [m]
+     */
+    public double calculateDistance(int propagationModel, double rssi) {
+        double result = Double.NaN;
+        switch (propagationModel) {
+            case PROPAGATION_MODEL_FREE_SPACE:
+                // inversed Friis Formula
+                result = waveLength_ / (4 * Math.PI)
+                        * Math.pow(10, ((sendingPower_ + sendingGain_ + receivingGain_ - rssi) / (10 * passLossFactor_)));
+                break;
+
+            case PROPAGATION_MODEL_SHADOWING:
+                // TODO: these parameters should be changeable through the GUI so verifiers can try to increase precision
+                double tmp_sigma = 4;
+                double tmp_mean = 0;
+
+                // get a random gaussian value
+                // maybe this doesn't need to be used at all, further experiments will show if this acually impacts results
+                double X = rand_.nextGaussian() * tmp_sigma + tmp_mean;
+
+                // calculate a distance from the rssi value
+                result = referenceDistance_ * Math.pow(10, (Pr_0 + X - rssi) / (10 * passLossFactor_));
+
+                break;
+            default:
+                result = Double.NaN;
+                break;
+        }
+        return result;
+    }
 }
