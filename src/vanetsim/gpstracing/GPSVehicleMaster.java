@@ -40,8 +40,11 @@ public class GPSVehicleMaster {
 	/**
 	 * 
 	 */
-	public void startSim() throws NoVehicleFoundException {
+	public void startSim() throws NoVehicleFoundException{
 		simulationIsRunning_ = true;
+		if(vehicles_.peek() == null){
+			throw new NoVehicleFoundException();
+		}
 		minimumAtStart_ = vehicles_.peek().getStartTime();
 		if (!vehicles_.isEmpty()) {
 			Map.getInstance().addVehicle(vehicles_.remove().getVehicle());

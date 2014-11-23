@@ -106,7 +106,7 @@ public final class SimulationMaster extends Thread{
 	private boolean generalLogWriterActivated_ = true;
 	
 	/** a flag to activate GPS simulation */
-	private static boolean isGPSSimulation_;
+	private static boolean isGPSSimulation_ = false;
 	
 	/** */
 	private GPSVehicleMaster vehicleMasterGPS_ = GPSVehicleMaster.getInstance();

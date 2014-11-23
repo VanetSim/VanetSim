@@ -92,6 +92,13 @@ public class SortedVehicleQueue {
 		private Vehicle vehicle_;
 		private long startTime_;
 
+		/**
+		 * 
+		 * @param successor
+		 * @param predecessor
+		 * @param vehicle
+		 * @param startTime
+		 */
 		public Node(Node successor, Node predecessor, Vehicle vehicle,
 				long startTime) {
 			successor_ = successor;
@@ -100,26 +107,48 @@ public class SortedVehicleQueue {
 			startTime_ = startTime;
 		}
 
+		/**
+		 * 
+		 * @param node
+		 */
 		public void setSuccessor(Node node) {
 			successor_ = node;
 		}
 
+		/**
+		 * 
+		 * @param node
+		 */
 		public void setPredecessor(Node node) {
 			predecessor_ = node;
 		}
 
+		/**
+		 * 
+		 * @return
+		 */
 		public Node getSuccessor() {
 			return successor_;
 		}
 
+		/**
+		 * 
+		 * @return
+		 */
 		public Node getPredecessor() {
 			return predecessor_;
 		}
 
+		/**
+		 * 
+		 * @return
+		 */
 		public long getStartTime() {
 			return startTime_;
 		}
 
+		/**
+		 */
 		public Vehicle getVehicle() {
 			return vehicle_;
 		}
