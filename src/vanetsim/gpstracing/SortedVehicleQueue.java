@@ -27,10 +27,11 @@ public class SortedVehicleQueue {
 	public void add(Vehicle vehicle, long startTime) {
 
 		Node predecessorNode = head_;
-		int i = 0;
-		while (predecessorNode.getStartTime() < startTime && i < counter_) {
+		int i = -1;
+		do {
 			predecessorNode.getSuccessor();
-		}
+			i++;
+		} while (predecessorNode.getStartTime() < startTime && i < counter_);
 
 		Node newNode = new Node(predecessorNode.getSuccessor(),
 				predecessorNode, vehicle, startTime);

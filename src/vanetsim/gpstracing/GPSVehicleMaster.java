@@ -53,7 +53,7 @@ public class GPSVehicleMaster {
 	 * @param simTime
 	 */
 	public void receiveSimulationTime(long simTime) {
-		while (vehicles_.peek().getStartTime() < minimumAtStart_ + simTime
+		while (vehicles_.peek().getStartTime()-minimumAtStart_ < simTime
 				&& !vehicles_.isEmpty()) {
 			Map.getInstance().addVehicle(vehicles_.remove().getVehicle());
 		}
