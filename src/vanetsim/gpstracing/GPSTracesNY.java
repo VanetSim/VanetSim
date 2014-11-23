@@ -132,10 +132,7 @@ public class GPSTracesNY {
 
 		int Counter = 0;
 		// Parse CSV File
-		// List is structured as followed: medallion, hack_licence, vendor_id
-		// rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime,
-		// passenger_count, trip_time_in_secs, trip_distance, pickup_longitude,
-		// pickup_latitude, dropoff_longitude, dropoff_latitude
+
 
 		File f = new File("../VanetSim/GPX_Data/NY_Traces");
 		File[] fileArray = f.listFiles();
@@ -157,15 +154,20 @@ public class GPSTracesNY {
 							UUID TaxiID = UUID.randomUUID();
 							String[] columns = sCurrentLine.split(",");
 							
+							// List is structured as followed: medallion, hack_licence, vendor_id
+							// rate_code, store_and_foward_flag, pickup_datetime, dropoff_datetime,
+							// passenger_count, trip_time_in_secs, trip_distance, pickup_longitude,
+							// pickup_latitude, dropoff_longitude, dropoff_latitude
+							
 							//String medallion = columns[0]; // ID
 							// String hack_licence = columns[0];
 							// String vendor_id = columns[0];
 							// String rate_code = columns[0];
 							// String store_and_foward_flag = columns[0];
-							String pickup_datetime = columns[6];
-							String dropoff_datetime = columns[7];
+							String pickup_datetime = columns[5];
+							String dropoff_datetime = columns[6];
 							// String passenger_count = columns[0];
-							String trip_time_in_secs = columns[9];
+							String trip_time_in_secs = columns[8];
 							// String trip_distance = columns[0];
 							String pickup_longitude = columns[10];
 							String pickup_latitude = columns[11];
@@ -178,9 +180,12 @@ public class GPSTracesNY {
 							nyTraces_.add(pickup_longitude);
 							nyTraces_.add(pickup_latitude);
 							nyTraces_.add(pickup_datetime);
+							//nyTraces_.add(dropoff_datetime);
 							nyTraces_.add(trip_time_in_secs);
 							nyTraces_.add(dropoff_longitude);
 							nyTraces_.add(dropoff_latitude);
+							
+							
 						}
 
 						Counter++;

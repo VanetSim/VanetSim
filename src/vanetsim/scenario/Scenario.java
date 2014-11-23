@@ -151,7 +151,7 @@ public final class Scenario{
 			long seed;
 			ArrayDeque<WayPoint> destinations;
 			/** Collects Trip Times, when adding new vehicle. */
-			ArrayDeque<Double> tripTimes = null;
+			ArrayDeque<Long> tripTimes = null;
 			WayPoint tmpWayPoint;
 			Vehicle tmpVehicle;
 			Node[] tmpNodes;

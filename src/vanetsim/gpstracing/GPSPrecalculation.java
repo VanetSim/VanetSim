@@ -19,8 +19,6 @@ import vanetsim.routing.WayPoint;
 import vanetsim.scenario.Vehicle;
 
 
-//TODO: Make this code look nice :(
-
 
 public class GPSPrecalculation {
 	//TODO: MAPS
@@ -55,28 +53,19 @@ public class GPSPrecalculation {
 		ArrayDeque<WayPoint> destinations = null;
 		//ArrayDeque<Double> tripTimes = null;
 		
-		//TODO: Simulation does not start in New York
-		
 		//TODO: New York
 		if(simulationMode == 5){ //NY
 
 		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
 		Vehicle tmpVehicle;
 		
-		int Counter = 0;
-		
 			for(int i = 0; i < parsedTraces_.size(); i=i+7){
 				
-				System.out.println("Counter: " + Counter);
-				
-				ArrayDeque<Double> tripTimes = new ArrayDeque<Double>();		//(parsedTraces_.size()/7)
-				
-			
+				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>();		//(parsedTraces_.size()/7)
+
 				destinations = new ArrayDeque<WayPoint>(2);		
 					try{
-						
-					
-						
+		
 						double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
 						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));		
 
@@ -110,15 +99,20 @@ public class GPSPrecalculation {
 					try {
 						System.out.println(destinations.size());
 
-						if(!destinations.isEmpty()){
+						if(!destinations.isEmpty()){							
 							//Time in ms
 							//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
-							double time = (double)Double.parseDouble(parsedTraces_.get(i+5));
+							long time = (long)Long.parseLong(parsedTraces_.get(i+4));
 							tripTimes.add(time);
+							Date t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+5)); 
+							long startTime = (t1.getTime());
+							
 							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-							Map.getInstance().addVehicle(tmpVehicle);
-							Counter ++;
-							System.out.println("Vehicle created");
+							
+							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+							
+							//Map.getInstance().addVehicle(tmpVehicle);
+
 						}
 					} catch (ParseException e) {
 						System.out.println("Exception Vehicle creation");
@@ -136,7 +130,7 @@ public class GPSPrecalculation {
 		
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();	
-			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>(); //(parsedTraces_.size()/4)
+			ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
 			
 			for (int i = 0; i< parsedTraces_.size(); i=i+4){				
 				if (i==0){	
@@ -167,10 +161,10 @@ public class GPSPrecalculation {
 					Date t1;
 					Date t2;
 					try {
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+8));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4));
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); 
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4)); 
 						//Time in ms
-						double timeDif = t1.getTime() - t2.getTime();
+						long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(timeDif);
 						
 						
@@ -205,11 +199,11 @@ public class GPSPrecalculation {
 					Date t2;
 					try {
 						if(i+7 < parsedTraces_.size()){
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); 
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); 
 							
 						//Time in ms
-						double timeDif = t1.getTime() - t2.getTime();
+						long timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
 						}
 						
@@ -224,7 +218,9 @@ public class GPSPrecalculation {
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-						Map.getInstance().addVehicle(tmpVehicle);
+						//Map.getInstance().addVehicle(tmpVehicle);
+							long startTime = tripTimes.getFirst(); //TODO: Get Last ?
+							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						System.out.println("Vehicle created");
 						}
 					} catch (ParseException e) {
@@ -258,10 +254,10 @@ public class GPSPrecalculation {
 					Date t2;
 					try {
 						if(i+7 < parsedTraces_.size()){
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); //TODO: Change to last point not next point
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); //OK?
 						//Time in ms
-						double timeDif = t1.getTime() - t2.getTime();
+						long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(timeDif);
 						}
 						
@@ -275,7 +271,9 @@ public class GPSPrecalculation {
 			try {
 				if(destinations.size() >= 2){
 					tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-				Map.getInstance().addVehicle(tmpVehicle);
+					long startTime = tripTimes.getFirst(); //TODO: Get Last ?
+					GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+				//Map.getInstance().addVehicle(tmpVehicle);
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -290,17 +288,31 @@ public class GPSPrecalculation {
 			
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();
-			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>(); //(parsedTraces_.size()/4)
+			ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
 			for (int i = 0; i < parsedTraces_.size(); i=i+4){
 				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
 		}
+			long startTime = 0;
 		for (String s : IDs){
 			for (int j = 0; j < parsedTraces_.size(); j=j+4){
 				if (s.equals(parsedTraces_.get(j))){
 					double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
+					
+					if (j ==0){
+						Date t1;
+						try {
+							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
+							startTime = t1.getTime();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						 
+					}
+					
 					
 					
 					int[] Coordinates = new int[2];
@@ -317,11 +329,11 @@ public class GPSPrecalculation {
 						Date t1;
 						Date t2;
 						try {
-							if(j+7 < parsedTraces_.size()){
-							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
-							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
+							if(j+7 < parsedTraces_.size() && j != 0){
+							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3)); 
+							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms
-							double timeDif = t1.getTime() - t2.getTime();
+							long timeDif = t2.getTime() - t1.getTime();
 							tripTimes.add(timeDif);
 							}
 							
@@ -342,7 +354,8 @@ public class GPSPrecalculation {
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-						Map.getInstance().addVehicle(tmpVehicle);
+							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+						//Map.getInstance().addVehicle(tmpVehicle);
 						}
 					} catch (ParseException e) {
 						
@@ -355,12 +368,7 @@ public class GPSPrecalculation {
 					
 					double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
-					
-					
-					
-					
-					
-					
+
 					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
@@ -376,11 +384,11 @@ public class GPSPrecalculation {
 						Date t2;
 						try {
 							//2014-07-18T09:37:41Z
-							if(j+7 < parsedTraces_.size()){
+							if(j+7 < parsedTraces_.size() && j != 0){
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
-							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
+							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms
-							double timeDif = t1.getTime() - t2.getTime();
+							long timeDif = t2.getTime() - t1.getTime();
 							tripTimes.add(timeDif);
 							}
 							
@@ -389,7 +397,7 @@ public class GPSPrecalculation {
 							e1.printStackTrace();
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 						
@@ -403,7 +411,7 @@ public class GPSPrecalculation {
 			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 			Vehicle tmpVehicle;
 			destinations = new ArrayDeque<WayPoint>();	
-			ArrayDeque<Double> tripTimes = new ArrayDeque<Double>((parsedTraces_.size()/4));
+			ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
 			//HashSet<String> IDs = new HashSet<String>();
@@ -411,6 +419,16 @@ public class GPSPrecalculation {
 					if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
 			}
 			for (String s : IDs){
+				Date t3;
+				long startTime = 0;
+				try {
+					t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(3));
+					startTime = t3.getTime();
+				} catch (ParseException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}	
+				
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
 						
@@ -431,8 +449,7 @@ public class GPSPrecalculation {
 								if(j+7 < parsedTraces_.size()){
 								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
 								//Time in ms
-								double timeDif = t1.getTime();
-								System.out.println(t1.getTime());
+								long timeDif = t1.getTime();
 								tripTimes.add(timeDif);
 								}
 								
@@ -451,7 +468,8 @@ public class GPSPrecalculation {
 						try {
 							if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-							Map.getInstance().addVehicle(tmpVehicle);
+							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+							//Map.getInstance().addVehicle(tmpVehicle);
 							}
 						} catch (ParseException e) {
 							
@@ -464,9 +482,6 @@ public class GPSPrecalculation {
 						
 						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
-						
-						
-						
 						
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
@@ -482,7 +497,7 @@ public class GPSPrecalculation {
 								if(j+7 < parsedTraces_.size()){
 								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));		
 								//Time in ms
-								double timeDif = t1.getTime();
+								long timeDif = t1.getTime();
 								tripTimes.add(timeDif);
 								
 								}

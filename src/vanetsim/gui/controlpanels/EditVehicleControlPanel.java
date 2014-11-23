@@ -682,7 +682,7 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 						++l;
 						destinations = new ArrayDeque<WayPoint>(2);	
 						/** Collects Trip Times, when adding new vehicle. */
-						ArrayDeque<Double> tripTimes = null;
+						ArrayDeque<Long> tripTimes = null;
 						while(j < 2 && k < 20){	// if snapping fails more than 20 times break
 							try{
 								++k;

@@ -144,8 +144,7 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 	private ArrayDeque<WayPoint> destinations = null;
 	
 	/** Collects Trip Times, when adding new vehicle. */
-	private ArrayDeque<Double> tripTimes = null;
-	
+	private ArrayDeque<Long> tripTimes = null;
 	
 	/** Create/Save button for vehicles. */
 	private JButton createVehicle_;
