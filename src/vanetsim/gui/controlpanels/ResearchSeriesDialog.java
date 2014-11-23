@@ -562,7 +562,7 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 									boolean fakingEnabled;
 									ArrayDeque<WayPoint> destinations = null;
 									/** Collects Trip Times, when adding new vehicle. */
-									ArrayDeque<Double> tripTimes = null;
+									ArrayDeque<Long> tripTimes = null;
 									Vehicle tmpVehicle;
 									Random random = new Random();
 									int tmpRandom = -1;

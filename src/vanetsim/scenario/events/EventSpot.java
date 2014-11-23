@@ -137,7 +137,7 @@ public class EventSpot{
 
 			ArrayDeque<WayPoint> destinations = null;
 			/** Collects Trip Times, when adding new vehicle. */
-			ArrayDeque<Double> tripTimes = null;
+			ArrayDeque<Long> tripTimes = null;
 			Vehicle tmpVehicle;
 			
 			int k = 0;	

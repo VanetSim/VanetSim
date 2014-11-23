@@ -306,7 +306,7 @@ public class Vehicle extends LaneObject{
 	private ArrayDeque<WayPoint> destinations_;
 	
 	/** The TripTimes this vehicle has between two Waypoints (except for Shanghai - needs to be calculated on the fly). */
-	private ArrayDeque<Double> tripTimes_;
+	private ArrayDeque<Long> tripTimes_;
 
 	/** The new speed after the step. <code>curSpeed_</code> will be set to this in the moving-process to circumvent synchronisation problems. */
 	private double newSpeed_;
@@ -607,7 +607,7 @@ public class Vehicle extends LaneObject{
 	 * @param politeness		the politeness
 	 * @throws ParseException an Exception indicating that you did not supply a valid destination list.
 	 */
-	public Vehicle(ArrayDeque<WayPoint> destinations, ArrayDeque<Double> triptimes ,int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
+	public Vehicle(ArrayDeque<WayPoint> destinations, ArrayDeque<Long> triptimes ,int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
 		if(destinations != null && destinations.size()>1){
 			tripTimes_ = triptimes;
 			originalDestinations_ = destinations; 
