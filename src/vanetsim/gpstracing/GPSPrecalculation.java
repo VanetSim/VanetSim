@@ -22,7 +22,12 @@ import vanetsim.simulation.SimulationMaster;
 
 
 public class GPSPrecalculation {
-	//TODO: MAPS
+	
+	/** Real Time Calculation enabled/disabled */
+	private static boolean RealTimeCalc_ = false;
+	
+	
+	
 	public static void openMap (int simulationMode){
 		
 		//Traces Shanghai
@@ -42,7 +47,7 @@ public class GPSPrecalculation {
 		}
 		//Traces Hamburg
 		else if(simulationMode == 6){
-			 File HHFile_ = new File("../Vanetsim/Hamburg_kl.xml");
+			 File HHFile_ = new File("../Vanetsim/Hamburg_kl.xml"); //TODO: Change back to generic function for all GPX Data
 			 Map.getInstance().load(HHFile_, false);
 		}
 		
@@ -109,10 +114,12 @@ public class GPSPrecalculation {
 							long startTime = t1.getTime();
 							
 							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-							
-							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
-							
-							//Map.getInstance().addVehicle(tmpVehicle);
+							if (RealTimeCalc_ == true){
+								GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+								}
+								else{
+									Map.getInstance().addVehicle(tmpVehicle);
+								}
 
 						}
 					} catch (ParseException e) {
@@ -219,9 +226,14 @@ public class GPSPrecalculation {
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-						//Map.getInstance().addVehicle(tmpVehicle);
+							
 							long startTime = tripTimes.getFirst(); //TODO: Get Last ?
-							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+							if (RealTimeCalc_ == true){
+								GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+								}
+								else{
+									Map.getInstance().addVehicle(tmpVehicle);
+								}
 						System.out.println("Vehicle created");
 						}
 					} catch (ParseException e) {
@@ -273,8 +285,12 @@ public class GPSPrecalculation {
 				if(destinations.size() >= 2){
 					tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 					long startTime = tripTimes.getFirst(); //TODO: Get Last ?
-					GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
-				//Map.getInstance().addVehicle(tmpVehicle);
+					if (RealTimeCalc_ == true){
+						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+						}
+						else{
+							Map.getInstance().addVehicle(tmpVehicle);
+						}
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -356,8 +372,13 @@ public class GPSPrecalculation {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 							
+							if (RealTimeCalc_ == true){
 							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
-						//Map.getInstance().addVehicle(tmpVehicle);
+							}
+							else{
+								Map.getInstance().addVehicle(tmpVehicle);
+							}
+						
 						}
 					} catch (ParseException e) {
 						
@@ -472,8 +493,13 @@ public class GPSPrecalculation {
 						try {
 							if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
+							
+							if (RealTimeCalc_ == true){
 							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
-							//Map.getInstance().addVehicle(tmpVehicle);
+							}
+							else{
+							Map.getInstance().addVehicle(tmpVehicle);
+							}
 							}
 						} catch (ParseException e) {
 							
@@ -527,13 +553,16 @@ public class GPSPrecalculation {
 		//Update GUI
 		Renderer.getInstance().setShowVehicles(true);
 		Renderer.getInstance().ReRender(true, true);
-		System.out.println("Bis Hier und nicht weiter :)");
+
+		if (RealTimeCalc_ == true){
+		
 		SimulationMaster.setGPSSimulationFlag(true);
 		try {
 			GPSVehicleMaster.getInstance().startSim();
 		} catch (NoVehicleFoundException e) {
 			System.out.println("No vehicles created");
 			e.printStackTrace();
+		}
 		}
 		System.out.println("Done :)");
 		VanetSimStart.setProgressBar(false);
@@ -545,6 +574,16 @@ public class GPSPrecalculation {
 			if(elem.equals(s)) return true;
 		}
 		return false;
+	}
+	
+	public static boolean getRealTimeCalc(){
+		return RealTimeCalc_;
+	}
+	
+	
+	
+	public static void setRealTimeCalc(boolean state){
+		RealTimeCalc_ = state;
 	}
 
 

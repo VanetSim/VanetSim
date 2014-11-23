@@ -57,6 +57,9 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 	/** The input field for the maximum Line in Parsing File.. */
 	private final JFormattedTextField maxLine_;
 	
+	/** A checkbox to enable/disable Real Time Calculation. */
+	private final JCheckBox RealTimeCalcCheckBox_;
+	
 	
 	/**
 	 * 
@@ -127,6 +130,14 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				maxLine_.setPreferredSize(new Dimension(60,20));;
 				c.gridx = 1;
 				add(maxLine_,c);
+				
+				//Add Real Time Calculation Chcekbox
+				RealTimeCalcCheckBox_ = new JCheckBox(Messages.getString("GPSControlPanel.RealTimeCalc"), false); //$NON-NLS-1$
+				RealTimeCalcCheckBox_.addItemListener(this);
+				++c.gridy;
+				add(RealTimeCalcCheckBox_,c);
+				
+				
 				
 				//TODO: Load Button
 				LoadJPanel_ = new JPanel(new CardLayout());
@@ -221,7 +232,13 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		
+		boolean state;
+		if(e.getStateChange() == ItemEvent.SELECTED) state = true;
+		else state = false;
+		if(e.getSource() == RealTimeCalcCheckBox_){
+			GPSPrecalculation.setRealTimeCalc(state);
+			
+		}
 	}
 
 

@@ -1500,7 +1500,10 @@ public class Vehicle extends LaneObject{
 	 */
 	
 	//TODO: Adjust Speed GPS
+	
 	public void adjustSpeedWithGPS(int timePerStep){
+		/**
+	
 		waitingForSignal_ = false;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){
@@ -1694,7 +1697,7 @@ public class Vehicle extends LaneObject{
 						
 					}			
 				}
-			
+			*/
 		
 		//TODO: GPS Specific Code
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1749,6 +1752,8 @@ public class Vehicle extends LaneObject{
 		// the rest was copied from the function 'adjustSpeed(int)'
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// ================================= 
+		
+		/**
 					// Step 6: Check message/beacons/penalties countdown and cleanup
 					// ================================= 
 
@@ -1845,7 +1850,7 @@ public class Vehicle extends LaneObject{
 							//}
 							
 						//}
-						
+						/**
 					
 					if(isWiFiEnabled() && communicationEnabled_){
 						
@@ -2127,7 +2132,7 @@ public class Vehicle extends LaneObject{
 													messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
 												}
 												*/
-			
+			/**
 												PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
 												long dx = message.getDestinationX_() - curX_;
@@ -2160,7 +2165,7 @@ public class Vehicle extends LaneObject{
 						}
 					}
 				}
-		}
+		}*/
 			}
 		
 	
