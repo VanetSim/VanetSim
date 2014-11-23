@@ -17,6 +17,7 @@ import vanetsim.gui.Renderer;
 import vanetsim.map.*;
 import vanetsim.routing.WayPoint;
 import vanetsim.scenario.Vehicle;
+import vanetsim.simulation.SimulationMaster;
 
 
 
@@ -99,13 +100,13 @@ public class GPSPrecalculation {
 					try {
 						System.out.println(destinations.size());
 
-						if(!destinations.isEmpty()){							
+						if(!(destinations.size() <=2)){							
 							//Time in ms
 							//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
 							long time = (long)Long.parseLong(parsedTraces_.get(i+4));
 							tripTimes.add(time);
 							Date t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+5)); 
-							long startTime = (t1.getTime());
+							long startTime = t1.getTime();
 							
 							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 							
@@ -354,6 +355,7 @@ public class GPSPrecalculation {
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
+							
 							GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						//Map.getInstance().addVehicle(tmpVehicle);
 						}
@@ -523,6 +525,13 @@ public class GPSPrecalculation {
 		//Update GUI
 		Renderer.getInstance().setShowVehicles(true);
 		Renderer.getInstance().ReRender(true, true);
+		System.out.println("Bis Hier und nicht weiter :)");
+		try {
+			GPSVehicleMaster.getInstance().startSim();
+		} catch (NoVehicleFoundException e) {
+			System.out.println("No vehicles created");
+			e.printStackTrace();
+		}
 		System.out.println("Done :)");
 		VanetSimStart.setProgressBar(false);
 
