@@ -1,6 +1,7 @@
 package vanetsim.gpstracing;
 
 import vanetsim.map.Map;
+import vanetsim.scenario.Vehicle;
 
 
 public class GPSVehicleMaster {
@@ -31,6 +32,12 @@ public class GPSVehicleMaster {
 		return instance_;
 	}
 	
+	public void addVehicle(Vehicle vehicle, long startTime){
+		if (!simulationIsRunning_){
+			vehicles_.add(vehicle, startTime);
+		}
+	}
+	
 	/**
 	 * 
 	 */
@@ -44,7 +51,7 @@ public class GPSVehicleMaster {
 	 * @param simTime
 	 */
 	public void receiveSimulationTime(long simTime){
-		while(vehicles_.peek().getStartTime() < minimumAtStart_ + simTime){
+		while(vehicles_.peek().getStartTime() < minimumAtStart_ + simTime && !vehicles_.isEmpty()){
 			Map.getInstance().addVehicle(vehicles_.remove().getVehicle());
 		}
 	}
