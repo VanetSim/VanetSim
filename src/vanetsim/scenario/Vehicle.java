@@ -29,6 +29,7 @@ import java.util.ArrayDeque;
 
 
 
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -812,6 +813,7 @@ public class Vehicle extends LaneObject{
 					long dx = destinationWayPoint.getX() - curX_;
 					long dy = destinationWayPoint.getY() - curY_;
 					long distanceSquared = dx * dx + dy * dy;
+					//TODO: Might be a better distance - I dont know
 					if(distanceSquared < (long)maxBrakingDistance_*maxBrakingDistance_*2){		//seems we're quite near a destination! This happens only in the last about 2-3 seconds!
 						if(destinationWayPoint.getStreet() == curStreet_){ //if on the same street, the distance calculation is already correct!
 							if(distanceSquared <= (long)curBrakingDistance_*curBrakingDistance_){
@@ -1499,7 +1501,7 @@ public class Vehicle extends LaneObject{
 	
 	//TODO: Adjust Speed GPS
 	public void adjustSpeedWithGPS(int timePerStep){
-
+		System.out.println("Adjust Speed with GPS");
 		
 		//TODO: Calculate distance between wayPoints (Distance on streets) need to get all streets which are on routing path
 		double distance = 0, tmpPosition = curPosition_; //distance between two routing points
@@ -1522,8 +1524,9 @@ public class Vehicle extends LaneObject{
 		
 		//System.out.println(distance);
 
-		for (int k=0; k>=destinations_.size(); k++){
-			
+		
+			//Time in ms
+			//distance in cm...?
 			double desiredSpeed = (distance / tripTimes_.pollFirst());
 			
 		// start vehicle
@@ -1543,7 +1546,7 @@ public class Vehicle extends LaneObject{
 	//	newSpeed_ = 1800;	
 		//Speed needs to be calculated. Time between 2 Waypoints and the distance between two waypoints v=s/t
 
-		}
+		
 	}
 		
 	

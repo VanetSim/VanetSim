@@ -117,7 +117,6 @@ public final class WorkerThread extends Thread {
 		int tmpTimePassedSaved = 99999999;
 		int silentPeriodDuration = Vehicle.getTIME_OF_SILENT_PERIODS();
 		int silentPeriodFrequency = Vehicle.getTIME_BETWEEN_SILENT_PERIODS();
-		
 		RSU[][] rsus = new RSU[ourRegionsLength][];
 		RSU[] rsuSubarray;	// it is better to cache lookups in the double-array.
 		RSU rsu;
@@ -126,7 +125,6 @@ public final class WorkerThread extends Thread {
 		
 		Iterator<Integer> changedRegionIterator;
 		int tmp;
-
 		for(i = 0; i < ourRegionsLength; ++i){
 			ourRegions_[i].createBacklink(this, i);
 			ourRegions_[i].calculateJunctions();	//recalculate because user might have edited map after loading
@@ -150,7 +148,6 @@ public final class WorkerThread extends Thread {
 		// the try/catch-expressions are done in a way that the least possible amount is needed while still assuring some fail-safety.
 		// To debug problems or new functions, it is recommended to move the "try"s down so that they are just around the "wait()"-calls!
 		// Using redundant code for performance issues when switching between models and traces
-		
 		if(simulationMode_ == 1){
 			while(true){
 				// ================================= 
@@ -636,7 +633,7 @@ public final class WorkerThread extends Thread {
 			}
 		}
 		//TODO: Number 3 -> Shanghai
-		if(simulationMode_ == 3){
+		else if(simulationMode_ == 3){
 			while(true){
 				// ================================= 
 				// Step 1: Update changed regions with new vehicle arrays
@@ -875,7 +872,7 @@ public final class WorkerThread extends Thread {
 			}
 		}
 		//TODO: Number 4  -> San Francisco
-		if(simulationMode_ == 4){
+		else if(simulationMode_ == 4){
 			while(true){
 				// ================================= 
 				// Step 1: Update changed regions with new vehicle arrays
@@ -1093,7 +1090,8 @@ public final class WorkerThread extends Thread {
 						barrierFinish_.await();	//need to wait again...
 					}catch (Exception e2){}
 				}		
-
+			}
+		}
 				
 				// ================================= 
 				// Step 7: Check the states of all traffic lights and change if necessary
@@ -1124,7 +1122,7 @@ public final class WorkerThread extends Thread {
 				
 				//TODO: Add Simulation stuff 5 (New York) 
 				
-				if(simulationMode_ == 5){
+				else if(simulationMode_ == 5){
 					while(true){
 						// ================================= 
 						// Step 1: Update changed regions with new vehicle arrays
@@ -1363,7 +1361,7 @@ public final class WorkerThread extends Thread {
 					}
 				}
 				//TODO: Number 6 -> Hamburg
-				if(simulationMode_ == 6){
+				else if(simulationMode_ == 6){
 					while(true){
 						// ================================= 
 						// Step 1: Update changed regions with new vehicle arrays
@@ -1612,14 +1610,14 @@ public final class WorkerThread extends Thread {
 				}
 				
 			}
-		}
+		
 		// remove the backlinks from the regions so that garbage collection can really remove everything
 		for(i = 0; i < ourRegionsLength; ++i){
 			ourRegions_[i].createBacklink(null, -1);
 		}
 		
 		ErrorLog.log(Messages.getString("WorkerThread.workerExited"), 1, this.getName(), "run", null); //$NON-NLS-1$ //$NON-NLS-2$
-	}
+	
 		
 	}
 

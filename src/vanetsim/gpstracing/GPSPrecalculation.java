@@ -63,8 +63,11 @@ public class GPSPrecalculation {
 		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
 		Vehicle tmpVehicle;
 		
+		int Counter = 0;
+		
 			for(int i = 0; i < parsedTraces_.size(); i=i+7){
 				
+				System.out.println("Counter: " + Counter);
 				
 				ArrayDeque<Double> tripTimes = new ArrayDeque<Double>();		//(parsedTraces_.size()/7)
 				
@@ -108,11 +111,13 @@ public class GPSPrecalculation {
 						System.out.println(destinations.size());
 
 						if(!destinations.isEmpty()){
+							//Time in ms
 							//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
 							double time = (double)Double.parseDouble(parsedTraces_.get(i+5));
 							tripTimes.add(time);
 							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
 							Map.getInstance().addVehicle(tmpVehicle);
+							Counter ++;
 							System.out.println("Vehicle created");
 						}
 					} catch (ParseException e) {
@@ -164,7 +169,7 @@ public class GPSPrecalculation {
 					try {
 						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+8));
 						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4));
-						
+						//Time in ms
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
 						
@@ -202,7 +207,8 @@ public class GPSPrecalculation {
 						if(i+7 < parsedTraces_.size()){
 						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
 						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
-						
+							
+						//Time in ms
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
 						}
@@ -254,7 +260,7 @@ public class GPSPrecalculation {
 						if(i+7 < parsedTraces_.size()){
 						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+7));
 						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3));
-						
+						//Time in ms
 						double timeDif = t1.getTime() - t2.getTime();
 						tripTimes.add(timeDif);
 						}
@@ -314,7 +320,7 @@ public class GPSPrecalculation {
 							if(j+7 < parsedTraces_.size()){
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
 							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
-							
+							//Time in ms
 							double timeDif = t1.getTime() - t2.getTime();
 							tripTimes.add(timeDif);
 							}
@@ -373,7 +379,7 @@ public class GPSPrecalculation {
 							if(j+7 < parsedTraces_.size()){
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
 							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+7));
-							
+							//Time in ms
 							double timeDif = t1.getTime() - t2.getTime();
 							tripTimes.add(timeDif);
 							}
@@ -423,7 +429,8 @@ public class GPSPrecalculation {
 							Date t1;
 							try {
 								if(j+7 < parsedTraces_.size()){
-								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));			
+								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
+								//Time in ms
 								double timeDif = t1.getTime();
 								System.out.println(t1.getTime());
 								tripTimes.add(timeDif);
@@ -473,7 +480,8 @@ public class GPSPrecalculation {
 							Date t1;
 							try {
 								if(j+7 < parsedTraces_.size()){
-								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));			
+								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));		
+								//Time in ms
 								double timeDif = t1.getTime();
 								tripTimes.add(timeDif);
 								
