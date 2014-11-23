@@ -24,7 +24,7 @@ public class SortedVehicleQueue {
 	 * @param vehicle
 	 * @param startTime
 	 */
-	public void add(Vehicle vehicle, int startTime) {
+	public void add(Vehicle vehicle, long startTime) {
 
 		Node predecessorNode = head_;
 		int i = 0;
@@ -38,6 +38,7 @@ public class SortedVehicleQueue {
 		predecessorNode.setSuccessor(newNode);
 
 		counter_++;
+
 	}
 
 	/**
@@ -45,7 +46,7 @@ public class SortedVehicleQueue {
 	 * @return
 	 */
 	public Node remove() {
-		
+
 		Node returnNode = null;
 
 		if (!isEmpty()) {
@@ -62,24 +63,36 @@ public class SortedVehicleQueue {
 	 * 
 	 * @return
 	 */
+	public Node peek() {
+		Node result = null;
+
+		if (!isEmpty()) {
+			result = head_.getSuccessor();
+		}
+
+		return result;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isEmpty() {
 		return (counter_ == 0);
 	}
 
-	
-	
 	/**
 	 * Nested Node class
-	 *
+	 * 
 	 */
 	class Node {
 		private Node successor_;
 		private Node predecessor_;
 		private Vehicle vehicle_;
-		private int startTime_;
+		private long startTime_;
 
 		public Node(Node successor, Node predecessor, Vehicle vehicle,
-				int startTime) {
+				long startTime) {
 			successor_ = successor;
 			predecessor_ = predecessor;
 			vehicle_ = vehicle;
@@ -102,7 +115,7 @@ public class SortedVehicleQueue {
 			return predecessor_;
 		}
 
-		public int getStartTime() {
+		public long getStartTime() {
 			return startTime_;
 		}
 
