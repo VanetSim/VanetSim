@@ -100,12 +100,12 @@ public class GPSPrecalculation {
 					try {
 						System.out.println(destinations.size());
 
-						if(!(destinations.size() <=2)){							
+						if(!(destinations.size() <2)){							
 							//Time in ms
 							//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
 							long time = (long)Long.parseLong(parsedTraces_.get(i+4));
 							tripTimes.add(time);
-							Date t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+5)); 
+							Date t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+3)); 
 							long startTime = t1.getTime();
 							
 							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
@@ -302,7 +302,7 @@ public class GPSPrecalculation {
 					double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 					
-					if (j ==0){
+					if (j == 0){
 						Date t1;
 						try {
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
@@ -447,11 +447,13 @@ public class GPSPrecalculation {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 							destinations.add(tmpWayPoint);
 							Date t1;
+							Date t2;
 							try {
 								if(j+7 < parsedTraces_.size()){
 								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
+								t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 								//Time in ms
-								long timeDif = t1.getTime();
+								long timeDif = t2.getTime() - t1.getTime();
 								tripTimes.add(timeDif);
 								}
 								
@@ -526,6 +528,7 @@ public class GPSPrecalculation {
 		Renderer.getInstance().setShowVehicles(true);
 		Renderer.getInstance().ReRender(true, true);
 		System.out.println("Bis Hier und nicht weiter :)");
+		SimulationMaster.setGPSSimulationFlag(true);
 		try {
 			GPSVehicleMaster.getInstance().startSim();
 		} catch (NoVehicleFoundException e) {
