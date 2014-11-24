@@ -121,8 +121,8 @@ public final class MapHelper {
 			return false;
 		} else {
 
-			result[0] = (int) (distanceToLongPoint / distanceLong * (double) (maxX - minX));
-			result[1] = (int) (distanceToLatPoint / distanceLat * (double) (maxY - minY));
+			result[0] = (int) (distanceToLongPoint / distanceLong * (double) (maxX - minX))+minX;
+			result[1] = (int) (distanceToLatPoint / distanceLat * (double) (maxY - minY))+minY;
 			return true;
 		}
 		
