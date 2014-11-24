@@ -1,3 +1,20 @@
+/*
+ * VANETsim open source project - http://www.vanet-simulator.org
+ * Copyright (C) 2008 - 2013  Andreas Tomandl, Florian Scheuer, Bernhard Gruber
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package vanetsim.gpstracing;
 
 import java.util.ArrayList;
@@ -26,7 +43,6 @@ public class GPSTracesNY {
 
 	/** The ArrayList types collects all GPSDATA */
 	public ArrayList<String> nyTraces_;
-
 	private List<long[]> traceInfo_ = new ArrayList<long[]>();
 
 	/** The only instance of this class (singleton). */
@@ -125,22 +141,24 @@ public class GPSTracesNY {
 	public List<long[]> getTraceFileInfo() {
 		return traceInfo_;
 	}
-
+	
+	// Function parses the Trace Files of New York for relevant information
+	// such as ID, Longtitude, Latitude, Times
+	// Function returns an Array List
 	public ArrayList<String> getNYTraces(int minLine, int maxLine) {
 
 		nyTraces_ = new ArrayList<String>();
-
 		int Counter = 0;
-		// Parse CSV File
-
-
+		
+		// File input
 		File f = new File("../VanetSim/GPX_Data/NY_Traces");
 		File[] fileArray = f.listFiles();
 
 		if (fileArray != null) {
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
-
+				
+				// start BufferReader
 				BufferedReader br = null;
 				String sCurrentLine = null;
 				try {
@@ -150,7 +168,7 @@ public class GPSTracesNY {
 
 						if ((minLine <= Counter)
 								&& (maxLine >= Counter)) {
-							// Parse here
+							// Add UUID as CSV File does not contain unique IDs
 							UUID TaxiID = UUID.randomUUID();
 							String[] columns = sCurrentLine.split(",");
 							
@@ -159,13 +177,15 @@ public class GPSTracesNY {
 							// passenger_count, trip_time_in_secs, trip_distance, pickup_longitude,
 							// pickup_latitude, dropoff_longitude, dropoff_latitude
 							
+							//Parse only neccessary information. Other parts included for further usage.
+							
 							//String medallion = columns[0]; // ID
 							// String hack_licence = columns[0];
 							// String vendor_id = columns[0];
 							// String rate_code = columns[0];
 							// String store_and_foward_flag = columns[0];
 							String pickup_datetime = columns[5];
-							String dropoff_datetime = columns[6];
+							//String dropoff_datetime = columns[6];
 							// String passenger_count = columns[0];
 							String trip_time_in_secs = columns[8];
 							// String trip_distance = columns[0];
@@ -175,7 +195,6 @@ public class GPSTracesNY {
 							String dropoff_latitude = columns[13];
 
 							// Add to Array List
-
 							nyTraces_.add(TaxiID.toString());
 							nyTraces_.add(pickup_longitude);
 							nyTraces_.add(pickup_latitude);
@@ -184,27 +203,26 @@ public class GPSTracesNY {
 							nyTraces_.add(trip_time_in_secs);
 							nyTraces_.add(dropoff_longitude);
 							nyTraces_.add(dropoff_latitude);
-							
-							
-						}
 
+						}
+						//Counter for maxLine
 						Counter++;
 						if(Counter >= maxLine){
 							break;
 						}
 					}
-
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				} finally {
 					try {
+						//Close BufferReader
 						if (br != null)
 							br.close();
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
 				}
-
 			}
 		}
 

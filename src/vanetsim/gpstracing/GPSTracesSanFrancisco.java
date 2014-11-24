@@ -1,3 +1,20 @@
+/*
+ * VANETsim open source project - http://www.vanet-simulator.org
+ * Copyright (C) 2008 - 2013  Andreas Tomandl, Florian Scheuer, Bernhard Gruber
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package vanetsim.gpstracing;
 
 import java.util.ArrayList;
@@ -27,7 +44,6 @@ public class GPSTracesSanFrancisco {
 
 	/** The ArrayList types collects all GPSDATA */
 	public ArrayList<String> sfTraces_;
-
 	private List<long[]> traceInfo_  = new ArrayList<long[]>();
 
 	/** The only instance of this class (singleton). */
@@ -127,22 +143,22 @@ public class GPSTracesSanFrancisco {
 	public List<long[]> getTraceFileInfo() {
 		return traceInfo_;
 	}
-
+	
+	// Method parses Files in San Francisco Directory
+	// Returns Array List
 	public ArrayList<String> getSanFranciscoTraces(int minLine, int maxLine) {
 		sfTraces_ = new ArrayList<String>();
 
 		int Counter = 0;
 
-		System.out.println("Hier bin ich. ich bin die 4");
-
-		// Lese alle Dateien im San Francisco Verzeichnis ein
+		// Read all Files in Directory
 		File f = new File("../VanetSim/GPX_Data/SanFrancisco_Traces");
 		File[] fileArray = f.listFiles();
 
 		if (fileArray != null) {
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
-				//System.out.print(fileArray[i].getAbsolutePath());
+				// Add UUID per File, as one File is one vehicle
 				UUID TaxiID = UUID.randomUUID();
 
 				BufferedReader br = null;
@@ -152,10 +168,8 @@ public class GPSTracesSanFrancisco {
 					while ((sCurrentLine = br.readLine()) != null) {
 
 						if ((minLine <= Counter) && (maxLine >= Counter)) {
-							// Parse here
 							String[] columns = sCurrentLine.split(" ");
-							// Structure of Files latitude, longitude,
-							// occupancy, time
+
 							String latitude = columns[0];
 							String longitude = columns[1];
 							// String occupancy = columns[2];
@@ -181,6 +195,7 @@ public class GPSTracesSanFrancisco {
 							sfTraces_.add(latitude);
 							sfTraces_.add(formattedDate);
 						}
+						//Counter for maxLine
 						Counter++;
 					}
 				} catch (IOException e) {
@@ -195,9 +210,7 @@ public class GPSTracesSanFrancisco {
 				}
 			}
 		}
-
+		//Return Array List
 		return sfTraces_;
-
 	}
-
 }

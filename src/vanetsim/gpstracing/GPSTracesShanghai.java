@@ -1,3 +1,20 @@
+/*
+ * VANETsim open source project - http://www.vanet-simulator.org
+ * Copyright (C) 2008 - 2013  Andreas Tomandl, Florian Scheuer, Bernhard Gruber
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package vanetsim.gpstracing;
 
 import java.util.ArrayList;
@@ -14,14 +31,7 @@ import java.io.UnsupportedEncodingException;
 
 import vanetsim.map.Map;
 
-//TODO:uploaded
 public class GPSTracesShanghai {
-
-	/** The path of the TXT file */
-	private String txtPath_;
-
-	/** The default path and filename, used if no path is set */
-	private String defaultPath_ = "/VanetSim/GPX_Data/Shanghai_Traces/Shanghai_Taxi_traces.txt";
 
 	/** The ArrayList types collects all GPSDATA */
 	public ArrayList<String> shTraces_;
@@ -125,6 +135,8 @@ public class GPSTracesShanghai {
 		return traceInfo_;
 	}
 
+	// Function parses Trace File for Shanghai
+	// Returns ArrayList
 	public ArrayList<String> getShanghaiTraces(int minLine, int maxLine) {
 
 		shTraces_ = new ArrayList<String>();
@@ -138,9 +150,7 @@ public class GPSTracesShanghai {
 			int Counter = 0;
 
 			while ((sCurrentLine = br.readLine()) != null) {
-
 				if ((minLine <= Counter) && (maxLine >= Counter)) {
-					// Parse here
 					String[] columns = sCurrentLine.split(",");
 
 					// String ID = columns[0];
@@ -155,12 +165,12 @@ public class GPSTracesShanghai {
 					// String Reversed = columns[9];
 					
 					// Add to Array List
-
 					shTraces_.add(TaxiID);
 					shTraces_.add(Lon);
 					shTraces_.add(Lat);
 					shTraces_.add(Time);
 				}
+				// Counter for maxLine
 				Counter++;
 			}
 		} catch (IOException e) {

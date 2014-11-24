@@ -1,3 +1,20 @@
+/*
+ * VANETsim open source project - http://www.vanet-simulator.org
+ * Copyright (C) 2008 - 2013  Andreas Tomandl, Florian Scheuer, Bernhard Gruber
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package vanetsim.gui.controlpanels;
 
 
@@ -62,7 +79,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 	
 	
 	/**
-	 * 
+	 * Still dont really know what this is :)
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -85,15 +102,10 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				c.weightx = 0.5;
 				c.gridx = 0;
 				c.gridy = 0;
-				c.gridheight = 1;
-				
+				c.gridheight = 1;			
 				c.gridwidth = 1;
-
 				c.insets = new Insets(5,5,5,5);
-				
 				c.gridx = 0;
-				
-				
 				
 				//Auswahlbereich Traces
 				c.gridx = 0;
@@ -136,17 +148,12 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				RealTimeCalcCheckBox_.addItemListener(this);
 				++c.gridy;
 				add(RealTimeCalcCheckBox_,c);
-				
-				
-				
-				//TODO: Load Button
-				LoadJPanel_ = new JPanel(new CardLayout());
 
+				LoadJPanel_ = new JPanel(new CardLayout());
 				LoadJPanel_.add(ButtonCreator.getJButton("start.png", "load", Messages.getString("GPSControlPanel.load"), this), "load"); 
 				++c.gridy;
 				c.gridwidth = 1;
 				add(LoadJPanel_, c);
-				
 				
 				//to consume the rest of the space
 				c.weighty = 1.0;
@@ -154,26 +161,18 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				JPanel space = new JPanel();
 				space.setOpaque(false);
 				add(space, c);
-
-				
-				
-				
 	}
 
-	
 	public void setLoading(){
 		CardLayout cl = (CardLayout)(LoadJPanel_.getLayout());
 		cl.show(LoadJPanel_, "load"); //$NON-NLS-1$
 	}
 	
-	
-	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		
 		String command = arg0.getActionCommand();
-		
-		
+
 		int minLineValue = ((Number)minLine_.getValue()).intValue();
 		int maxLineValue = ((Number)maxLine_.getValue()).intValue();		
 		
@@ -216,20 +215,13 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
-		
-
-			
 		}
 	}
 	
-	
-	//TODO: Rewrite - is this actually needed?
 	public void LoadGPSSimulation(){
 			CardLayout cl = (CardLayout)(LoadJPanel_.getLayout());
-			//TODO: Do all steps here
 		}		
 	
-
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		boolean state;
@@ -241,10 +233,8 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		}
 	}
 
-
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		
 	}
-	
 }
