@@ -1502,7 +1502,7 @@ public class Vehicle extends LaneObject{
 	//TODO: Adjust Speed GPS
 	
 	public void adjustSpeedWithGPS(int timePerStep){
-		/**
+		
 	
 		waitingForSignal_ = false;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
@@ -1524,6 +1524,8 @@ public class Vehicle extends LaneObject{
 					curBrakingDistance_ = (int)StrictMath.floor(0.5d + curSpeed_ + curSpeed_ * curSpeed_ / (2 * brakingRate_));
 					if(curBrakingDistance_ < 500) curBrakingDistance_ = 500;
 				}
+				
+				
 				// ================================= 
 				// Step 1: Check if vehicle is near destination so that it needs to brake (only checked when necessary => timer!)
 				// ================================= 
@@ -1568,7 +1570,7 @@ public class Vehicle extends LaneObject{
 					
 					
 				} else destinationCheckCountdown_ -= timePerStep;
-
+				/**
 				// ================================= 
 				// Step 2: Check for vehicle/blocking in front of this one or a slower street and try to change lane
 				// ================================= 
@@ -1610,7 +1612,8 @@ public class Vehicle extends LaneObject{
 					}
 				}
 				// found a blocking. Check if we might change lane to prevent this
-
+				
+	
 				// ================================= 
 				// Step 3: Check if we can change to the right lane
 				// ================================= 
@@ -1753,7 +1756,7 @@ public class Vehicle extends LaneObject{
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// ================================= 
 		
-		/**
+		
 					// Step 6: Check message/beacons/penalties countdown and cleanup
 					// ================================= 
 
@@ -1850,7 +1853,7 @@ public class Vehicle extends LaneObject{
 							//}
 							
 						//}
-						/**
+						
 					
 					if(isWiFiEnabled() && communicationEnabled_){
 						
@@ -2132,7 +2135,7 @@ public class Vehicle extends LaneObject{
 													messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
 												}
 												*/
-			/**
+			
 												PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
 												long dx = message.getDestinationX_() - curX_;
@@ -2164,9 +2167,12 @@ public class Vehicle extends LaneObject{
 							}
 						}
 					}
-				}
-		}*/
-			}
+	}
+		}
+	}
+				
+		
+			
 		
 	
 	

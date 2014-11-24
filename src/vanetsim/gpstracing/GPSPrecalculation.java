@@ -59,7 +59,6 @@ public class GPSPrecalculation {
 		ArrayDeque<WayPoint> destinations = null;
 		//ArrayDeque<Double> tripTimes = null;
 		
-		//TODO: New York
 		if(simulationMode == 5){ //NY
 
 		ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
@@ -103,8 +102,6 @@ public class GPSPrecalculation {
 					}
 					//Create vehicle
 					try {
-						System.out.println(destinations.size());
-
 						if(!(destinations.size() <2)){							
 							//Time in ms
 							//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
@@ -123,7 +120,7 @@ public class GPSPrecalculation {
 
 						}
 					} catch (ParseException e) {
-						System.out.println("Exception Vehicle creation");
+						System.out.println("Vehicle creation failed");
 						e.printStackTrace();
 					}
 					
@@ -145,13 +142,6 @@ public class GPSPrecalculation {
 					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
 					
-					//Time - here the time is from the LAST point to the first one means
-					//Vehicles have to drive BACKWARDS :)
-					
-					//Calculate times
-
-					
-					
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
@@ -170,7 +160,7 @@ public class GPSPrecalculation {
 					Date t2;
 					try {
 						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); 
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+4)); 
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); 
 						//Time in ms
 						long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(timeDif);
@@ -186,9 +176,7 @@ public class GPSPrecalculation {
 					
 					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
-					
-					//Time - here the time is from the LAST point to the first one means
-					//Vehicles have to drive BACKWARDS :)
+
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 				
@@ -211,7 +199,7 @@ public class GPSPrecalculation {
 						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); 
 							
 						//Time in ms
-						long timeDif = t1.getTime() - t2.getTime();
+						long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(timeDif);
 						}
 						
@@ -267,8 +255,8 @@ public class GPSPrecalculation {
 					Date t2;
 					try {
 						if(i+7 < parsedTraces_.size()){
-						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); //TODO: Change to last point not next point
-						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); //OK?
+						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i-1)); 
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); 
 						//Time in ms
 						long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(timeDif);
@@ -329,9 +317,7 @@ public class GPSPrecalculation {
 						}
 						 
 					}
-					
-					
-					
+	
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
@@ -350,7 +336,7 @@ public class GPSPrecalculation {
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3)); 
 							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms
-							long timeDif = t2.getTime() - t1.getTime();
+							long timeDif = t1.getTime() - t2.getTime();
 							tripTimes.add(timeDif);
 							}
 							
@@ -406,12 +392,12 @@ public class GPSPrecalculation {
 						Date t1;
 						Date t2;
 						try {
-							//2014-07-18T09:37:41Z
+							
 							if(j+7 < parsedTraces_.size() && j != 0){
 							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
 							t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms
-							long timeDif = t2.getTime() - t1.getTime();
+							long timeDif = t1.getTime() - t2.getTime();
 							tripTimes.add(timeDif);
 							}
 							
@@ -470,11 +456,11 @@ public class GPSPrecalculation {
 							Date t1;
 							Date t2;
 							try {
-								if(j+7 < parsedTraces_.size()){
+								if(j+7 < parsedTraces_.size()&& j!=0){
 								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
-								t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
+								t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 								//Time in ms
-								long timeDif = t2.getTime() - t1.getTime();
+								long timeDif = t1.getTime() - t2.getTime();
 								tripTimes.add(timeDif);
 								}
 								
@@ -523,12 +509,15 @@ public class GPSPrecalculation {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 							destinations.add(tmpWayPoint);
 							Date t1;
+							Date t2;
 							try {
-								if(j+7 < parsedTraces_.size()){
-								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));		
+								if(j+7 < parsedTraces_.size() && j!=0){
+								t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));
+								t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 								//Time in ms
-								long timeDif = t1.getTime();
+								long timeDif = t1.getTime() - t2.getTime();
 								tripTimes.add(timeDif);
+
 								
 								}
 							} catch (ParseException e1) {
@@ -541,14 +530,9 @@ public class GPSPrecalculation {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-							
-						
 					}
 				}
 			}
-			
-			
-			
 		}
 		//Update GUI
 		Renderer.getInstance().setShowVehicles(true);
