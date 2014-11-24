@@ -55,10 +55,10 @@ public final class MapHelper {
 		int minX, minY, maxX, maxY;
 
 		if (!nodeValuesInitialized_) {
-			int minimumX = map.getMapWidth() / 2;
-			int minimumY = map.getMapHeight() / 2;
-			int maximumX = minimumX;
-			int maximumY = minimumY;
+			int minimumX = -1;
+			int minimumY = -1;
+			int maximumX = -1;
+			int maximumY = -1;
 
 			Region[][] regions = map.getRegions();
 			for (int i = 0; i < regions.length; i++) {
@@ -68,6 +68,14 @@ public final class MapHelper {
 
 					for (int k = 0; k < nodesInRegion.length; k++) {
 						Node node = nodesInRegion[k];
+						
+						if(minimumX < 0){
+							minimumX = node.getX();
+							minimumY = node.getY();
+							maximumX = minimumX;
+							maximumY = minimumY;
+						}
+						
 						if (node.getX() < minimumX) {
 							minimumX = node.getX();
 						}
