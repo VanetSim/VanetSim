@@ -45,7 +45,7 @@ public final class MapHelper {
 	 * @return <code>boolean</code>, which states whether the translation was
 	 *         successful or not
 	 */
-	public static boolean translateGPSToMapMetric(int[] result,
+	public static int translateGPSToMapMetric(int[] result,
 			double longitude, double latitude) {
 		Map map = Map.getInstance();
 		double minLongitude = map.getMinLongitude();
@@ -116,14 +116,14 @@ public final class MapHelper {
 		double distanceToLatPoint = (latitude < minLatitude) ? 180 + (latitude - minLatitude)
 				: latitude - minLatitude;
 		if (distanceToLongPoint < 0 || distanceToLatPoint < 0) {
-			return false;
+			return 1;
 		} else if (distanceToLongPoint > distanceLong || distanceToLatPoint > distanceLat) {
-			return false;
+			return 2;
 		} else {
 
 			result[0] = (int) (distanceToLongPoint / distanceLong * (double) (maxX - minX));
 			result[1] = (int) (distanceToLatPoint / distanceLat * (double) (maxY - minY));
-			return true;
+			return 0;
 		}
 		
 	}
