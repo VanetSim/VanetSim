@@ -2105,11 +2105,11 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 					}
 
 		            System.out.println("Correct Normal:Correct Fake");
-		            if(pcn_array[1] != 0 && pcn_array[0] != 0 )System.out.println("pcn:" + ((double)pcn_array[1]/(pcn_array[1]+pcn_array[2])) + ":" + ((double)pcn_array[0]/(pcn_array[0]+pcn_array[3])));
-		            if(rhcn_array[1] != 0 && rhcn_array[0] != 0 )System.out.println("rhcn:" + ((double)rhcn_array[1]/(rhcn_array[1]+rhcn_array[2])) + ":" + ((double)rhcn_array[0]/(rhcn_array[0]+rhcn_array[3])));
-		            if(eebl_array[1] != 0 && eebl_array[0] != 0 )System.out.println("eebl:" + ((double)eebl_array[1]/(eebl_array[1]+eebl_array[2])) + ":" + ((double)eebl_array[0]/(eebl_array[0]+eebl_array[3])));
-		            if(eva_array[1] != 0 && eva_array[0] != 0 )System.out.println("eva:" + ((double)eva_array[1]/(eva_array[1]+eva_array[2])) + ":" + ((double)eva_array[0]/(eva_array[0]+eva_array[3])));
-		            if(evaforward_array[1] != 0 && evaforward_array[0] != 0 )System.out.println("evaforward:" + ((double)evaforward_array[1]/(evaforward_array[1]+evaforward_array[2])) + ":" + ((double)evaforward_array[0]/(evaforward_array[0]+evaforward_array[3])));
+		            if(pcn_array[1] != 0 && pcn_array[0] != 0 )System.out.println("pcn:" + ((double)pcn_array[1]/(pcn_array[1]+pcn_array[2])) + ":" + ((double)pcn_array[0]/(pcn_array[0]+pcn_array[3])) + ":" + ((double)pcn_array[0]/(pcn_array[0]+pcn_array[2])));
+		            if(rhcn_array[1] != 0 && rhcn_array[0] != 0 )System.out.println("rhcn:" + ((double)rhcn_array[1]/(rhcn_array[1]+rhcn_array[2])) + ":" + ((double)rhcn_array[0]/(rhcn_array[0]+rhcn_array[3])) + ":" + ((double)rhcn_array[0]/(rhcn_array[0]+rhcn_array[2])));
+		            if(eebl_array[1] != 0 && eebl_array[0] != 0 )System.out.println("eebl:" + ((double)eebl_array[1]/(eebl_array[1]+eebl_array[2])) + ":" + ((double)eebl_array[0]/(eebl_array[0]+eebl_array[3])) + ":" + ((double)eebl_array[0]/(eebl_array[0]+eebl_array[2])));
+		            if(eva_array[1] != 0 && eva_array[0] != 0 )System.out.println("eva:" + ((double)eva_array[1]/(eva_array[1]+eva_array[2])) + ":" + ((double)eva_array[0]/(eva_array[0]+eva_array[3])) + ":" + ((double)eva_array[0]/(eva_array[0]+eva_array[2])));
+		            if(evaforward_array[1] != 0 && evaforward_array[0] != 0 )System.out.println("evaforward:" + ((double)evaforward_array[1]/(evaforward_array[1]+evaforward_array[2])) + ":" + ((double)evaforward_array[0]/(evaforward_array[0]+evaforward_array[3])) + ":" + ((double)evaforward_array[0]/(evaforward_array[0]+evaforward_array[2])));
 		            
 					System.out.print("*************");
 				}

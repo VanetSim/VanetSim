@@ -280,6 +280,12 @@ public final class Renderer{
 	/** arraylist to show if a beacon was guessed correctly after silent period. Is not used while simulation is running, so performance doesn't have to be that good*/
 	private ArrayList<String> locationInformationSilentPeriod_ = null;
 	
+	/** arraylist to show the results of the MDS*/
+	private ArrayList<String> locationInformationMDS_ = null;
+	
+	/** flag to switch location information mode for MDS */
+	private boolean MDSMode_ = true;
+	
 	/** counts passed mix-zones. Used to show location information */
 	private int mixZoneAmount = 0;
 	
@@ -912,6 +918,28 @@ public final class Renderer{
 					else if(data[0].equals("slow"))g2d.setPaint(Color.BLUE);
 					else g2d.setPaint(Color.GREEN);
 					g2d.drawOval(Integer.parseInt(data[1])-2500, Integer.parseInt(data[2])-2500,5000,5000);
+				}
+			}
+			
+			//draw location Information MDS
+			if(locationInformationMDS_ != null){
+				showMixZones_ = true;
+				String[] data;
+				for(String location:locationInformationMDS_){
+					data = location.split(":");
+					if(MDSMode_){
+						// TP
+						if(data[8].equals("true") && data[10].equals("true"))g2d.setPaint(Color.GREEN);
+						//FN
+						else if(data[8].equals("false") && data[10].equals("false"))g2d.setPaint(Color.RED);
+					}
+					else{
+						// TN
+						if(data[8].equals("false") && data[10].equals("true"))g2d.setPaint(Color.GREEN);
+						//FP
+						else if(data[8].equals("true") && data[10].equals("false"))g2d.setPaint(Color.RED);
+					}
+					g2d.drawOval(Integer.parseInt(data[5])-2500, Integer.parseInt(data[6])-2500,5000,5000);
 				}
 			}
 			
@@ -1964,6 +1992,22 @@ public final class Renderer{
 
 	public void setShowAllClusters(boolean showAllClusters) {
 		this.showAllClusters = showAllClusters;
+	}
+
+	public boolean getMDSMode_() {
+		return MDSMode_;
+	}
+
+	public void setMDSMode_(boolean mDSMode_) {
+		MDSMode_ = mDSMode_;
+	}
+
+	public ArrayList<String> getLocationInformationMDS_() {
+		return locationInformationMDS_;
+	}
+
+	public void setLocationInformationMDS_(ArrayList<String> locationInformationMDS_) {
+		this.locationInformationMDS_ = locationInformationMDS_;
 	}
 
 
