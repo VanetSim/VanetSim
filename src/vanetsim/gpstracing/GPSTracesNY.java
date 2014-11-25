@@ -185,7 +185,7 @@ public class GPSTracesNY {
 							// String rate_code = columns[0];
 							// String store_and_foward_flag = columns[0];
 							String pickup_datetime = columns[5];
-							//String dropoff_datetime = columns[6];
+							String dropoff_datetime = columns[6];
 							// String passenger_count = columns[0];
 							String trip_time_in_secs = columns[8];
 							// String trip_distance = columns[0];
@@ -199,7 +199,7 @@ public class GPSTracesNY {
 							nyTraces_.add(pickup_longitude);
 							nyTraces_.add(pickup_latitude);
 							nyTraces_.add(pickup_datetime);
-							//nyTraces_.add(dropoff_datetime);
+							nyTraces_.add(dropoff_datetime);
 							nyTraces_.add(trip_time_in_secs);
 							nyTraces_.add(dropoff_longitude);
 							nyTraces_.add(dropoff_latitude);

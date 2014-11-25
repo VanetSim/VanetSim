@@ -30,6 +30,9 @@ import java.util.ArrayDeque;
 
 
 
+
+
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -574,7 +577,7 @@ public class Vehicle extends LaneObject{
 	private int deltaValueIDM_ = 4; //TODO
 	private double minDistanceIDM_ = 250;
 	private double distanceToJunction_ = 150;
-	
+	private int GPSArrayIterator_ = 0;
 
 	private int EVAMessageDelay_ = 3;
 
@@ -813,7 +816,6 @@ public class Vehicle extends LaneObject{
 					long dx = destinationWayPoint.getX() - curX_;
 					long dy = destinationWayPoint.getY() - curY_;
 					long distanceSquared = dx * dx + dy * dy;
-					//TODO: Might be a better distance - I dont know
 					if(distanceSquared < (long)maxBrakingDistance_*maxBrakingDistance_*2){		//seems we're quite near a destination! This happens only in the last about 2-3 seconds!
 						if(destinationWayPoint.getStreet() == curStreet_){ //if on the same street, the distance calculation is already correct!
 							if(distanceSquared <= (long)curBrakingDistance_*curBrakingDistance_){
@@ -1534,7 +1536,6 @@ public class Vehicle extends LaneObject{
 					long dx = destinationWayPoint.getX() - curX_;
 					long dy = destinationWayPoint.getY() - curY_;
 					long distanceSquared = dx * dx + dy * dy;
-					//TODO: Might be a better distance - I dont know
 					if(distanceSquared < (long)maxBrakingDistance_*maxBrakingDistance_*2){		//seems we're quite near a destination! This happens only in the last about 2-3 seconds!
 						if(destinationWayPoint.getStreet() == curStreet_){ //if on the same street, the distance calculation is already correct!
 							if(distanceSquared <= (long)curBrakingDistance_*curBrakingDistance_){
@@ -1707,9 +1708,30 @@ public class Vehicle extends LaneObject{
 		// Start of the GPS-specific source code
 		// the rest was copied from the function 'adjustSpeed(int)'
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		Object[] WaypointArray = destinations_.toArray();
+		Object[] tripTimesArray = tripTimes_.toArray();
+		long timeDif = 0;
+		long distance = 0;
+				
+		if(destinations_.size() < WaypointArray.length - GPSArrayIterator_){
+			GPSArrayIterator_++;
+	
+			
+			
+			
+			
+			
+			
+		}
+		else {
+			//Do nothing
+		}
+				
+
 		
 		//TODO: Calculate distance between wayPoints (Distance on streets) need to get all streets which are on routing path
-		double distance = 0, tmpPosition = curPosition_; //distance between two routing points
+		//double distance = 0, 
+			double	tmpPosition = curPosition_;
 		Street tmpStreet = curStreet_;
 		boolean tmpDirection = curDirection_;
 		int z;
@@ -1718,7 +1740,7 @@ public class Vehicle extends LaneObject{
 			if(tmpDirection) distance += tmpStreet.getLength() - tmpPosition;
 			else distance += tmpPosition;
 			++z;
-			//Not sure if needed
+			
 			tmpDirection = routeDirections_[z];
 			tmpStreet = routeStreets_[z];
 			if(tmpDirection) tmpPosition = 0;
@@ -1727,14 +1749,31 @@ public class Vehicle extends LaneObject{
 		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
 		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
 		
-		//System.out.println(distance);
+		
+		System.out.println("Destinations " + destinations_.size());
+		System.out.println("Fahrzeiten " + tripTimes_.size());
+		
+		if (!(destinations_.size() == tripTimes_.size())){
+			System.out.println("Mismatch in Times and Waypoints");
+		}
+		else{
+			for (int i=0; i>tripTimes_.size(); i++){
+				
 
+				timeDif = (long) tripTimesArray[i+1] - (long) tripTimesArray[i];
+			
+				//Hier distance berechnen
+				
+			}
+
+		}
+		
 		
 			//Time in ms
 			//distance in cm...?
-			double desiredSpeed = (distance / tripTimes_.pollFirst());
+			// Looks like its the right calculation ;)
+			double desiredSpeed = (distance /timeDif);
 			
-		// start vehicle
 
 		//needs to be set for vehicle to start driving
 		active_ = true;
@@ -1748,7 +1787,6 @@ public class Vehicle extends LaneObject{
 		//as a result of this method a newSpeed_ must be set
 		newSpeed_= desiredSpeed;
 	//	newSpeed_ = 1800;	
-		//Speed needs to be calculated. Time between 2 Waypoints and the distance between two waypoints v=s/t
 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// End of the GPS-specific source code

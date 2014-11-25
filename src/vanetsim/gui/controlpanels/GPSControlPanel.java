@@ -114,7 +114,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 				add(chooseGPSTracesLabel_,c);
 				chooseGPSTraces_ = new JComboBox<String>();
 				chooseGPSTraces_.setActionCommand("chooseGPSTraces");
-				chooseGPSTraces_.addItem("GPS Traces Hamburg"); //TODO:Welche Karte
+				chooseGPSTraces_.addItem("GPX Trace Files"); //TODO:Welche Karte
 				chooseGPSTraces_.addItem("GPS Traces New York");
 				chooseGPSTraces_.addItem("GPS Traces Shanghai");
 				chooseGPSTraces_.addItem("GPS Traces San Francisco");
@@ -179,7 +179,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 Hamburg
 		if("Trace File".equals(command)){	
 			//display Traces selection related gui elements
-			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")) WorkerThread.setSimulationMode_(6);
+			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(6);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(5);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(4);
@@ -189,30 +189,26 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 
 		if("chooseGPSTraces".equals(command)){
 			
-			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")) WorkerThread.setSimulationMode_(6);
+			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(6);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(5);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(4);
 		}
 		if ("load".equals(command)){ //$NON-NLS-1$
-			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Hamburg")){ 
+			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")){ 
 				GPSPrecalculation.openMap(6); 
-				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(6, 0, 0);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")){ 
 				GPSPrecalculation.openMap(5); 
-				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(5, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")){ 
 				GPSPrecalculation.openMap(3); 
-				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(3, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")){ 
 				GPSPrecalculation.openMap(4); 
-				System.out.println("Starting Parsing now");
 				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
 		}
