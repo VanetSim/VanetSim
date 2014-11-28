@@ -233,6 +233,7 @@ public final class Map{
 			String childtype, setting, streetName, streetType, trafficSignalException, amenity ="";
 			int x = 0, y = 0, maxSpeed, isOneway, lanes, newMapWidth, newMapHeight, newRegionWidth, newRegionHeight;
 			double newMinLongitude, newMaxLongitude, newMinLatitude, newMaxLatitude;
+			double nodeLongitude, nodeLatitude;
 			Color displayColor;
 			boolean xSet, ySet, trafficSignal;
 			Node startNode, endNode;
@@ -333,6 +334,8 @@ public final class Map{
 										isOneway = 0;
 										maxSpeed = 0;
 										trafficSignalException = "";
+										nodeLatitude = 0;
+										nodeLongitude = 0;
 										displayColor = null;
 										streetCrsr2 = streetCrsr.childElementCursor();
 										while (streetCrsr2.getNext() != null){
@@ -354,6 +357,14 @@ public final class Map{
 															y = Integer.parseInt(nodeCrsr.collectDescendantText(false)) + addY;
 															ySet = true;
 														} catch (Exception e) {}
+													} else if(nodeCrsr.getLocalName().toLowerCase().equals("lon")){ //$NON-NLS-1$
+														try{
+															nodeLongitude = Double.parseDouble(nodeCrsr.collectDescendantText(false))/1000000000;
+														} catch (Exception e) {}
+													} else if(nodeCrsr.getLocalName().toLowerCase().equals("lat")){ //$NON-NLS-1$
+														try{
+															nodeLatitude = Double.parseDouble(nodeCrsr.collectDescendantText(false))/1000000000;
+														} catch (Exception e) {}
 													} else if(nodeCrsr.getLocalName().toLowerCase().equals("trafficsignal")){ //$NON-NLS-1$
 														if(nodeCrsr.collectDescendantText(false).toLowerCase().equals("true")) trafficSignal = true;
 														else trafficSignal = false;
@@ -363,11 +374,11 @@ public final class Map{
 												}
 												if(xSet && ySet){
 													if(childtype.equals("startnode")){
-														startNode = new Node(x, y, trafficSignal); //$NON-NLS-1$
+														startNode = new Node(x, y, nodeLongitude, nodeLatitude, trafficSignal); //$NON-NLS-1$
 														if(!trafficSignalException.equals(""))startNode.addSignalExceptionsOfString(trafficSignalException);
 													}
 													else {
-														endNode = new Node(x, y, trafficSignal);
+														endNode = new Node(x, y, nodeLongitude, nodeLatitude, trafficSignal);
 														if(!trafficSignalException.equals(""))endNode.addSignalExceptionsOfString(trafficSignalException);
 													}
 												}
@@ -494,6 +505,8 @@ public final class Map{
 							level2 = level1.addElement("StartNode"); //$NON-NLS-1$
 							level2.addElement("x").addValue(street.getStartNode().getX());; //$NON-NLS-1$
 							level2.addElement("y").addValue(street.getStartNode().getY()); //$NON-NLS-1$
+							level2.addElement("lon").addValue((long)(street.getStartNode().getLong()*1000000000));
+							level2.addElement("lat").addValue((long)(street.getStartNode().getLat()*1000000000));
 							if(street.getStartNode().isHasTrafficSignal_()) {
 								level2.addElement("trafficSignal").addCharacters("true");
 								if(street.getStartNode().hasNonDefaultSettings()) level2.addElement("TrafficSignalExceptions").addCharacters(street.getStartNode().getSignalExceptionsInString());
@@ -502,6 +515,8 @@ public final class Map{
 							level2 = level1.addElement("EndNode"); //$NON-NLS-1$
 							level2.addElement("x").addValue(street.getEndNode().getX()); //$NON-NLS-1$
 							level2.addElement("y").addValue(street.getEndNode().getY()); //$NON-NLS-1$
+							level2.addElement("lon").addValue((long)(street.getEndNode().getLong()*1000000000)); //$NON-NLS-1$
+							level2.addElement("lat").addValue((long)(street.getEndNode().getLat()*1000000000)); //$NON-NLS-1$
 							if(street.getEndNode().isHasTrafficSignal_()) {
 								level2.addElement("trafficSignal").addCharacters("true");
 								if(street.getEndNode().hasNonDefaultSettings()) level2.addElement("TrafficSignalExceptions").addCharacters(street.getEndNode().getSignalExceptionsInString());

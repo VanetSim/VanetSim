@@ -17,6 +17,7 @@
  */
 package vanetsim.map;
 
+import vanetsim.scenario.RSU;
 import vanetsim.scenario.Vehicle;
 
 /**
@@ -26,11 +27,12 @@ import vanetsim.scenario.Vehicle;
  */
 public final class MapHelper {
 
-	private static int minimumNodeXValue_ = -1;
-	private static int maximumNodeXValue_ = -1;
-	private static int minimumNodeYValue_ = -1;
-	private static int maximumNodeYValue_ = -1;
+	private static Node minimumNodeX_ = null;
+	private static Node maximumNodeX_ = null;
+	private static Node minimumNodeY_ = null;
+	private static Node maximumNodeY_ = null;
 	private static boolean nodeValuesInitialized_ = false;
+	
 
 	/**
 	 * Translates real world GPS positions to the metric system of x- and
@@ -48,17 +50,12 @@ public final class MapHelper {
 	public static boolean translateGPSToMapMetric(int[] result,
 			double longitude, double latitude) {
 		Map map = Map.getInstance();
-		double minLongitude = map.getMinLongitude();
-		double maxLongitude = map.getMaxLongitude();
-		double minLatitude = map.getMinLatitude();
-		double maxLatitude = map.getMaxLatitude();
-		int minX, minY, maxX, maxY;
 
 		if (!nodeValuesInitialized_) {
-			int minimumX = -1;
-			int minimumY = -1;
-			int maximumX = -1;
-			int maximumY = -1;
+			Node minimumNodeX = null;
+			Node maximumNodeX = null;
+			Node minimumNodeY = null;
+			Node maximumNodeY = null;
 
 			Region[][] regions = map.getRegions();
 			for (int i = 0; i < regions.length; i++) {
@@ -69,63 +66,79 @@ public final class MapHelper {
 					for (int k = 0; k < nodesInRegion.length; k++) {
 						Node node = nodesInRegion[k];
 						
-						if(minimumX < 0){
-							minimumX = node.getX();
-							minimumY = node.getY();
-							maximumX = minimumX;
-							maximumY = minimumY;
+						if(minimumNodeX == null || maximumNodeX == null || minimumNodeY == null || maximumNodeY == null ){
+							minimumNodeX = node;
+							maximumNodeX = node;
+							minimumNodeY = node;
+							maximumNodeY = node;
 						}
 						
-						if (node.getX() < minimumX) {
-							minimumX = node.getX();
+						if (node.getX() < minimumNodeX.getX()) {
+							minimumNodeX = node;
 						}
-						if (node.getX() > maximumX) {
-							maximumX = node.getX();
+						if (node.getX() > maximumNodeX.getX()) {
+							maximumNodeX = node;
 						}
-						if (node.getY() < minimumY) {
-							minimumY = node.getY();
+						if (node.getY() < minimumNodeY.getY()) {
+							minimumNodeY = node;
 						}
-						if (node.getY() > maximumY) {
-							maximumY = node.getY();
+						if (node.getY() > maximumNodeY.getY()) {
+							maximumNodeY = node;
 						}
 					}
 				}
 			}
 
-			minimumNodeXValue_ = minimumX;
-			maximumNodeXValue_ = maximumX;
-			minimumNodeYValue_ = minimumY;
-			maximumNodeYValue_ = maximumY;
+			minimumNodeX_ = minimumNodeX;
+			maximumNodeX_ = maximumNodeX;
+			minimumNodeY_ = minimumNodeY;
+			maximumNodeY_ = maximumNodeY;
 			nodeValuesInitialized_ = true;
 		}
 
-		minX = minimumNodeXValue_;
-		maxX = maximumNodeXValue_;
-		minY = minimumNodeYValue_;
-		maxY = maximumNodeYValue_;
+		double minLongitude = minimumNodeX_.getLong();
+		double maxLongitude = maximumNodeX_.getLong();
+		double minLatitude = minimumNodeY_.getLat();
+		double maxLatitude = maximumNodeY_.getLat();
+		
+		double bearingMinPointToPoint = GPSBearingBetweenCoords(minLatitude, minLongitude, latitude, longitude);
+		double bearingPointToMaxPoint = GPSBearingBetweenCoords(latitude, longitude, maxLatitude, maxLongitude);
 
-		// Compute the Distance between two longitudes/latitudes in degree
-		double distanceLong = (maxLongitude < minLongitude) ? 360 + (maxLongitude - minLongitude)
-				: maxLongitude - minLongitude;
-		double distanceLat = (maxLatitude < minLatitude) ? 180 + (maxLatitude - minLatitude)
-				: maxLatitude - minLatitude;
-
-		// Compute the Distance between two longitudes/latitudes in degree
-		double distanceToLongPoint = (longitude < minLongitude) ? 360 + (longitude - minLongitude)
-				: longitude - minLongitude;
-		double distanceToLatPoint = (latitude < minLatitude) ? 180 + (latitude - minLatitude)
-				: latitude - minLatitude;
-		if (distanceToLongPoint < 0 || distanceToLatPoint < 0) {
+		
+		if (bearingMinPointToPoint > 180 || bearingMinPointToPoint < 90) {
 			return false;
-		} else if (distanceToLongPoint > distanceLong || distanceToLatPoint > distanceLat) {
+		} else if (bearingPointToMaxPoint > 180 || bearingPointToMaxPoint < 90) {
 			return false;
 		} else {
 
-			result[0] = (int) (distanceToLongPoint / distanceLong * (double) (maxX - minX))+minX;
-			result[1] = (int) (distanceToLatPoint / distanceLat * (double) (maxY - minY))+minY;
+			result[0] = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude);
+			result[1] = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude);
 			return true;
 		}
+	}
+	
+	
+	private static int GPSDistanceInCM(double lat1, double long1, double lat2, double long2)
+	{
+	    double dlong = Math.toRadians((long2 - long1));
+	    double dlat = Math.toRadians((lat2 - lat1));
+	    double a = Math.pow(Math.sin(dlat/2.0), 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.pow(Math.sin(dlong/2.0), 2);
+	    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	    int d = (int)(6367 * c * 100000);
+
+	    return d;
+	}
+	
+	private static double GPSBearingBetweenCoords(double lat1, double lon1, double lat2, double lon2){
+		double longitude1 = lon1;
+		double longitude2 = lon2;
+		double latitude1 = Math.toRadians(lat1);
+		double latitude2 = Math.toRadians(lat2);
+		double longDiff= Math.toRadians(longitude2-longitude1);
+		double y= Math.sin(longDiff)*Math.cos(latitude2);
+		double x=Math.cos(latitude1)*Math.sin(latitude2)-Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longDiff);
 		
+		return (Math.toDegrees(Math.atan2(y, x))+360)%360;
 	}
 
 	/**
@@ -170,6 +183,7 @@ public final class MapHelper {
 		} else
 			return Double.MAX_VALUE;
 	}
+	
 
 	/**
 	 * Calculates the point ON a street which is nearest to a given point (for

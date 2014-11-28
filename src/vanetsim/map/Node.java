@@ -39,6 +39,10 @@ public final class Node {
 	/** The y coordinate. */
 	private int y_;	
 	
+	private double longitude_;
+	
+	private double latitude_;
+	
 	/** flag if the node has a traffic signal */
 	private boolean hasTrafficSignal_;
 	
@@ -96,6 +100,26 @@ public final class Node {
 	public Node(int x, int y, boolean hasTrafficSignal) {
 		x_ = x;
 		y_ = y;
+		hasTrafficSignal_ = hasTrafficSignal;
+		nodeID_ = counter_;
+		++counter_;
+	}
+	
+	public Node(int x, int y, double longitude, double latitude) {
+		x_ = x;
+		y_ = y;
+		longitude_ = longitude;
+		latitude_ = latitude;
+		hasTrafficSignal_ = false;
+		nodeID_ = counter_;
+		++counter_;
+	}
+	
+	public Node(int x, int y, double longitude, double latitude, boolean hasTrafficSignal) {
+		x_ = x;
+		y_ = y;
+		longitude_ = longitude;
+		latitude_ = latitude;
 		hasTrafficSignal_ = hasTrafficSignal;
 		nodeID_ = counter_;
 		++counter_;
@@ -486,6 +510,14 @@ public final class Node {
 	 */
 	public int getX() {
 		return x_;
+	}
+	
+	public double getLong(){
+		return longitude_;
+	}
+	
+	public double getLat(){
+		return latitude_;
 	}
 
 	/**

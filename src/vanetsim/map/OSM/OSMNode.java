@@ -115,7 +115,7 @@ public final class OSMNode{
 		//make corrections
 		int x = (int)Math.round((result[0] - correctionX_) * 100);
 		int y = (int)Math.round((correctionY_ - result[1]) * 100);
-		return new Node(x,y, hasTrafficSignal_);
+		return new Node(x,y, longitude_, latitude_, hasTrafficSignal_);
 	}
 
 	/**
