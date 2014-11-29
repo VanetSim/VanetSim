@@ -27,10 +27,10 @@ import vanetsim.scenario.Vehicle;
  */
 public final class MapHelper {
 
-	private static Node minimumNodeX_ = null;
-	private static Node maximumNodeX_ = null;
-	private static Node minimumNodeY_ = null;
-	private static Node maximumNodeY_ = null;
+	public static Node minimumNodeX_ = null;
+	public static Node maximumNodeX_ = null;
+	public static Node minimumNodeY_ = null;
+	public static Node maximumNodeY_ = null;
 	private static boolean nodeValuesInitialized_ = false;
 	
 
@@ -111,8 +111,33 @@ public final class MapHelper {
 			return false;
 		} else {
 
-			result[0] = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude);
-			result[1] = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude);
+			/*result[0] = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude)+minimumNodeX_.getX();
+			result[1] = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude)+minimumNodeY_.getY();
+			return true;*/
+			
+			int x = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude)+minimumNodeX_.getX();
+			int y = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude)+minimumNodeY_.getY();
+			
+			Region region = Map.getInstance().getRegionOfPoint(x, y);
+			Node[] nodes = region.getNodes();
+			Node regionMinimumNodeX = nodes[0];
+			Node regionMinimumNodeY = nodes[0];
+			
+			for(int i = 1; i < nodes.length; i++)
+			{
+				if (regionMinimumNodeX.getX() > nodes[i].getX()){
+					regionMinimumNodeX = nodes[i];
+				}
+				if (regionMinimumNodeY.getY() > nodes[i].getY()){
+					regionMinimumNodeY = nodes[i];
+				}
+			}
+			
+			minLongitude = regionMinimumNodeX.getLong();
+			minLatitude = regionMinimumNodeY.getLat();
+			
+			result[0] = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude)+regionMinimumNodeX.getX();
+			result[1] = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude)+regionMinimumNodeY.getY();
 			return true;
 		}
 	}
@@ -134,9 +159,9 @@ public final class MapHelper {
 		double longitude2 = lon2;
 		double latitude1 = Math.toRadians(lat1);
 		double latitude2 = Math.toRadians(lat2);
-		double longDiff= Math.toRadians(longitude2-longitude1);
-		double y= Math.sin(longDiff)*Math.cos(latitude2);
-		double x=Math.cos(latitude1)*Math.sin(latitude2)-Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longDiff);
+		double longDiff= Math.toRadians((longitude2-longitude1));
+		double y = Math.sin(longDiff)*Math.cos(latitude2);
+		double x = Math.cos(latitude1)*Math.sin(latitude2)-Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longDiff);
 		
 		return (Math.toDegrees(Math.atan2(y, x))+360)%360;
 	}
