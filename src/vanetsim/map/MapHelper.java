@@ -120,6 +120,11 @@ public final class MapHelper {
 			
 			Region region = Map.getInstance().getRegionOfPoint(x, y);
 			Node[] nodes = region.getNodes();
+			
+			if(nodes.length == 0){
+				return false;
+			}
+			
 			Node regionMinimumNodeX = nodes[0];
 			Node regionMinimumNodeY = nodes[0];
 			

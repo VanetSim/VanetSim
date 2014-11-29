@@ -503,7 +503,7 @@ public class GPSPrecalculation {
 					
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 50000, false));
+						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 						destinations.add(tmpWayPoint);
 						
 						
@@ -558,7 +558,7 @@ public class GPSPrecalculation {
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 50000, false));
+						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 						destinations.add(tmpWayPoint);
 						
 						if (sameID == false){

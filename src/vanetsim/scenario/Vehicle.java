@@ -1504,6 +1504,10 @@ public class Vehicle extends LaneObject{
 	//TODO: Adjust Speed GPS
 	
 	public void adjustSpeedWithGPS(int timePerStep){
+		newSpeed_ = 1389;
+	}
+	
+	public void adjustSpeedWithGPS2(int timePerStep){
 		
 	
 		waitingForSignal_ = false;
