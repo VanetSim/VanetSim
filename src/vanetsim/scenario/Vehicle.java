@@ -1504,10 +1504,6 @@ public class Vehicle extends LaneObject{
 	//TODO: Adjust Speed GPS
 	
 	public void adjustSpeedWithGPS(int timePerStep){
-		newSpeed_ = 1389;
-	}
-	
-	public void adjustSpeedWithGPS2(int timePerStep){
 		
 	
 		waitingForSignal_ = false;
@@ -1726,8 +1722,11 @@ public class Vehicle extends LaneObject{
 		//the time the vehicle will wait until it starts driving
 		curWaitTime_ = 0;
 				
+		System.out.println("Destinations " + destinations_.size());
+		System.out.println("Array " + WaypointArray.length);
+		System.out.println("Iterator" + GPSArrayIterator_);
 		if(destinations_.size() < WaypointArray.length - GPSArrayIterator_){
-			
+			System.out.println("Berechnung GPS Speed");
 	
 		//double	tmpPosition = curPosition_;
 		//Street tmpStreet = curStreet_;
@@ -1744,13 +1743,17 @@ public class Vehicle extends LaneObject{
 			if(tmpDirection) tmpPosition = 0;
 			else tmpPosition = tmpStreet.getLength();
 		}
-		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
-		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
+		if(tmpDirection) distance += destinations_.pollFirst().getPositionOnStreet() - tmpPosition;	//left over...
+		else distance += tmpPosition - destinations_.pollFirst().getPositionOnStreet();
 
 		
 		
 				timeDif = (long) tripTimesArray[GPSArrayIterator_+1] - (long) tripTimesArray[GPSArrayIterator_];
 			
+				
+				System.out.println("Time Dif: " + timeDif);
+				System.out.println("distance: " + distance);
+				
 				 desiredSpeed = (distance / timeDif);
 					
 					
@@ -1763,8 +1766,41 @@ public class Vehicle extends LaneObject{
 					GPSArrayIterator_++;
 		}
 		else {
-			//Do nothing
-		
+			System.out.println("Else");
+			newSpeed_ = 1800;
+		}
+			/**
+			//Set intial speed
+			int z;
+			int y = routeStreets_.length-1;
+			for(z = routePosition_; z < y;){
+				if(tmpDirection) distance += tmpStreet.getLength() - tmpPosition;
+				else distance += tmpPosition;
+				++z;
+				
+				tmpDirection = routeDirections_[z];
+				tmpStreet = routeStreets_[z];
+				if(tmpDirection) tmpPosition = 0;
+				else tmpPosition = tmpStreet.getLength();
+			}
+			if(tmpDirection) distance += destinations_.pollFirst().getPositionOnStreet() - tmpPosition;	//left over...
+			else distance += tmpPosition - destinations_.pollFirst().getPositionOnStreet();
+
+			
+			
+					timeDif = (long) tripTimesArray[GPSArrayIterator_+1] - (long) tripTimesArray[GPSArrayIterator_];
+					
+					System.out.println("Time Dif: " + timeDif);
+					System.out.println("distance: " + distance);
+					
+					 desiredSpeed = (distance / timeDif);
+						
+						
+						//add the vehicle to the current lane object
+						curStreet_.addLaneObject(this, curDirection_);
+
+						//as a result of this method a newSpeed_ must be set
+						newSpeed_= desiredSpeed;
 		}
 			//Time in ms
 			//distance in cm...?
@@ -1772,7 +1808,7 @@ public class Vehicle extends LaneObject{
 
 
 	//	newSpeed_ = 1800;	
-
+*/
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		// End of the GPS-specific source code
 		// the rest was copied from the function 'adjustSpeed(int)'
