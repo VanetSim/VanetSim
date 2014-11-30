@@ -407,8 +407,12 @@ public class GPSPrecalculation {
 													
 								WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], 0);
 									destinations.add(tmpWayPoint);
+									Date t3;
+									//System.out.println("Time 1: " + parsedTraces_.get(i+3));
 									
-									long time = (long)Long.parseLong(parsedTraces_.get(i+3));
+									t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+3));
+									long time = t3.getTime();
+									//long time = (long)Long.parseLong(parsedTraces_.get(i+3));
 									//TripTime is in Seconds
 									tripTimes.add(time);
 									
@@ -425,8 +429,12 @@ public class GPSPrecalculation {
 								WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], 0);
 									destinations.add(tmpWayPoint_2);
 									
-									long time2 = (long)Long.parseLong(parsedTraces_.get(i+4));
+									//long time2 = (long)Long.parseLong(parsedTraces_.get(i+4));
 									//TripTime is in Seconds
+									//System.out.println("Time 2: " + parsedTraces_.get(i+4));
+									Date t2;
+									t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+4));
+									long time2 = t3.getTime();
 									tripTimes.add(time2);
 								
 							} catch (Exception e) {
@@ -485,7 +493,7 @@ public class GPSPrecalculation {
 							Date t3;
 						
 							try {
-								t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));
+								t3 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parsedTraces_.get(j+3));
 								startTime = t3.getTime();
 								sameID = true;
 							} catch (ParseException e2) {
@@ -503,7 +511,7 @@ public class GPSPrecalculation {
 					
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
+						//Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 						destinations.add(tmpWayPoint);
 						
 						
@@ -511,7 +519,7 @@ public class GPSPrecalculation {
 						Date t2;
 						try {
 							if(j+7 < parsedTraces_.size() && j != 0){
-							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3)); 
+							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parsedTraces_.get(j+3)); 
 							long time = t1.getTime();
 							//t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms
@@ -558,14 +566,14 @@ public class GPSPrecalculation {
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
+						//Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 						destinations.add(tmpWayPoint);
 						
 						if (sameID == false){
 							Date t3;
 						
 							try {
-								t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));
+								t3 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parsedTraces_.get(j+3));
 								startTime = t3.getTime();
 								sameID = true;
 							} catch (ParseException e2) {
@@ -579,7 +587,7 @@ public class GPSPrecalculation {
 						try {
 							
 							if(j+7 < parsedTraces_.size() && j != 0){
-							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j+3));
+							t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parsedTraces_.get(j+3));
 							long time = t1.getTime();
 							//t2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(parsedTraces_.get(j-1)); 
 							//Time in ms

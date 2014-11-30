@@ -1716,28 +1716,22 @@ public class Vehicle extends LaneObject{
 		Object[] tripTimesArray = tripTimes_.toArray();
 		long timeDif = 0;
 		long distance = 0;
+		double desiredSpeed = 0;
+		Street tmpStreet = curStreet_;
+		double	tmpPosition = curPosition_;
+		boolean tmpDirection = curDirection_;
+		//needs to be set for vehicle to start driving
+		active_ = true;
+		
+		//the time the vehicle will wait until it starts driving
+		curWaitTime_ = 0;
 				
 		if(destinations_.size() < WaypointArray.length - GPSArrayIterator_){
-			GPSArrayIterator_++;
+			
 	
-			
-			
-			
-			
-			
-			
-		}
-		else {
-			//Do nothing
-		}
-				
-
-		
-		//TODO: Calculate distance between wayPoints (Distance on streets) need to get all streets which are on routing path
-		//double distance = 0, 
-			double	tmpPosition = curPosition_;
-		Street tmpStreet = curStreet_;
-		boolean tmpDirection = curDirection_;
+		//double	tmpPosition = curPosition_;
+		//Street tmpStreet = curStreet_;
+		//boolean tmpDirection = curDirection_;
 		int z;
 		int y = routeStreets_.length-1;
 		for(z = routePosition_; z < y;){
@@ -1752,44 +1746,31 @@ public class Vehicle extends LaneObject{
 		}
 		if(tmpDirection) distance += destinations_.getFirst().getPositionOnStreet() - tmpPosition;	//left over...
 		else distance += tmpPosition - destinations_.getFirst().getPositionOnStreet();
-		
-		
-		System.out.println("Destinations " + destinations_.size());
-		System.out.println("Fahrzeiten " + tripTimes_.size());
-		
-		if (!(destinations_.size() == tripTimes_.size())){
-			System.out.println("Mismatch in Times and Waypoints");
-		}
-		else{
-			for (int i=0; i>tripTimes_.size(); i++){
-				
 
-				timeDif = (long) tripTimesArray[i+1] - (long) tripTimesArray[i];
+		
+		
+				timeDif = (long) tripTimesArray[GPSArrayIterator_+1] - (long) tripTimesArray[GPSArrayIterator_];
 			
-				//Hier distance berechnen
-				
-			}
+				 desiredSpeed = (distance / timeDif);
+					
+					
+					//add the vehicle to the current lane object
+					curStreet_.addLaneObject(this, curDirection_);
 
+					//as a result of this method a newSpeed_ must be set
+					newSpeed_= desiredSpeed;
+			
+					GPSArrayIterator_++;
 		}
+		else {
+			//Do nothing
 		
-		
+		}
 			//Time in ms
 			//distance in cm...?
 			// Looks like its the right calculation ;)
-			double desiredSpeed = (distance /timeDif);
-			
 
-		//needs to be set for vehicle to start driving
-		active_ = true;
-		
-		//the time the vehicle will wait until it starts driving
-		curWaitTime_ = 0;
-		
-		//add the vehicle to the current lane object
-		curStreet_.addLaneObject(this, curDirection_);
 
-		//as a result of this method a newSpeed_ must be set
-		newSpeed_= desiredSpeed;
 	//	newSpeed_ = 1800;	
 
 		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2209,9 +2190,10 @@ public class Vehicle extends LaneObject{
 							}
 						}
 					}
-	}
+			}
 		}
-	}
+		}
+	
 				
 		
 			
