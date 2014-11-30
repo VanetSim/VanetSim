@@ -56,7 +56,7 @@ public final class WorkerThread extends Thread {
 	/** The <code>CyclicBarrier</code> called after performing all tasks. */
 	private CyclicBarrier barrierFinish_;
 	
-	/** Select the simuation mode and switches between models and traces. 1 --> model VANETSim; 2 --> model IDS/MOBIL; 3 --> traces SJTU; 4 --> traces San Francisco  5 --> New York --> 6 Hamburg*/
+	/** Select the simuation mode and switches between models and traces. 1 --> model VANETSim; 2 --> model IDS/MOBIL; 3 --> traces SJTU; 4 --> traces San Francisco  5 --> New York --> 6 GPX Traces*/
 	private static int simulationMode_ = 1;
 	
 	/**
@@ -102,6 +102,7 @@ public final class WorkerThread extends Thread {
 	 */
 	public void run() {
 		int i, j, length;
+		System.out.println("Mode: " + simulationMode_);
 		int ourRegionsLength = ourRegions_.length;
 		// An array copy of the vehicles instead of an ArrayList or something else is used because of three reasons:
 		// 1. While iterating through all regions, a ConcurrentModificationExceptions is thrown when a vehicle gets into a new region.
@@ -632,6 +633,7 @@ public final class WorkerThread extends Thread {
 				
 			}
 		}
+		
 		//TODO: Number 3 -> Shanghai
 		else if(simulationMode_ == 3){
 			while(true){
@@ -871,6 +873,7 @@ public final class WorkerThread extends Thread {
 				
 			}
 		}
+		/**
 		//TODO: Number 4  -> San Francisco
 		else if(simulationMode_ == 4){
 			while(true){
@@ -1065,7 +1068,7 @@ public final class WorkerThread extends Thread {
 				/*
 					if(Renderer.getInstance().getAttackerVehicle() != null) Renderer.getInstance().getAttackerVehicle().moveAttacker();
 				*/
-					
+		/**
 				// ================================= 
 				// Step 6: Move all vehicles one step further
 				// ================================= 
@@ -1119,11 +1122,10 @@ public final class WorkerThread extends Thread {
 					}catch (Exception e2){}
 				}
 				*/
-				
-				//TODO: Add Simulation stuff 5 (New York) 
-				
+		/**
 				else if(simulationMode_ == 5){
 					while(true){
+						
 						// ================================= 
 						// Step 1: Update changed regions with new vehicle arrays
 						// ================================= 
@@ -1319,6 +1321,7 @@ public final class WorkerThread extends Thread {
 						// ================================= 
 						// Step 6: Move all vehicles one step further
 						// ================================= 
+		/**
 						try{
 							for(i = 0; i < ourRegionsLength; ++i){
 								vehicleSubarray = vehicles[i];
@@ -1357,12 +1360,15 @@ public final class WorkerThread extends Thread {
 						}
 
 						*/
-						
+		/**	
 					}
 				}
-				//TODO: Number 6 -> Hamburg
+/**
+				//TODO: Number 6 -> GPX Traces
 				else if(simulationMode_ == 6){
+					System.out.println("GPXTraces 1");
 					while(true){
+						System.out.println("GPXTraces 1");
 						// ================================= 
 						// Step 1: Update changed regions with new vehicle arrays
 						// ================================= 
@@ -1374,6 +1380,7 @@ public final class WorkerThread extends Thread {
 							}
 							changedRegions_.clear();
 						}
+						System.out.println("GPXTraces 2");
 						// ================================= 
 						// Step 2: Wait for SimulationMaster to start
 						// ================================= 		
@@ -1386,6 +1393,7 @@ public final class WorkerThread extends Thread {
 						} catch (Exception e){
 							//e.printStackTrace();
 						}
+						System.out.println("GPXTraces 3");
 
 						// ================================= 
 						// Step 3: Adjust speed, do message cleanup and create jam messages
@@ -1396,6 +1404,7 @@ public final class WorkerThread extends Thread {
 								vehicleSubarray = vehicles[i];
 								length = vehicleSubarray.length;
 								for(j = 0; j < length; ++j){
+									System.out.println("GPXTraces 4");
 									//vehicleSubarray[j].adjustSpeedWithSanFranciscoTraceFiles(timePerStep_);
 									vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 								}
@@ -1554,7 +1563,7 @@ public final class WorkerThread extends Thread {
 						/*
 							if(Renderer.getInstance().getAttackerVehicle() != null) Renderer.getInstance().getAttackerVehicle().moveAttacker();
 						*/
-							
+		/**
 						// ================================= 
 						// Step 6: Move all vehicles one step further
 						// ================================= 
@@ -1606,11 +1615,13 @@ public final class WorkerThread extends Thread {
 								barrierFinish_.await();	//need to wait again...
 							}catch (Exception e2){}
 						}
-						*/	
+							
 				}
 				
-			}
-		
+			}*/
+				else{
+					System.out.println("This Simulationmode has not been found: " + simulationMode_);
+				}
 		// remove the backlinks from the regions so that garbage collection can really remove everything
 		for(i = 0; i < ourRegionsLength; ++i){
 			ourRegions_[i].createBacklink(null, -1);

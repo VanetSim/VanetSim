@@ -177,22 +177,22 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		int maxLineValue = ((Number)maxLine_.getValue()).intValue();		
 		
 		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 Hamburg
-		if("Trace File".equals(command)){	
+		if("chooseGPSTraces".equals(command)){	
 			//display Traces selection related gui elements
-			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(6);
-			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(5);
+			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(3);
+			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
-			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(4);
+			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(3);
 		}
 			chooseGPSTracesLabel_.setVisible(true);
 			chooseGPSTraces_.setVisible(true);
 
 		if("chooseGPSTraces".equals(command)){
 			
-			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(6);
-			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(5);
+			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(3);
+			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
-			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(4);
+			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(3);
 		}
 		if ("load".equals(command)){ //$NON-NLS-1$
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")){ 

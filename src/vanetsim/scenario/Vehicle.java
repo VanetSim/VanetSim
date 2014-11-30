@@ -1754,7 +1754,7 @@ public class Vehicle extends LaneObject{
 				System.out.println("Time Dif: " + timeDif);
 				System.out.println("distance: " + distance);
 				
-				 desiredSpeed = (distance / timeDif);
+				desiredSpeed = (distance / timeDif);
 					
 					
 					//add the vehicle to the current lane object
