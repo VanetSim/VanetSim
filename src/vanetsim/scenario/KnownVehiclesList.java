@@ -42,7 +42,10 @@ public class KnownVehiclesList{
 	/** How much time has passed since beginning of the simulation. Stored here as it's really needed often. */
 	private static int timePassed_ = 0;
 	
-	/** The array with all heads of the linked lists */
+	/** Indicator if a new Beacon has been received, used for PositionVerification **/
+	private boolean newBeaconsToExchange = false;
+
+    /** The array with all heads of the linked lists */
 	private KnownVehicle[] head_ = new KnownVehicle[HASH_SIZE];
 	
 	/** The amount of items stored. */
@@ -75,6 +78,7 @@ public class KnownVehiclesList{
 	 */
 	public synchronized void updateVehicle(Vehicle vehicle, long ID, int x, int y, double speed, long sourceID, boolean isEncrypted, boolean isARSU, double rssi){
 		boolean found = false;
+		newBeaconsToExchange = true;
 		int hash = (int)(ID % HASH_SIZE);
 		if(hash < 0) hash = -hash;
 		KnownVehicle next = head_[hash];
@@ -362,6 +366,13 @@ public class KnownVehiclesList{
 		head_ = new KnownVehicle[HASH_SIZE];
 		size_ = 0;
 	}
-	
+
+    public boolean isNewBeaconToExchange() {
+        return newBeaconsToExchange;
+    }
+    
+    public void setNewBeaconToEchange(boolean state) {
+        this.newBeaconsToExchange = state;
+    }
 
 }

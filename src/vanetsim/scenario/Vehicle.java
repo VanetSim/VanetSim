@@ -19,15 +19,10 @@ package vanetsim.scenario;
 
 import java.awt.Color;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-
-
-
 import java.util.ArrayDeque;
-
-
-
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -183,7 +178,8 @@ public class Vehicle extends LaneObject{
 	
 	/** If attacker logging is enabled */
 	private static boolean privacyDataLogged_ = false;	
-	
+	//TODO: remove
+	int count=0;
 	/** ID of the attacked vehicle */
 	private static long attackedVehicleID_ = 0;
 	
@@ -230,13 +226,13 @@ public class Vehicle extends LaneObject{
 	/** How many simulation steps we wait until we send the RHCN message */
 	private static int WAIT_TO_SEND_RHCN_ = 4;
 	
-	/** is Position Verification globally enabled */
-    //TODO: this must be set by GUI, default must be false
-	private static boolean positionVerifificationEnabled_ = false;
+
 	
     /** is sending RSSI Values globally enabled */
 	//TODO: this must be set by GUI, default must be false
 	private static boolean sendRssiEnabled_ = true;
+	
+	private ArrayList<PositionEntity> receivedVehiclelists = new ArrayList<PositionEntity>();
 	
 	/** the counter for the rhcn message */
 	private int waitToSendRHCNCounter_ = -1;
@@ -1102,7 +1098,7 @@ public class Vehicle extends LaneObject{
 			// Step 6: Check message/beacons/penalties countdown and cleanup
 			// ================================= 
 
-			// in this first simulation step, no other communication is done. So we can we can some work concerning messages and 
+			// in this first simulation step, no other communication is done. So we can do some work concerning messages and 
 			// known vehicles here without synchronization problems!	
 			
 			
@@ -3140,6 +3136,8 @@ public class Vehicle extends LaneObject{
                                     }
                                     currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
                                 }
+                                count++;
+                                System.out.println("vehicle->RSU B counter: " + count);
                                 rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
                                         currentRssi);
                             }
@@ -4247,15 +4245,6 @@ public class Vehicle extends LaneObject{
 		beaconsEnabled_ = state;
 	}
 
-	/**
-     * Sets if Location Verification is enabled or not. Common to all vehicles.
-     * 
-     * @param state
-     *            <code>true</code> to enable verification, else <code>false</code>
-     */
-    public static void setLocationVerificationEnabled(boolean state) {
-        positionVerifificationEnabled_ = state;
-    }
 	
 	/**
 	 * Sets if mix zones are enabled or not. Common to all vehicles.
@@ -5174,4 +5163,99 @@ public class Vehicle extends LaneObject{
 		this.beaconString_ = beaconString_;
 	}
 
+    // TODO: comment
+    public void sendReceivedRssToRSUs() {
+        // we don't need to exchange anything if didn't receive anything new yet.
+        if (!knownVehiclesList_.isNewBeaconToExchange()) {
+            return;
+        }
+        knownVehiclesList_.setNewBeaconToEchange(false);
+
+        // TODO: change to somekind of exchange radius? or just keep comDisntance because data is send like everything else?
+        long maxCommDistanceSquared = (long) maxCommDistance_ * maxCommDistance_;
+        long dx, dy;
+
+        // get all KnownVehicles (Vehicles from which we have received beacons)
+        KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
+
+        // send to neighbor RSUs
+        // we only send information to knownRSUs (kind of direct communiation), therfore only RSUs from wich we have knowledge are used
+        KnownRSU tmpKnownRSU = null;
+        KnownRSU[] tmpRSUList = knownRSUsList_.getFirstKnownRSU();
+
+        for (int i = 0; i < tmpRSUList.length; i++) {
+            tmpKnownRSU = tmpRSUList[i];
+            while (tmpKnownRSU != null) {
+                // get the RSU from the KnownRSU. We can not use the KnownRSU because it could be an attacker faking it's position and thereby not be
+                // in Comm range
+                dx = tmpKnownRSU.getRSU().getX() - curX_;
+                dy = tmpKnownRSU.getRSU().getY() - curY_;
+
+                // check if target RSU is still in comm range
+                if ((dx * dx + dy * dy) <= maxCommDistanceSquared) {// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a
+                    // little bit performance
+
+                    // do sending knownvehicles here
+                    tmpKnownRSU.getRSU().receiveKnownVehicles(false, this.getID(), curX_, curY_, knownVehicleArray);
+                }
+
+                // advance to next RSU
+                tmpKnownRSU = tmpKnownRSU.getNext();
+            }
+        }
+    }
+
+    //TODO: comment
+    public void sendReceivedRssToVehicles() {
+        // we don't need to exchange anything if didn't receive anything new yet.
+        if (!knownVehiclesList_.isNewBeaconToExchange()) {
+            return;
+        }
+        knownVehiclesList_.setNewBeaconToEchange(false);
+
+        // TODO: change to somekind of exchange radius? or just keep comDisntance because data is send like everything else?
+        long maxCommDistanceSquared = (long) maxCommDistance_ * maxCommDistance_;
+        long dx, dy;
+
+        // get all KnownVehicles (Vehicles from which we have received beacons)
+        KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
+        KnownVehicle tmpKnownVehicle = null;
+
+        for (int i = 0; i < knownVehicleArray.length; i++) {
+            tmpKnownVehicle = knownVehicleArray[i];
+
+            while (tmpKnownVehicle != null) {
+                // get the Vehicle from the KnownVehicle. We can not use the KnownVehicle because it could be an attacker faking it's position and
+                // thereby not be in Comm range
+                dx = tmpKnownVehicle.getVehicle().getX() - curX_;
+                dy = tmpKnownVehicle.getVehicle().getY() - curY_;
+
+                // check if target Vehicle is still in comm range
+                if ((dx * dx + dy * dy) <= maxCommDistanceSquared) {// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a
+                                                                    // little bit performance
+
+                    // do sending knownvehicles here
+                    tmpKnownVehicle.getVehicle().receiveKnownVehicles(false, this.getID(), curX_, curY_, knownVehicleArray);
+                }
+                // advance to next RSU
+                tmpKnownVehicle = tmpKnownVehicle.getNext();
+            }
+        }
+    }
+    
+    //TODO: comment
+    private void receiveKnownVehicles(boolean sourceIsRSU, long receiverID, int receiverX, int receiverY, KnownVehicle[] knownVehicleArray) {
+        receivedVehiclelists.add(new PositionEntity(receiverID, receiverX, receiverY, knownVehicleArray));
+    }
+
+
+    public static boolean isSendRssiEnabled() {
+        return sendRssiEnabled_;
+    }
+
+
+    public static void setSendRssiEnabled(boolean sendRssiEnabled) {
+        Vehicle.sendRssiEnabled_ = sendRssiEnabled;
+    }
+    
 }

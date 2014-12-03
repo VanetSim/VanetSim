@@ -105,7 +105,7 @@ public class KnownVehicle{
 			savedSpeed_ = new double[amountOfSavedBeacons_];
 			for(int i = 0; i < amountOfSavedBeacons_;i++) savedSpeed_[i] = -1;
 			savedLastUpdate_ = new int[amountOfSavedBeacons_];
-			//TODO: save rssi here
+			//TODO: save rssi here?
 		}
 		
 	}

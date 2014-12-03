@@ -18,8 +18,17 @@
 package vanetsim.scenario;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ArrayDeque;
+
+
+
+
+
+
+
+
 
 
 
@@ -54,14 +63,10 @@ public final class RSU {
 	/** If communication is enabled */
 	private static boolean communicationEnabled_ = Vehicle.getCommunicationEnabled();	
 
-	/** is Position Verification globally enabled */
-    //TODO: this must be set by GUI, default must be false
-    private static boolean positionVerifificationEnabled_ = true;
-    
     /** is sending RSSI Values globally enabled */
     //TODO: this must be set by GUI, default must be false
     private static boolean sendRssiEnabled_ = true;
-	
+    
 	/** If beacons are enabled */
 	private static boolean beaconsEnabled_ = Vehicle.getBeaconsEnabled();
 	
@@ -128,6 +133,13 @@ public final class RSU {
 	/** activates demonstration mode of encrypted Mix-Zones */
 	private static boolean showEncryptedBeaconsInMix_ = false;
 	
+	//TODO: reuse for verification
+	private HashMap<Long, ArrayList<PositionEntity>> positionVerificationEntryMap = new HashMap<Long, ArrayList<PositionEntity>>();
+	private ArrayList<Long> knownVehicleShortList =null;
+	
+	//TODO: need to be cleared after position verification is done
+    private ArrayList<PositionEntity> receivedVehiclelists = new ArrayList<PositionEntity>();
+
 	/** static array to save the colored vehicles that are behind the marked vehicle */
 	private Vehicle[] vehicleBehind_;
 	
@@ -849,4 +861,102 @@ public final class RSU {
 			boolean showEncryptedBeaconsInMix_) {
 		RSU.showEncryptedBeaconsInMix_ = showEncryptedBeaconsInMix_;
 	}
+	
+    public void sendKnownVehiclesToRSUs() {
+        // we don't need to exchange anything if didn't receive anything new yet.
+        if (!knownVehiclesList_.isNewBeaconToExchange()) {
+            return;
+        }
+        knownVehiclesList_.setNewBeaconToEchange(false);
+       
+        if (knownVehiclesList_.getSize() == 0) {
+            //TODO: check if this can occur
+            return;
+        }
+        // get all KnownVehicles (Vehicles from which we have received beacons)
+        KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
+       
+        // send to neighbor RSUs
+        int i, j, size = 0, MapMinX, MapMinY, MapMaxX, MapMaxY, RegionMinX, RegionMinY, RegionMaxX, RegionMaxY;
+        RSU[] rsus = null;
+        RSU rsu = null;
+        long dx, dy;
+
+        // TODO: check which radius should be used... communications could be wired...
+        int rssExchangeRadius = wifiRadius_;
+        long maxCommDistanceSquared = (long) rssExchangeRadius * rssExchangeRadius;
+
+        // Minimum x coordinate to be considered for sending beacons
+        long tmp = x_ - rssExchangeRadius;
+        if (tmp < 0)
+            MapMinX = 0; // Map stores only positive coordinates
+        else if (tmp < Integer.MAX_VALUE)
+            MapMinX = (int) tmp;
+        else
+            MapMinX = Integer.MAX_VALUE;
+
+        // Maximum x coordinate to be considered for sending beacons
+        tmp = x_ + (long) rssExchangeRadius;
+        if (tmp < 0)
+            MapMaxX = 0;
+        else if (tmp < Integer.MAX_VALUE)
+            MapMaxX = (int) tmp;
+        else
+            MapMaxX = Integer.MAX_VALUE;
+
+        // Minimum y coordinate to be considered for sending beacons
+        tmp = y_ - rssExchangeRadius;
+        if (tmp < 0)
+            MapMinY = 0;
+        else if (tmp < Integer.MAX_VALUE)
+            MapMinY = (int) tmp;
+        else
+            MapMinY = Integer.MAX_VALUE;
+
+        // Maximum y coordinate to be considered for sending beacons
+        tmp = y_ + (long) rssExchangeRadius;
+        if (tmp < 0)
+            MapMaxY = 0;
+        else if (tmp < Integer.MAX_VALUE)
+            MapMaxY = (int) tmp;
+        else
+            MapMaxY = Integer.MAX_VALUE;
+
+        // Get the regions to be considered for sending beacons
+        Region tmpregion = MAP.getRegionOfPoint(MapMinX, MapMinY);
+        RegionMinX = tmpregion.getX();
+        RegionMinY = tmpregion.getY();
+
+        tmpregion = MAP.getRegionOfPoint(MapMaxX, MapMaxY);
+        RegionMaxX = tmpregion.getX();
+        RegionMaxY = tmpregion.getY();
+
+        // iterate through all regions in range
+        for (i = RegionMinX; i <= RegionMaxX; ++i) {
+            for (j = RegionMinY; j <= RegionMaxY; ++j) {
+
+                rsus = regions_[i][j].getRSUs();
+                size = rsus.length;
+
+                for (int index = 0; index < size; ++index) {
+                    rsu = rsus[index];
+                    if (rsu != this && rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
+                        dx = rsu.getX() - x_;
+                        dy = rsu.getY() - y_;
+                        if ((dx * dx + dy * dy) <= maxCommDistanceSquared) {
+                            // do exchanging here here
+                            rsu.receiveKnownVehicles(true, rsuID_, x_, y_, knownVehicleArray);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void receiveKnownVehicles(boolean sourceIsRSU, long receiverID, int receiverX, int receiverY, KnownVehicle[] knownVehicleArray) {
+        //TODO: take note if knownvehicles come from "trusted" RSU or Vehicle -> split into 2 lists
+        receivedVehiclelists.add(new PositionEntity(receiverID, receiverX, receiverY, knownVehicleArray));
+        System.out.println("RSU: "+ this.rsuID_ + " receivec from: "+receiverID);
+    }
+
 }

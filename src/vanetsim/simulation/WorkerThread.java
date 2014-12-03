@@ -29,6 +29,7 @@ import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.scenario.Vehicle;
 import vanetsim.scenario.RSU;
+import vanetsim.scenario.propagation.PropagationModel;
 
 
 /**
@@ -138,6 +139,13 @@ public final class WorkerThread extends Thread {
 		boolean beaconsEnabled = Vehicle.getBeaconsEnabled();
 		boolean recyclingEnabled = Vehicle.getRecyclingEnabled();
 		boolean idsEnabled = Vehicle.isIdsActivated();
+
+		// variables controlling the Position verification
+		boolean positionVerificationByRSUEnabled = PropagationModel.getPositionVerificationByRSUEnabled();
+		boolean positionVerificationByVehicleEnabled  = PropagationModel.getPositionVerificationByVehicleEnabled();
+		boolean positionVerificationVehilceSendRssiToRsu = false;
+		boolean positionVerificationRsuSendRssiToRsu = false;
+		boolean positionVerificationVehilceSendRssiToVehicle = true;
 		
 		//sleep if no barriers have been set yet
 		while (barrierStart_ == null || barrierDuringWork_ == null || barrierFinish_ == null){
@@ -311,7 +319,50 @@ public final class WorkerThread extends Thread {
 								}
 							}
 						}
+						
+						// ----------------------------------------------------------------------------------------------------
+                        // vehicles/rsus exchange beacon information for future position verification
+                        if (Vehicle.isSendRssiEnabled() && (positionVerificationVehilceSendRssiToRsu || positionVerificationVehilceSendRssiToVehicle)) {
+                            // vehicles: exchange received RSS values
+                            for (i = 0; i < ourRegionsLength; ++i) {
+                                vehicleSubarray = vehicles[i];
+                                length = vehicleSubarray.length;
+                                for (j = 0; j < length; ++j) {
+                                    vehicle = vehicleSubarray[j];
 
+                                    if (positionVerificationVehilceSendRssiToRsu) {
+                                        // vehicles must send their received rssi values to all of their neighbor RSUs}
+                                        vehicle.sendReceivedRssToRSUs();
+                                    }
+                                    if (positionVerificationVehilceSendRssiToVehicle) {
+                                        // vehicles must send their received rssi values to all of their neighbor vehicles}
+                                        vehicle.sendReceivedRssToVehicles();
+                                    }
+                                }
+                            }
+                        }
+                           
+                        if (Vehicle.isSendRssiEnabled() && positionVerificationRsuSendRssiToRsu) {
+                            // rsu: exchange received RSS values
+                            for (i = 0; i < ourRegionsLength; ++i) {
+                                rsuSubarray = rsus[i];
+                                length = rsuSubarray.length;
+                                for (j = 0; j < length; ++j) {
+                                    rsu = rsuSubarray[j];
+                                    // TODO: maybe remove this check. depends on further development
+                                    if (positionVerificationRsuSendRssiToRsu) {
+                                        rsu.sendKnownVehiclesToRSUs();
+                                    }
+                                }
+                            }
+                        }
+
+                        // verifiers calculate the real position and compare them to the advertised position. 
+                        // If Position is false mark Vehicle as fake
+                        //TODO: verify position here
+                       
+                     // ----------------------------------------------------------------------------------------------------
+						
 						//rsu: send beacons
 						for(i = 0; i < ourRegionsLength; ++i){
 							rsuSubarray = rsus[i];
