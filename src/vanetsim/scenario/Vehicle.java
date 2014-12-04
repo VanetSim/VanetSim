@@ -33,6 +33,7 @@ import java.util.ArrayDeque;
 
 
 
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -40,6 +41,7 @@ import vanetsim.gui.helpers.GeneralLogWriter;
 import vanetsim.gui.helpers.PrivacyLogWriter;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
+import vanetsim.map.MapHelper;
 import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.map.Street;
@@ -307,9 +309,6 @@ public class Vehicle extends LaneObject{
 	
 	/** The destinations this vehicle wants to visit. */
 	private ArrayDeque<WayPoint> destinations_;
-	
-	/** The TripTimes this vehicle has between two Waypoints (except for Shanghai - needs to be calculated on the fly). */
-	private ArrayDeque<Long> tripTimes_;
 
 	/** The new speed after the step. <code>curSpeed_</code> will be set to this in the moving-process to circumvent synchronisation problems. */
 	private double newSpeed_;
@@ -577,7 +576,12 @@ public class Vehicle extends LaneObject{
 	private int deltaValueIDM_ = 4; //TODO
 	private double minDistanceIDM_ = 250;
 	private double distanceToJunction_ = 150;
+	
+	/** GPS-specific values used in the computation of the velocity of GPS vehicles*/
 	private int GPSArrayIterator_ = 0;
+	private ArrayDeque<Long> tripTimes_;
+	private WayPoint lastWaypoint_;
+	private WayPoint nextWaypoint_;
 
 	private int EVAMessageDelay_ = 3;
 
@@ -627,6 +631,8 @@ public class Vehicle extends LaneObject{
 			politeness_ = politeness;
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
 			startingWayPoint_ = destinations_.pollFirst();		// take the first element and remove it from the destinations!
+			lastWaypoint_ = startingWayPoint_;
+			nextWaypoint_ = destinations.peekFirst();
 			wiFiEnabled_ = wiFiEnabled;
 			speedDeviation_ = speedDeviation;
 			ownRandom_ = new Random(RANDOM.nextLong());
@@ -1504,8 +1510,6 @@ public class Vehicle extends LaneObject{
 	//TODO: Adjust Speed GPS
 	
 	public void adjustSpeedWithGPS(int timePerStep){
-		
-	
 		waitingForSignal_ = false;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){
@@ -1526,8 +1530,6 @@ public class Vehicle extends LaneObject{
 					curBrakingDistance_ = (int)StrictMath.floor(0.5d + curSpeed_ + curSpeed_ * curSpeed_ / (2 * brakingRate_));
 					if(curBrakingDistance_ < 500) curBrakingDistance_ = 500;
 				}
-				
-				
 				// ================================= 
 				// Step 1: Check if vehicle is near destination so that it needs to brake (only checked when necessary => timer!)
 				// ================================= 
@@ -1571,11 +1573,11 @@ public class Vehicle extends LaneObject{
 					
 					
 				} else destinationCheckCountdown_ -= timePerStep;
-				/**
+
 				// ================================= 
 				// Step 2: Check for vehicle/blocking in front of this one or a slower street and try to change lane
 				// ================================= 
-				int result = checkCurrentBraking(curLane_);
+				/*int result = checkCurrentBraking(curLane_);
 				boolean changedLane = false;
 				laneChangeCountdown -= timePerStep;
 				if(laneChangeCountdown < 0 && curLane_ == 0) newLane_ = 1;
@@ -1611,14 +1613,13 @@ public class Vehicle extends LaneObject{
 							result = 0;
 						}
 					}
-				}
+				}*/
 				// found a blocking. Check if we might change lane to prevent this
-				
-	
+
 				// ================================= 
 				// Step 3: Check if we can change to the right lane
 				// ================================= 
-				if(laneChangeCountdown < 0 && curLane_ > 1 && !changedLane && result == 0){
+				/*if(laneChangeCountdown < 0 && curLane_ > 1 && !changedLane && result == 0){
 					if(checkLaneFree(curLane_ - 1)){
 						newLane_ = curLane_ - 1;
 						changedLane = true;
@@ -1700,514 +1701,462 @@ public class Vehicle extends LaneObject{
 						
 						
 					}			
+				}*/
+			
+
+				// ================================= 
+				// Step 4: Break or accelerate
+				// =================================
+				//TODO: GPS Specific Code
+				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				// Start of the GPS-specific source code
+				// the rest was copied from the function 'adjustSpeed(int)'
+				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				Object[] waypointArray = originalDestinations_.toArray();
+				Object[] tripTimesArray = tripTimes_.toArray();
+				
+				if(nextWaypoint_ != destinations_.peekFirst()){
+					nextWaypoint_ = destinations_.peekFirst();
 				}
-			*/
-		
-		//TODO: GPS Specific Code
-		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// Start of the GPS-specific source code
-		// the rest was copied from the function 'adjustSpeed(int)'
-		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		Object[] WaypointArray = destinations_.toArray();
-		Object[] tripTimesArray = tripTimes_.toArray();
-		long timeDif = 0;
-		long distance = 0;
-		double desiredSpeed = 0;
-		Street tmpStreet = curStreet_;
-		double	tmpPosition = curPosition_;
-		boolean tmpDirection = curDirection_;
-		//needs to be set for vehicle to start driving
-		active_ = true;
-		
-		//the time the vehicle will wait until it starts driving
-		curWaitTime_ = 0;
 				
-		System.out.println("Destinations " + destinations_.size());
-		System.out.println("Array " + WaypointArray.length);
-		System.out.println("Iterator" + GPSArrayIterator_);
-		if(destinations_.size() < WaypointArray.length - GPSArrayIterator_){
-			System.out.println("Berechnung GPS Speed");
-	
-		//double	tmpPosition = curPosition_;
-		//Street tmpStreet = curStreet_;
-		//boolean tmpDirection = curDirection_;
-		int z;
-		int y = routeStreets_.length-1;
-		for(z = routePosition_; z < y;){
-			if(tmpDirection) distance += tmpStreet.getLength() - tmpPosition;
-			else distance += tmpPosition;
-			++z;
-			
-			tmpDirection = routeDirections_[z];
-			tmpStreet = routeStreets_[z];
-			if(tmpDirection) tmpPosition = 0;
-			else tmpPosition = tmpStreet.getLength();
-		}
-		if(tmpDirection) distance += destinations_.pollFirst().getPositionOnStreet() - tmpPosition;	//left over...
-		else distance += tmpPosition - destinations_.pollFirst().getPositionOnStreet();
-
-		
-		
-				timeDif = (long) tripTimesArray[GPSArrayIterator_+1] - (long) tripTimesArray[GPSArrayIterator_];
-			
-				
-				System.out.println("Time Dif: " + timeDif);
-				System.out.println("distance: " + distance);
-				
-				desiredSpeed = (distance / timeDif);
-					
-					
-					//add the vehicle to the current lane object
-					curStreet_.addLaneObject(this, curDirection_);
-
-					//as a result of this method a newSpeed_ must be set
-					newSpeed_= desiredSpeed;
-			
-					GPSArrayIterator_++;
-		}
-		else {
-			System.out.println("Else");
-			newSpeed_ = 1800;
-		}
-			/**
-			//Set intial speed
-			int z;
-			int y = routeStreets_.length-1;
-			for(z = routePosition_; z < y;){
-				if(tmpDirection) distance += tmpStreet.getLength() - tmpPosition;
-				else distance += tmpPosition;
-				++z;
-				
-				tmpDirection = routeDirections_[z];
-				tmpStreet = routeStreets_[z];
-				if(tmpDirection) tmpPosition = 0;
-				else tmpPosition = tmpStreet.getLength();
-			}
-			if(tmpDirection) distance += destinations_.pollFirst().getPositionOnStreet() - tmpPosition;	//left over...
-			else distance += tmpPosition - destinations_.pollFirst().getPositionOnStreet();
-
-			
-			
-					timeDif = (long) tripTimesArray[GPSArrayIterator_+1] - (long) tripTimesArray[GPSArrayIterator_];
-					
-					System.out.println("Time Dif: " + timeDif);
-					System.out.println("distance: " + distance);
-					
-					 desiredSpeed = (distance / timeDif);
-						
-						
-						//add the vehicle to the current lane object
-						curStreet_.addLaneObject(this, curDirection_);
-
-						//as a result of this method a newSpeed_ must be set
-						newSpeed_= desiredSpeed;
-		}
-			//Time in ms
-			//distance in cm...?
-			// Looks like its the right calculation ;)
-
-
-	//	newSpeed_ = 1800;	
-*/
-		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// End of the GPS-specific source code
-		// the rest was copied from the function 'adjustSpeed(int)'
-		// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		// ================================= 
-		
-		
-					// Step 6: Check message/beacons/penalties countdown and cleanup
-					// ================================= 
-
-					// in this first simulation step, no other communication is done. So we can we can some work concerning messages and 
-					// known vehicles here without synchronization problems!	
-					
-					
-					if(speedFluctuationCountdown_ < 1){
-
-						isBraking_ = !isBraking_;
-						if(isBraking_){
-					
-							fluctuation_ = ownRandom_.nextInt(SPEED_FLUCTUATION_MAX);
-					
-							speedFluctuationCountdown_ += SPEED_FLUCTUATION_CHECKINTERVAL;
-						
-						}
-						else{
-
-							speedFluctuationCountdown_ += SPEED_NO_FLUCTUATION_CHECKINTERVAL;
-							fluctuation_ = 0;
-						}
-						//currentSpeedFluctuation_ = ownRandom_.nextInt(SPEED_FLUCTUATION_MAX) + 1;
-						//if(Renderer.getInstance().getMarkedVehicle() != null && Renderer.getInstance().getMarkedVehicle().equals(this)) System.out.println("Geschwindigkeit: " + currentSpeedFluctuation_);
+				int indexOfNextWaypoint = -1;
+				for(int x = 0; x < waypointArray.length; x++){
+					if(waypointArray[x] == (lastWaypoint_)){
+						indexOfNextWaypoint = x;
+						break;
 					}
-					else speedFluctuationCountdown_ -= timePerStep;
-					
-					
-						if(EEBLmessageIsCreated_){
-							emergencyBrakingCountdown_ -= timePerStep;
-							if(emergencyBrakingCountdown_ < 1){
-								emergencyBraking_ = false;
-								EEBLmessageIsCreated_ = false;
-							}
-						}
-						
-						//else if(emergencyBrakingCountdown_ < emergencyBrakingDuration_){
-							
-							/*
-							if(!EEBLmessageIsCreated_){
-								EEBLmessageIsCreated_ = true;
-								//lastMessageCreated = 0;
-								// find the destination for the message. Will be sent to the next junction behind us!
-								boolean tmpDirection2 = curDirection_;
-								Street tmpStreet2 = curStreet_;
-								Street[] crossingStreets;
-								Node tmpNode;
-								int k, l = 0, destX = -1, destY = -1;
-								do{
-									++l;
-									if(tmpDirection2){
-										tmpNode = tmpStreet2.getStartNode();
-									} else {
-										tmpNode = tmpStreet2.getEndNode();
-									}
-									if(tmpNode.getJunction() != null){
-										destX = tmpNode.getX();
-										destY = tmpNode.getY();
-										break;
-									}
-									crossingStreets = tmpNode.getCrossingStreets();
-									// find next street behind of us
-									if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
-										destX = tmpNode.getX();
-										destY = tmpNode.getY();
-										break;
-									}
-									for(k = 0; k < crossingStreets.length; ++k){
-										if(crossingStreets[k] != tmpStreet2){
-											tmpStreet2 = crossingStreets[k];
-											if(tmpStreet2.getStartNode() == tmpNode) tmpDirection2 = false;
-											else tmpDirection2 = true;
-											break;
-										}
-									}
-								} while(tmpStreet2 != curStreet_ && l < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
-								// found destination...now insert into messagequeue
-								if(destX != -1 && destY != -1){
-									int direction = -1;
-									if(!curDirection_) direction = 1;
-									int time = Renderer.getInstance().getTimePassed();
-									PenaltyMessage message = new PenaltyMessage(this.getX(), this.getY(), destX, destY, PENALTY_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, false, ID_, this,  "HUANG_EEBL", false, true);
-									long dx = message.getDestinationX_() - curX_;
-									long dy = message.getDestinationY_() - curY_;
-									if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
-										message.setFloodingMode(true);	// enable flooding mode if within distance!
-									}								
-									knownMessages_.addMessage(message, true, true);
-
-									++eeblMessagesCreated_;
-								}	
-								*/
-								//emergencyBraking_ = true;
-							//}
-							
-						//}
-						
-					
-					if(isWiFiEnabled() && communicationEnabled_){
-						
-						if(knownMessages_.hasNewMessages()) {
-							
-							knownMessages_.processMessages();
-						}
-						communicationCountdown_ -= timePerStep;
-						if(communicationCountdown_ < 1) knownMessages_.checkOutdatedMessages(true);
-
-						knownPenaltiesTimeoutCountdown_ -= timePerStep;
-						if(knownPenaltiesTimeoutCountdown_ < 1){
-							if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
-							knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-						}
-
-						if(beaconsEnabled_){
-							beaconCountdown_ -= timePerStep;
-
-							// recheck known vehicles for outdated entries.
-							if(knownVehiclesTimeoutCountdown_ < 1){
-								knownVehiclesList_.checkOutdatedVehicles();
-								idsProcessorList_.checkOutdatedProcessors();
-								knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
-							} else knownVehiclesTimeoutCountdown_ -= timePerStep;
-							
-							// recheck known RSUs for outdated entries.
-							if(knownRSUsTimeoutCountdown_ < 1){
-								knownRSUsList_.checkOutdatedRSUs();
-								knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
-							} else knownRSUsTimeoutCountdown_ -= timePerStep;
-							
-						}
+				}
+				
+				if(lastWaypoint_ != ((WayPoint)waypointArray[indexOfNextWaypoint-1])){
+					lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
+				}
+				
+				long timeDif = ((long)tripTimesArray[indexOfNextWaypoint])-((long)tripTimesArray[indexOfNextWaypoint-1]);
+				
+				Street nextStreet = lastWaypoint_.getStreet();
+				Street lastStreet = nextWaypoint_.getStreet();
+				
+				double distance = 0;
+				int index = indexOfNextWaypoint-1;
+				
+				while(lastStreet != nextStreet){
+					++index;
+					lastStreet = routeStreets_[index];
+					distance += lastStreet.getLength();
+				}
+				if(routeDirections_[indexOfNextWaypoint-1]){
+					distance += lastStreet.getLength()-lastWaypoint_.getPositionOnStreet();
+				}
+				else{
+					distance += lastWaypoint_.getPositionOnStreet();
+				}
+				if(routeDirections_[indexOfNextWaypoint]){
+					distance += nextStreet.getLength()-nextWaypoint_.getPositionOnStreet();
+				}
+				else{
+					distance += nextWaypoint_.getPositionOnStreet();
+				}
+				
+				newSpeed_ = distance/timeDif;
+				
+				
+				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				// End of the GPS-specific source code
+				// the rest was copied from the function 'adjustSpeed(int)'
+				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-						
-						// ================================= 
-						// Step 7: Check if this vehicle is currently in a traffic jam and should create a message.
-						// ================================= 
-						//lastMessageCreated += timePerStep;
-						lastRHCNMessageCreated += timePerStep;
-						lastPCNMessageCreated += timePerStep;
-						lastPCNFORWARDMessageCreated += timePerStep;
-						lastEVAMessageCreated += timePerStep;
-						//lastEVAFORWARDMessageCreated += timePerStep;
-						//lastEEBLMessageCreated += timePerStep;
-						//lastFAKEMessageCreated += timePerStep;
-						if(newSpeed_ == 0){
-							stopTime_ += timePerStep;
-							
-							if(stopTime_ > TIME_FOR_JAM && !waitingForSignal_){
-								inTrafficJam_ = true;
-								if(lastPCNMessageCreated >= MESSAGE_INTERVAL){
-									lastPCNMessageCreated = 0;
-									// find the destination for the message. Will be sent to the next junction behind us!
-									 tmpDirection = curDirection_;
-									tmpStreet = curStreet_;
-									Street[] crossingStreets;
-									Node tmpNode;
-									int i, j = 0, destX = -1, destY = -1;
-									do{
-										++j;
-										if(tmpDirection){
-											tmpNode = tmpStreet.getStartNode();
-										} else {
-											tmpNode = tmpStreet.getEndNode();
-										}
-										if(tmpNode.getJunction() != null){
-											destX = tmpNode.getX();
-											destY = tmpNode.getY();
-											break;
-										}
-										crossingStreets = tmpNode.getCrossingStreets();
-										// find next street behind of us
-										if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
-											destX = tmpNode.getX();
-											destY = tmpNode.getY();
-											break;
-										}
-										for(i = 0; i < crossingStreets.length; ++i){
-											if(crossingStreets[i] != tmpStreet){
-												tmpStreet = crossingStreets[i];
-												if(tmpStreet.getStartNode() == tmpNode) tmpDirection = false;
-												else tmpDirection = true;
-												break;
-											}
-										}
-									} while(tmpStreet != curStreet_ && j < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
-									// found destination...now insert into messagequeue
-									if(destX != -1 && destY != -1){
-										int direction = -1;
-										if(!curDirection_) direction = 1;
-										int time = Renderer.getInstance().getTimePassed();
-										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, false, ID_, this,  "HUANG_PCN", false, false);
-										long dx = message.getDestinationX_() - curX_;
-										long dy = message.getDestinationY_() - curY_;
-										if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
-											message.setFloodingMode(true);	// enable flooding mode if within distance!
-										}								
-										knownMessages_.addMessage(message, false, true);
+				// ================================= 
+				// Step 5: Correct to suit hard limits
+				// ================================= 
+				
 
-										++pcnMessagesCreated_;
-									}							
-								}					
-							}
-						} else {
-							inTrafficJam_ = false;
-							stopTime_ = 0;
-						}
+				if(newSpeed_ > (maxSpeed_ + speedDeviation_)) newSpeed_ = (maxSpeed_ + speedDeviation_);
+				else if (newSpeed_ < 0) newSpeed_ = 0;	//no negative speed
+				if((curStreet_.getSpeed() + speedDeviation_) > 0 && newSpeed_ > (curStreet_.getSpeed() + speedDeviation_) && this != Renderer.getInstance().getAttackerVehicle() && !emergencyVehicle_) newSpeed_ = (curStreet_.getSpeed() + speedDeviation_);
+			}
 
+		
+			// ================================= 
+			// Step 6: Check message/beacons/penalties countdown and cleanup
+			// ================================= 
 
-						
-						// ================================= 
-						// Step 8: Check if vehicle is inside a mix zone and change vehicle ID if entering mix zone
-						// ================================= 
-
-						if(mixZonesEnabled_){
-							mixCheckCountdown_ -= MIX_CHECK_INTERVAL;
-							if(mixCheckCountdown_ <= 0){
-								int MapMinX, MapMinY, MapMaxX, MapMaxY, RegionMinX, RegionMinY, RegionMaxX, RegionMaxY;
-								int i, j, k, size;
-								Node node;
-								long dx, dy, mixDistanceSquared = (long)getMaxMixZoneRadius() * getMaxMixZoneRadius();
-								boolean needsToMix = false;
-
-								// Minimum x coordinate to be considered
-								long tmp = curX_ - getMaxMixZoneRadius();
-								if (tmp < 0) MapMinX = 0;	// Map stores only positive coordinates
-								else if(tmp < Integer.MAX_VALUE) MapMinX = (int) tmp;
-								else MapMinX = Integer.MAX_VALUE;
-
-								// Maximum x coordinate to be considered
-								tmp = curX_ + getMaxMixZoneRadius();
-								if (tmp < 0) MapMaxX = 0;
-								else if(tmp < Integer.MAX_VALUE) MapMaxX = (int) tmp;
-								else MapMaxX = Integer.MAX_VALUE;
-
-								// Minimum y coordinate to be considered
-								tmp = curY_ - getMaxMixZoneRadius();
-								if (tmp < 0) MapMinY = 0;
-								else if(tmp < Integer.MAX_VALUE) MapMinY = (int) tmp;
-								else MapMinY = Integer.MAX_VALUE;
-
-								// Maximum y coordinate to be considered
-								tmp = curY_ + getMaxMixZoneRadius();
-								if (tmp < 0) MapMaxY = 0;
-								else if(tmp < Integer.MAX_VALUE) MapMaxY = (int) tmp;
-								else MapMaxY = Integer.MAX_VALUE;
-
-								// Get the regions to be considered
-								Region tmpregion = MAP.getRegionOfPoint(MapMinX, MapMinY);
-								RegionMinX = tmpregion.getX();
-								RegionMinY = tmpregion.getY();
-
-								tmpregion = MAP.getRegionOfPoint(MapMaxX, MapMaxY);
-								RegionMaxX = tmpregion.getX();
-								RegionMaxY = tmpregion.getY();
-
-								// only check those regions which are within the radius
-								for(i = RegionMinX; i <= RegionMaxX; ++i){
+			// in this first simulation step, no other communication is done. So we can we can some work concerning messages and 
+			// known vehicles here without synchronization problems!	
 			
-									for(j = RegionMinY; j <= RegionMaxY; ++j){
-										Node[] mixNodes = regions_[i][j].getMixZoneNodes();
-										size = mixNodes.length;
-										for(k = 0; k < size; ++k){
-											node = mixNodes[k];
-											// precheck if the mixing node is near enough and valid (check is not exact as its a rectangular box and not circle)
-											if(node.getX() >= curX_ - node.getMixZoneRadius() && node.getX() <= curX_ + node.getMixZoneRadius() && node.getY() >= curY_ - node.getMixZoneRadius() && node.getY() <= curY_ + node.getMixZoneRadius()){
-												dx = node.getX() - curX_;
-												dy = node.getY() - curY_;
+			
+			if(speedFluctuationCountdown_ < 1){
 
-												mixDistanceSquared = node.getMixZoneRadius() * node.getMixZoneRadius();
-												if((dx * dx + dy * dy) <= mixDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
-													needsToMix = true;
-													curMixNode_ = node;
+				isBraking_ = !isBraking_;
+				if(isBraking_){
+			
+					fluctuation_ = ownRandom_.nextInt(SPEED_FLUCTUATION_MAX);
+			
+					speedFluctuationCountdown_ += SPEED_FLUCTUATION_CHECKINTERVAL;
+				
+				}
+				else{
 
-													//change values to break out of all loops as we don't need to check further!
-													i = RegionMaxX;
-													j = RegionMaxY;
-													k = mixNodes.length -1;									
-												}
-											} 
-										}
+					speedFluctuationCountdown_ += SPEED_NO_FLUCTUATION_CHECKINTERVAL;
+					fluctuation_ = 0;
+				}
+				//currentSpeedFluctuation_ = ownRandom_.nextInt(SPEED_FLUCTUATION_MAX) + 1;
+				//if(Renderer.getInstance().getMarkedVehicle() != null && Renderer.getInstance().getMarkedVehicle().equals(this)) System.out.println("Geschwindigkeit: " + currentSpeedFluctuation_);
+			}
+			else speedFluctuationCountdown_ -= timePerStep;
+			
+			
+				if(EEBLmessageIsCreated_){
+					emergencyBrakingCountdown_ -= timePerStep;
+					if(emergencyBrakingCountdown_ < 1){
+						emergencyBraking_ = false;
+						EEBLmessageIsCreated_ = false;
+					}
+				}
+				
+				//else if(emergencyBrakingCountdown_ < emergencyBrakingDuration_){
+					
+					/*
+					if(!EEBLmessageIsCreated_){
+						EEBLmessageIsCreated_ = true;
+						//lastMessageCreated = 0;
+						// find the destination for the message. Will be sent to the next junction behind us!
+						boolean tmpDirection2 = curDirection_;
+						Street tmpStreet2 = curStreet_;
+						Street[] crossingStreets;
+						Node tmpNode;
+						int k, l = 0, destX = -1, destY = -1;
+						do{
+							++l;
+							if(tmpDirection2){
+								tmpNode = tmpStreet2.getStartNode();
+							} else {
+								tmpNode = tmpStreet2.getEndNode();
+							}
+							if(tmpNode.getJunction() != null){
+								destX = tmpNode.getX();
+								destY = tmpNode.getY();
+								break;
+							}
+							crossingStreets = tmpNode.getCrossingStreets();
+							// find next street behind of us
+							if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
+								destX = tmpNode.getX();
+								destY = tmpNode.getY();
+								break;
+							}
+							for(k = 0; k < crossingStreets.length; ++k){
+								if(crossingStreets[k] != tmpStreet2){
+									tmpStreet2 = crossingStreets[k];
+									if(tmpStreet2.getStartNode() == tmpNode) tmpDirection2 = false;
+									else tmpDirection2 = true;
+									break;
+								}
+							}
+						} while(tmpStreet2 != curStreet_ && l < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
+						// found destination...now insert into messagequeue
+						if(destX != -1 && destY != -1){
+							int direction = -1;
+							if(!curDirection_) direction = 1;
+							int time = Renderer.getInstance().getTimePassed();
+							PenaltyMessage message = new PenaltyMessage(this.getX(), this.getY(), destX, destY, PENALTY_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, false, ID_, this,  "HUANG_EEBL", false, true);
+							long dx = message.getDestinationX_() - curX_;
+							long dy = message.getDestinationY_() - curY_;
+							if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
+								message.setFloodingMode(true);	// enable flooding mode if within distance!
+							}								
+							knownMessages_.addMessage(message, true, true);
+
+							++eeblMessagesCreated_;
+						}	
+						*/
+						//emergencyBraking_ = true;
+					//}
+					
+				//}
+				
+			
+			if(isWiFiEnabled() && communicationEnabled_){
+				
+				if(knownMessages_.hasNewMessages()) {
+					
+					knownMessages_.processMessages();
+				}
+				communicationCountdown_ -= timePerStep;
+				if(communicationCountdown_ < 1) knownMessages_.checkOutdatedMessages(true);
+
+				knownPenaltiesTimeoutCountdown_ -= timePerStep;
+				if(knownPenaltiesTimeoutCountdown_ < 1){
+					if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
+					knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
+				}
+
+				if(beaconsEnabled_){
+					beaconCountdown_ -= timePerStep;
+
+					// recheck known vehicles for outdated entries.
+					if(knownVehiclesTimeoutCountdown_ < 1){
+						knownVehiclesList_.checkOutdatedVehicles();
+						idsProcessorList_.checkOutdatedProcessors();
+						knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
+					} else knownVehiclesTimeoutCountdown_ -= timePerStep;
+					
+					// recheck known RSUs for outdated entries.
+					if(knownRSUsTimeoutCountdown_ < 1){
+						knownRSUsList_.checkOutdatedRSUs();
+						knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
+					} else knownRSUsTimeoutCountdown_ -= timePerStep;
+					
+				}
+
+
+				
+				// ================================= 
+				// Step 7: Check if this vehicle is currently in a traffic jam and should create a message.
+				// ================================= 
+				//lastMessageCreated += timePerStep;
+				lastRHCNMessageCreated += timePerStep;
+				lastPCNMessageCreated += timePerStep;
+				lastPCNFORWARDMessageCreated += timePerStep;
+				lastEVAMessageCreated += timePerStep;
+				//lastEVAFORWARDMessageCreated += timePerStep;
+				//lastEEBLMessageCreated += timePerStep;
+				//lastFAKEMessageCreated += timePerStep;
+				if(newSpeed_ == 0){
+					stopTime_ += timePerStep;
+					
+					if(stopTime_ > TIME_FOR_JAM && !waitingForSignal_){
+						inTrafficJam_ = true;
+						if(lastPCNMessageCreated >= MESSAGE_INTERVAL){
+							lastPCNMessageCreated = 0;
+							// find the destination for the message. Will be sent to the next junction behind us!
+							boolean tmpDirection = curDirection_;
+							Street tmpStreet = curStreet_;
+							Street[] crossingStreets;
+							Node tmpNode;
+							int i, j = 0, destX = -1, destY = -1;
+							do{
+								++j;
+								if(tmpDirection){
+									tmpNode = tmpStreet.getStartNode();
+								} else {
+									tmpNode = tmpStreet.getEndNode();
+								}
+								if(tmpNode.getJunction() != null){
+									destX = tmpNode.getX();
+									destY = tmpNode.getY();
+									break;
+								}
+								crossingStreets = tmpNode.getCrossingStreets();
+								// find next street behind of us
+								if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
+									destX = tmpNode.getX();
+									destY = tmpNode.getY();
+									break;
+								}
+								for(i = 0; i < crossingStreets.length; ++i){
+									if(crossingStreets[i] != tmpStreet){
+										tmpStreet = crossingStreets[i];
+										if(tmpStreet.getStartNode() == tmpNode) tmpDirection = false;
+										else tmpDirection = true;
+										break;
 									}
 								}
-								
-								if(needsToMix != isInMixZone_){
-									if(privacyDataLogged_){
-										if(needsToMix) 	PrivacyLogWriter.log(Renderer.getInstance().getTimePassed() + ":Steady ID:" + this.steadyID_ + ":Pseudonym:" + Long.toHexString(this.ID_) + ":TraveledDistance:" + totalTravelDistance_ + ":TraveledTime:" + totalTravelTime_ + ":Node ID:" + curMixNode_.getNodeID() + ":Direction:IN" + ":Street:" + this.getCurStreet().getName() + ":StreetSpeed:" + this.getCurStreet().getSpeed() + ":VehicleSpeed:" + this.getCurSpeed() +  ":x:" + this.curX_ + ":y:" + this.curY_);
-										else PrivacyLogWriter.log(Renderer.getInstance().getTimePassed() + ":Steady ID:" + this.steadyID_ + ":Pseudonym:" + Long.toHexString(this.ID_) + ":TraveledDistance:" + totalTravelDistance_ + ":TraveledTime:" + totalTravelTime_ + ":Node ID:" + curMixNode_.getNodeID() + ":Direction:OUT" + ":Street:" + this.getCurStreet().getName() + ":StreetSpeed:" + this.getCurStreet().getSpeed() + ":VehicleSpeed:" + this.getCurSpeed() + ":x:" + this.curX_ + ":y:" + this.curY_);
-									}
-									if(needsToMix){
-										++IDsChanged_;
-										ID_ = ownRandom_.nextLong();
-									}
-									isInMixZone_ = needsToMix;
+							} while(tmpStreet != curStreet_ && j < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
+							// found destination...now insert into messagequeue
+							if(destX != -1 && destY != -1){
+								int direction = -1;
+								if(!curDirection_) direction = 1;
+								int time = Renderer.getInstance().getTimePassed();
+								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, false, ID_, this,  "HUANG_PCN", false, false);
+								long dx = message.getDestinationX_() - curX_;
+								long dy = message.getDestinationY_() - curY_;
+								if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
+									message.setFloodingMode(true);	// enable flooding mode if within distance!
+								}								
+								knownMessages_.addMessage(message, false, true);
+
+								++pcnMessagesCreated_;
+							}							
+						}					
+					}
+				} else {
+					inTrafficJam_ = false;
+					stopTime_ = 0;
+				}
+
+
+				
+				// ================================= 
+				// Step 8: Check if vehicle is inside a mix zone and change vehicle ID if entering mix zone
+				// ================================= 
+
+				if(mixZonesEnabled_){
+					mixCheckCountdown_ -= MIX_CHECK_INTERVAL;
+					if(mixCheckCountdown_ <= 0){
+						int MapMinX, MapMinY, MapMaxX, MapMaxY, RegionMinX, RegionMinY, RegionMaxX, RegionMaxY;
+						int i, j, k, size;
+						Node node;
+						long dx, dy, mixDistanceSquared = (long)getMaxMixZoneRadius() * getMaxMixZoneRadius();
+						boolean needsToMix = false;
+
+						// Minimum x coordinate to be considered
+						long tmp = curX_ - getMaxMixZoneRadius();
+						if (tmp < 0) MapMinX = 0;	// Map stores only positive coordinates
+						else if(tmp < Integer.MAX_VALUE) MapMinX = (int) tmp;
+						else MapMinX = Integer.MAX_VALUE;
+
+						// Maximum x coordinate to be considered
+						tmp = curX_ + getMaxMixZoneRadius();
+						if (tmp < 0) MapMaxX = 0;
+						else if(tmp < Integer.MAX_VALUE) MapMaxX = (int) tmp;
+						else MapMaxX = Integer.MAX_VALUE;
+
+						// Minimum y coordinate to be considered
+						tmp = curY_ - getMaxMixZoneRadius();
+						if (tmp < 0) MapMinY = 0;
+						else if(tmp < Integer.MAX_VALUE) MapMinY = (int) tmp;
+						else MapMinY = Integer.MAX_VALUE;
+
+						// Maximum y coordinate to be considered
+						tmp = curY_ + getMaxMixZoneRadius();
+						if (tmp < 0) MapMaxY = 0;
+						else if(tmp < Integer.MAX_VALUE) MapMaxY = (int) tmp;
+						else MapMaxY = Integer.MAX_VALUE;
+
+						// Get the regions to be considered
+						Region tmpregion = MAP.getRegionOfPoint(MapMinX, MapMinY);
+						RegionMinX = tmpregion.getX();
+						RegionMinY = tmpregion.getY();
+
+						tmpregion = MAP.getRegionOfPoint(MapMaxX, MapMaxY);
+						RegionMaxX = tmpregion.getX();
+						RegionMaxY = tmpregion.getY();
+
+						// only check those regions which are within the radius
+						for(i = RegionMinX; i <= RegionMaxX; ++i){
+	
+							for(j = RegionMinY; j <= RegionMaxY; ++j){
+								Node[] mixNodes = regions_[i][j].getMixZoneNodes();
+								size = mixNodes.length;
+								for(k = 0; k < size; ++k){
+									node = mixNodes[k];
+									// precheck if the mixing node is near enough and valid (check is not exact as its a rectangular box and not circle)
+									if(node.getX() >= curX_ - node.getMixZoneRadius() && node.getX() <= curX_ + node.getMixZoneRadius() && node.getY() >= curY_ - node.getMixZoneRadius() && node.getY() <= curY_ + node.getMixZoneRadius()){
+										dx = node.getX() - curX_;
+										dy = node.getY() - curY_;
+
+										mixDistanceSquared = node.getMixZoneRadius() * node.getMixZoneRadius();
+										if((dx * dx + dy * dy) <= mixDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+											needsToMix = true;
+											curMixNode_ = node;
+
+											//change values to break out of all loops as we don't need to check further!
+											i = RegionMaxX;
+											j = RegionMaxY;
+											k = mixNodes.length -1;									
+										}
+									} 
 								}
-								if(!needsToMix) curMixNode_ = null;
 							}
 						}
-					
-						// ================================= 
-						// Step 9: Send fake messages
-						// ================================= 
-						if(fakingMessages_){
-							fakeMessageCountdown_ -= timePerStep;
-							if(fakeMessageCountdown_ < 0){
-								
-								//fake messages
-								fakeMessageCountdown_ = fakeMessagesInterval_;
-								String messageType = fakeMessageType_;
-								if(fakeMessageType_.equals("all") || fakeMessageType_.equals("Alle")) messageType = IDSProcessor.getIdsData_()[ownRandom_.nextInt(fakeMessageTypesCount)];
-								
-								// find the destination for the message. Will be sent to the next junction behind us! (if its pcn we send it in front)
-								boolean tmpDirection2 = curDirection_;
-								if(messageType.equals("HUANG_PCN")) tmpDirection2 = !curDirection_;
-								
-								Street tmpStreet2 = curStreet_;
-								Street[] crossingStreets;
-								Node tmpNode;
-								int k, l = 0, destX = -1, destY = -1;
-								do{
-									++l;
-									if(tmpDirection2){
-										tmpNode = tmpStreet2.getStartNode();
-									} else {
-										tmpNode = tmpStreet2.getEndNode();
-									}
-									if(tmpNode.getJunction() != null){
-										destX = tmpNode.getX();
-										destY = tmpNode.getY();
-										break;
-									}
-									crossingStreets = tmpNode.getCrossingStreets();
-									// find next street behind of us
-									if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
-										destX = tmpNode.getX();
-										destY = tmpNode.getY();
-										break;
-									}
-									for(k = 0; k < crossingStreets.length; ++k){
-										if(crossingStreets[k] != tmpStreet2){
-											tmpStreet2 = crossingStreets[k];
-											if(tmpStreet2.getStartNode() == tmpNode) tmpDirection2 = false;
-											else tmpDirection2 = true;
-											break;
-										}
-									}
-								} while(tmpStreet2 != curStreet_ && l < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
-								// found destination...now insert into messagequeue
-								if(destX != -1 && destY != -1){
-									int direction = -1;
-									//if(!curDirection_) direction = 1;
-									int time = Renderer.getInstance().getTimePassed();
-									if(messageType.equals("HUANG_EVA_FORWARD")){
-										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this,  messageType, false, true);
-										message.setFloodingMode(true);	// enable flooding mode if within distance!				
-										knownMessages_.addMessage(message, false, true);
-									}
-									else if(messageType.equals("EVA_EMERGENCY_ID")){
-										if(emergencyBeacons == -1){
-											emergencyBeacons = EVAMessageDelay_;
-										}
 						
-									}
-									else if(messageType.equals("HUANG_PCN")){
-										//if(stopTime_ < 2000){
-											//int messageX = 0;
-											//int messageY = 0;
-											//send message in front and only if vehicle has a street to drive left!
-											/*
-											if((routeStreets_.length - routePosition_) > 1){
-												if(routeDirections_[(routePosition_+1)]){
-													messageX = routeStreets_[(routePosition_+1)].getEndNode().getX();
-													messageY = routeStreets_[(routePosition_+1)].getEndNode().getY();
-												}
-												else{
-													messageX = routeStreets_[(routePosition_+1)].getStartNode().getX();
-													messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
-												}
-												*/
+						if(needsToMix != isInMixZone_){
+							if(privacyDataLogged_){
+								if(needsToMix) 	PrivacyLogWriter.log(Renderer.getInstance().getTimePassed() + ":Steady ID:" + this.steadyID_ + ":Pseudonym:" + Long.toHexString(this.ID_) + ":TraveledDistance:" + totalTravelDistance_ + ":TraveledTime:" + totalTravelTime_ + ":Node ID:" + curMixNode_.getNodeID() + ":Direction:IN" + ":Street:" + this.getCurStreet().getName() + ":StreetSpeed:" + this.getCurStreet().getSpeed() + ":VehicleSpeed:" + this.getCurSpeed() +  ":x:" + this.curX_ + ":y:" + this.curY_);
+								else PrivacyLogWriter.log(Renderer.getInstance().getTimePassed() + ":Steady ID:" + this.steadyID_ + ":Pseudonym:" + Long.toHexString(this.ID_) + ":TraveledDistance:" + totalTravelDistance_ + ":TraveledTime:" + totalTravelTime_ + ":Node ID:" + curMixNode_.getNodeID() + ":Direction:OUT" + ":Street:" + this.getCurStreet().getName() + ":StreetSpeed:" + this.getCurStreet().getSpeed() + ":VehicleSpeed:" + this.getCurSpeed() + ":x:" + this.curX_ + ":y:" + this.curY_);
+							}
+							if(needsToMix){
+								++IDsChanged_;
+								ID_ = ownRandom_.nextLong();
+							}
+							isInMixZone_ = needsToMix;
+						}
+						if(!needsToMix) curMixNode_ = null;
+					}
+				}
 			
-												PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
-
-												long dx = message.getDestinationX_() - curX_;
-												long dy = message.getDestinationY_() - curY_;
-												if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
-													message.setFloodingMode(true);	// enable flooding mode if within distance!
-												}
-												knownMessages_.addMessage(message, false, true);
-											//}
-										//}
-									}
-									//else if(messageType.equals("PCN_FORWARD")){}
-									else{
+				// ================================= 
+				// Step 9: Send fake messages
+				// ================================= 
+				if(fakingMessages_){
+					fakeMessageCountdown_ -= timePerStep;
+					if(fakeMessageCountdown_ < 0){
+						
+						//fake messages
+						fakeMessageCountdown_ = fakeMessagesInterval_;
+						String messageType = fakeMessageType_;
+						if(fakeMessageType_.equals("all") || fakeMessageType_.equals("Alle")) messageType = IDSProcessor.getIdsData_()[ownRandom_.nextInt(fakeMessageTypesCount)];
+						
+						// find the destination for the message. Will be sent to the next junction behind us! (if its pcn we send it in front)
+						boolean tmpDirection2 = curDirection_;
+						if(messageType.equals("HUANG_PCN")) tmpDirection2 = !curDirection_;
+						
+						Street tmpStreet2 = curStreet_;
+						Street[] crossingStreets;
+						Node tmpNode;
+						int k, l = 0, destX = -1, destY = -1;
+						do{
+							++l;
+							if(tmpDirection2){
+								tmpNode = tmpStreet2.getStartNode();
+							} else {
+								tmpNode = tmpStreet2.getEndNode();
+							}
+							if(tmpNode.getJunction() != null){
+								destX = tmpNode.getX();
+								destY = tmpNode.getY();
+								break;
+							}
+							crossingStreets = tmpNode.getCrossingStreets();
+							// find next street behind of us
+							if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
+								destX = tmpNode.getX();
+								destY = tmpNode.getY();
+								break;
+							}
+							for(k = 0; k < crossingStreets.length; ++k){
+								if(crossingStreets[k] != tmpStreet2){
+									tmpStreet2 = crossingStreets[k];
+									if(tmpStreet2.getStartNode() == tmpNode) tmpDirection2 = false;
+									else tmpDirection2 = true;
+									break;
+								}
+							}
+						} while(tmpStreet2 != curStreet_ && l < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
+						// found destination...now insert into messagequeue
+						if(destX != -1 && destY != -1){
+							int direction = -1;
+							//if(!curDirection_) direction = 1;
+							int time = Renderer.getInstance().getTimePassed();
+							if(messageType.equals("HUANG_EVA_FORWARD")){
+								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this,  messageType, false, true);
+								message.setFloodingMode(true);	// enable flooding mode if within distance!				
+								knownMessages_.addMessage(message, false, true);
+							}
+							else if(messageType.equals("EVA_EMERGENCY_ID")){
+								if(emergencyBeacons == -1){
+									emergencyBeacons = EVAMessageDelay_;
+								}
+				
+							}
+							else if(messageType.equals("HUANG_PCN")){
+								//if(stopTime_ < 2000){
+									//int messageX = 0;
+									//int messageY = 0;
+									//send message in front and only if vehicle has a street to drive left!
+									/*
+									if((routeStreets_.length - routePosition_) > 1){
+										if(routeDirections_[(routePosition_+1)]){
+											messageX = routeStreets_[(routePosition_+1)].getEndNode().getX();
+											messageY = routeStreets_[(routePosition_+1)].getEndNode().getY();
+										}
+										else{
+											messageX = routeStreets_[(routePosition_+1)].getStartNode().getX();
+											messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
+										}
+										*/
+	
 										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
 										long dx = message.getDestinationX_() - curX_;
@@ -2215,20 +2164,32 @@ public class Vehicle extends LaneObject{
 										if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
 											message.setFloodingMode(true);	// enable flooding mode if within distance!
 										}
-									    knownMessages_.addMessage(message, false, true);
-
-									}
-							//		System.out.println(time + ":fake message created: " + messageType);
-								}		
-								++fakeMessagesCreated_;
-							
-								fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
+										knownMessages_.addMessage(message, false, true);
+									//}
+								//}
 							}
-						}
+							//else if(messageType.equals("PCN_FORWARD")){}
+							else{
+								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
+
+								long dx = message.getDestinationX_() - curX_;
+								long dy = message.getDestinationY_() - curY_;
+								if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
+									message.setFloodingMode(true);	// enable flooding mode if within distance!
+								}
+							    knownMessages_.addMessage(message, false, true);
+
+							}
+					//		System.out.println(time + ":fake message created: " + messageType);
+						}		
+						++fakeMessagesCreated_;
+					
+						fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 					}
+				}
 			}
 		}
-		}
+	}
 	
 				
 		
