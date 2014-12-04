@@ -1511,6 +1511,7 @@ public class Vehicle extends LaneObject{
 	
 	public void adjustSpeedWithGPS(int timePerStep){
 		waitingForSignal_ = false;
+		active_ = true;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){
 				curWaitTime_ = 0;
@@ -1737,11 +1738,18 @@ public class Vehicle extends LaneObject{
 				Street lastStreet = nextWaypoint_.getStreet();
 				
 				double distance = 0;
-				int index = indexOfNextWaypoint-1;
+				int indexOfLastStreet = -1;
+				
+				for(int x = 0; x < routeStreets_.length; x++){
+					if(routeStreets_[x] == lastStreet){
+						indexOfLastStreet = x;
+						break;
+					}
+				}
 				
 				while(lastStreet != nextStreet){
-					++index;
-					lastStreet = routeStreets_[index];
+					++indexOfLastStreet;
+					lastStreet = routeStreets_[indexOfLastStreet];
 					distance += lastStreet.getLength();
 				}
 				if(routeDirections_[indexOfNextWaypoint-1]){
