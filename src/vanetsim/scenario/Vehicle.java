@@ -1511,7 +1511,8 @@ public class Vehicle extends LaneObject{
 	
 	public void adjustSpeedWithGPS(int timePerStep){
 		waitingForSignal_ = false;
-		active_ = true;
+		//active_ = true;
+		//curWaitTime_ = 0;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){
 				curWaitTime_ = 0;
@@ -1713,6 +1714,8 @@ public class Vehicle extends LaneObject{
 				// Start of the GPS-specific source code
 				// the rest was copied from the function 'adjustSpeed(int)'
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				
+				
 				Object[] waypointArray = originalDestinations_.toArray();
 				Object[] tripTimesArray = tripTimes_.toArray();
 				
@@ -1721,51 +1724,59 @@ public class Vehicle extends LaneObject{
 				}
 				
 				int indexOfNextWaypoint = -1;
-				for(int x = 0; x < waypointArray.length; x++){
-					if(waypointArray[x] == (lastWaypoint_)){
-						indexOfNextWaypoint = x;
-						break;
-					}
-				}
 				
+				int x = 0;
+				while(x < waypointArray.length && waypointArray[x] != nextWaypoint_){
+					x++;
+				}
+				indexOfNextWaypoint = x;
+								
 				if(lastWaypoint_ != ((WayPoint)waypointArray[indexOfNextWaypoint-1])){
 					lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
 				}
 				
-				long timeDif = ((long)tripTimesArray[indexOfNextWaypoint])-((long)tripTimesArray[indexOfNextWaypoint-1]);
+				long timeLast = (long)tripTimesArray[indexOfNextWaypoint-1];
+				long timeNext = (long)tripTimesArray[indexOfNextWaypoint];
+				System.out.println("TimeLast: "+timeLast);
+				System.out.println("TimeNext: "+timeNext);
 				
-				Street nextStreet = lastWaypoint_.getStreet();
-				Street lastStreet = nextWaypoint_.getStreet();
+				long timeDif = (timeNext-timeLast)/1000;
+				System.out.println("Time: "+timeDif);
+				
+				Street lastStreet = lastWaypoint_.getStreet();
+				Street nextStreet = nextWaypoint_.getStreet();
 				
 				double distance = 0;
 				int indexOfLastStreet = -1;
 				
-				for(int x = 0; x < routeStreets_.length; x++){
-					if(routeStreets_[x] == lastStreet){
-						indexOfLastStreet = x;
-						break;
-					}
+				int y = 0;
+				while(y < routeStreets_.length && routeStreets_[y] != lastStreet){
+					y++;
+					System.out.println("MOEB");
 				}
-				
+				indexOfLastStreet = y;
+								
 				while(lastStreet != nextStreet){
 					++indexOfLastStreet;
 					lastStreet = routeStreets_[indexOfLastStreet];
 					distance += lastStreet.getLength();
 				}
 				if(routeDirections_[indexOfNextWaypoint-1]){
-					distance += lastStreet.getLength()-lastWaypoint_.getPositionOnStreet();
+					distance += lastWaypoint_.getStreet().getLength()-lastWaypoint_.getPositionOnStreet();
 				}
 				else{
 					distance += lastWaypoint_.getPositionOnStreet();
 				}
 				if(routeDirections_[indexOfNextWaypoint]){
-					distance += nextStreet.getLength()-nextWaypoint_.getPositionOnStreet();
+					distance += nextWaypoint_.getStreet().getLength()-nextWaypoint_.getPositionOnStreet();
 				}
 				else{
 					distance += nextWaypoint_.getPositionOnStreet();
 				}
 				
+				System.out.println("Distance: "+distance);
 				newSpeed_ = distance/timeDif;
+				System.out.println("Speed: "+newSpeed_);
 				
 				
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
