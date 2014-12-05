@@ -1497,18 +1497,12 @@ public class Vehicle extends LaneObject{
 		//Check implementation of checkLaneFree(int) to get ideas!
 		return true;
 	}
-	//***************************************************
-	// This method is build to have a generic function to 
-	// calculate Speed for the GPS Traces
-	//
-	//***************************************************
+
+	
 	/**
 	 * A method to be filled when implementing GPS
 	 * @param timePerStep
-	 */
-	
-	//TODO: Adjust Speed GPS
-	
+	 */	
 	public void adjustSpeedWithGPS(int timePerStep){
 		waitingForSignal_ = false;
 		//active_ = true;
@@ -1725,11 +1719,12 @@ public class Vehicle extends LaneObject{
 				
 				int indexOfNextWaypoint = -1;
 				
-				int x = 0;
-				while(x < waypointArray.length && waypointArray[x] != nextWaypoint_){
-					x++;
+				for(int x = 0; x < waypointArray.length; x++){
+					if(waypointArray[x] == nextWaypoint_){
+						indexOfNextWaypoint = x;
+						break;
+					}
 				}
-				indexOfNextWaypoint = x;
 								
 				if(lastWaypoint_ != ((WayPoint)waypointArray[indexOfNextWaypoint-1])){
 					lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
@@ -1737,11 +1732,10 @@ public class Vehicle extends LaneObject{
 				
 				long timeLast = (long)tripTimesArray[indexOfNextWaypoint-1];
 				long timeNext = (long)tripTimesArray[indexOfNextWaypoint];
-				System.out.println("TimeLast: "+timeLast);
-				System.out.println("TimeNext: "+timeNext);
 				
 				long timeDif = (timeNext-timeLast)/1000;
-				System.out.println("Time: "+timeDif);
+				
+				//System.out.println("TimeDif: "+timeDif);
 				
 				Street lastStreet = lastWaypoint_.getStreet();
 				Street nextStreet = nextWaypoint_.getStreet();
@@ -1749,34 +1743,34 @@ public class Vehicle extends LaneObject{
 				double distance = 0;
 				int indexOfLastStreet = -1;
 				
-				int y = 0;
-				while(y < routeStreets_.length && routeStreets_[y] != lastStreet){
-					y++;
-					System.out.println("MOEB");
+				for(int y = 0; y < routeStreets_.length; y++){
+					if(routeStreets_[y] == lastStreet){
+						indexOfLastStreet = y;
+						break;
+					}
 				}
-				indexOfLastStreet = y;
 								
-				while(lastStreet != nextStreet){
-					++indexOfLastStreet;
-					lastStreet = routeStreets_[indexOfLastStreet];
-					distance += lastStreet.getLength();
+				for(int z = indexOfLastStreet + 1; z < routeStreets_.length - 1; z++){
+					distance += routeStreets_[indexOfLastStreet].getLength();
 				}
 				if(routeDirections_[indexOfNextWaypoint-1]){
-					distance += lastWaypoint_.getStreet().getLength()-lastWaypoint_.getPositionOnStreet();
+					distance += lastStreet.getLength()-lastWaypoint_.getPositionOnStreet();
 				}
 				else{
 					distance += lastWaypoint_.getPositionOnStreet();
 				}
 				if(routeDirections_[indexOfNextWaypoint]){
-					distance += nextWaypoint_.getStreet().getLength()-nextWaypoint_.getPositionOnStreet();
+					distance += nextStreet.getLength()-nextWaypoint_.getPositionOnStreet();
 				}
 				else{
 					distance += nextWaypoint_.getPositionOnStreet();
 				}
 				
-				System.out.println("Distance: "+distance);
+				//System.out.println("Dis: "+distance);
+				
 				newSpeed_ = distance/timeDif;
-				System.out.println("Speed: "+newSpeed_);
+				
+				//System.out.println(newSpeed_);
 				
 				
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1790,9 +1784,9 @@ public class Vehicle extends LaneObject{
 				// ================================= 
 				
 
-				if(newSpeed_ > (maxSpeed_ + speedDeviation_)) newSpeed_ = (maxSpeed_ + speedDeviation_);
+				/*if(newSpeed_ > (maxSpeed_ + speedDeviation_)) newSpeed_ = (maxSpeed_ + speedDeviation_);
 				else if (newSpeed_ < 0) newSpeed_ = 0;	//no negative speed
-				if((curStreet_.getSpeed() + speedDeviation_) > 0 && newSpeed_ > (curStreet_.getSpeed() + speedDeviation_) && this != Renderer.getInstance().getAttackerVehicle() && !emergencyVehicle_) newSpeed_ = (curStreet_.getSpeed() + speedDeviation_);
+				if((curStreet_.getSpeed() + speedDeviation_) > 0 && newSpeed_ > (curStreet_.getSpeed() + speedDeviation_) && this != Renderer.getInstance().getAttackerVehicle() && !emergencyVehicle_) newSpeed_ = (curStreet_.getSpeed() + speedDeviation_);*/
 			}
 
 		
@@ -1804,7 +1798,7 @@ public class Vehicle extends LaneObject{
 			// known vehicles here without synchronization problems!	
 			
 			
-			if(speedFluctuationCountdown_ < 1){
+			/*if(speedFluctuationCountdown_ < 1){
 
 				isBraking_ = !isBraking_;
 				if(isBraking_){
@@ -1831,7 +1825,7 @@ public class Vehicle extends LaneObject{
 						emergencyBraking_ = false;
 						EEBLmessageIsCreated_ = false;
 					}
-				}
+				}*/
 				
 				//else if(emergencyBrakingCountdown_ < emergencyBrakingDuration_){
 					
