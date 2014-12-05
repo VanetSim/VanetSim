@@ -110,7 +110,7 @@ public class EditTrafficModelControlPanel extends JPanel implements  ActionListe
 		chooseTrafficModel_ = new JComboBox<String>();
 		chooseTrafficModel_.setActionCommand("chooseTrafficModel");
 		chooseTrafficModel_.addItem("VANETSim classic");
-		chooseTrafficModel_.addItem("IDM/MOBIL");
+		chooseTrafficModel_.addItem("IDM");
 		chooseTrafficModel_.addActionListener(this);
 		c.gridx = 1;
 		add(chooseTrafficModel_, c);
