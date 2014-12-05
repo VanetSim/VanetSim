@@ -434,7 +434,7 @@ public class GPSPrecalculation {
 									//System.out.println("Time 2: " + parsedTraces_.get(i+4));
 									Date t2;
 									t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+4));
-									long time2 = t3.getTime();
+									long time2 = t2.getTime();
 									tripTimes.add(time2);
 								
 							} catch (Exception e) {
