@@ -197,25 +197,22 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		}
 		if ("load".equals(command)){ //$NON-NLS-1$
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")){ 
-				Vehicle.setRecyclingEnabled(false);
 				GPSPrecalculation.openMap(6); 
 				GPSPrecalculation.precalculateRoute(6, 0, 0);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")){
-				Vehicle.setRecyclingEnabled(false);
 				GPSPrecalculation.openMap(5); 
 				GPSPrecalculation.precalculateRoute(5, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")){
-				Vehicle.setRecyclingEnabled(false);
 				GPSPrecalculation.openMap(3); 
 				GPSPrecalculation.precalculateRoute(3, minLineValue, maxLineValue);
 				}
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")){
-				Vehicle.setRecyclingEnabled(false);
 				GPSPrecalculation.openMap(4); 
 				GPSPrecalculation.precalculateRoute(4, minLineValue, maxLineValue);
 				}
+			WorkerThread.setSimulationMode_(3);
 		}
 	}
 	
