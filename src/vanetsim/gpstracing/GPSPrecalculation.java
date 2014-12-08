@@ -25,8 +25,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -99,8 +101,9 @@ public class GPSPrecalculation {
 			}
 			long startTime = 0;
 			for (String s : IDs){
+				HashMap<Long, WayPoint> wayPointMap = new HashMap<Long, WayPoint>();
 				destinations = new ArrayDeque<WayPoint>();
-				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
+				ArrayDeque<Long> tripTimes; //(parsedTraces_.size()/4)
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
 						
@@ -115,13 +118,14 @@ public class GPSPrecalculation {
 						WayPoint tmpWayPoint;
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-							destinations.add(tmpWayPoint);
-							Date t1;
 							
+							//destinations.add(tmpWayPoint);
+							Date t1;
 								if(j+7 < parsedTraces_.size()){//&& j!=0
 									t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
 									long time = t1.getTime();
-									tripTimes.add(time);
+									//tripTimes.add(time);
+									wayPointMap.put(time, tmpWayPoint);
 								}
 							} catch (ParseException e) {
 								System.out.println("Mapping Waypoint failed");
@@ -134,8 +138,14 @@ public class GPSPrecalculation {
 					
 				}
 				try {
-					if(destinations.size() >= 2){
+					if(wayPointMap.size() >= 2){
+						ArrayList<Long> tripTimesAsArray = new ArrayList<Long>(wayPointMap.keySet());
+						Collections.sort(tripTimesAsArray);
+						tripTimes = new ArrayDeque<Long>(tripTimesAsArray);
 						startTime = tripTimes.peekFirst();
+						for(int i = 0; i < tripTimesAsArray.size(); i++){
+							destinations.add(wayPointMap.get(tripTimesAsArray.get(i)));
+						}
 						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");		
 						if (RealTimeCalc_ == true){
 						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
@@ -176,7 +186,7 @@ public class GPSPrecalculation {
 						destinations.add(tmpWayPoint);
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
-						//e.printStackTrace();
+						e.printStackTrace();
 						continue;
 					}
 
