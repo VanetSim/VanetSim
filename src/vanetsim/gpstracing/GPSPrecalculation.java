@@ -179,7 +179,7 @@ public class GPSPrecalculation {
 			for (String s : IDs){
 				HashMap<Long, WayPoint> wayPointMap = new HashMap<Long, WayPoint>();
 				destinations = new ArrayDeque<WayPoint>();
-				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
+				ArrayDeque<Long> tripTimes; //(parsedTraces_.size()/4)
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
 						
@@ -196,7 +196,7 @@ public class GPSPrecalculation {
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 							Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
-							destinations.add(tmpWayPoint);
+							//destinations.add(tmpWayPoint);
 	
 							Date t1;
 							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssz").parse(parsedTraces_.get(j+3)); 
@@ -219,14 +219,18 @@ public class GPSPrecalculation {
 				}
 				//
 				try {
-					if(destinations.size() >= 2){
+					if(wayPointMap.size() >= 2){
 						//System.out.println(tripTimes.size());
 						//System.out.println(destinations.size());
 						ArrayList<Long> tripTimesAsArray = new ArrayList<Long>(wayPointMap.keySet());
 						Collections.sort(tripTimesAsArray);
 						tripTimes = new ArrayDeque<Long>(tripTimesAsArray);
 						startTime = tripTimes.peekFirst();
-					
+						
+						for(int i = 0; i < tripTimesAsArray.size(); i++){
+							destinations.add(wayPointMap.get(tripTimesAsArray.get(i)));
+						}
+						
 						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");	
 						//System.out.println("Vehicle created");
 						if (RealTimeCalc_ == true){
