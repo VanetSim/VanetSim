@@ -582,6 +582,7 @@ public class Vehicle extends LaneObject{
 	private ArrayDeque<Long> tripTimes_;
 	private WayPoint lastWaypoint_;
 	private WayPoint nextWaypoint_;
+	private int waypointCount_;
 
 	private int EVAMessageDelay_ = 3;
 
@@ -618,7 +619,8 @@ public class Vehicle extends LaneObject{
 		if(destinations != null && destinations.size()>1){
 			tripTimes_ = triptimes;
 			originalDestinations_ = destinations; 
-			destinations_ = originalDestinations_.clone();			
+			destinations_ = originalDestinations_.clone();
+			waypointCount_ = destinations_.size();
 			ID_ = RANDOM.nextLong();
 			steadyID_ = steadyIDCounter++;
 			vehicleLength_ = vehicleLength;
@@ -631,8 +633,6 @@ public class Vehicle extends LaneObject{
 			politeness_ = politeness;
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
 			startingWayPoint_ = destinations_.pollFirst();		// take the first element and remove it from the destinations!
-			lastWaypoint_ = startingWayPoint_;
-			nextWaypoint_ = destinations.peekFirst();
 			wiFiEnabled_ = wiFiEnabled;
 			speedDeviation_ = speedDeviation;
 			ownRandom_ = new Random(RANDOM.nextLong());
@@ -1713,22 +1713,12 @@ public class Vehicle extends LaneObject{
 				Object[] waypointArray = originalDestinations_.toArray();
 				Object[] tripTimesArray = tripTimes_.toArray();
 				
-				if(nextWaypoint_ != destinations_.peekFirst()){
-					nextWaypoint_ = destinations_.peekFirst();
-				}
 				
-				int indexOfNextWaypoint = -1;
+				nextWaypoint_ = destinations_.peekFirst();
 				
-				for(int x = 0; x < waypointArray.length; x++){
-					if(waypointArray[x] == nextWaypoint_){
-						indexOfNextWaypoint = x;
-						break;
-					}
-				}
+				int indexOfNextWaypoint = waypointArray.length-destinations_.size();
 								
-				if(lastWaypoint_ != ((WayPoint)waypointArray[indexOfNextWaypoint-1])){
-					lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
-				}
+				lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
 				
 				long timeLast = (long)tripTimesArray[indexOfNextWaypoint-1];
 				long timeNext = (long)tripTimesArray[indexOfNextWaypoint];
@@ -1741,29 +1731,38 @@ public class Vehicle extends LaneObject{
 				Street nextStreet = nextWaypoint_.getStreet();
 				
 				double distance = 0;
-				int indexOfLastStreet = -1;
+				//int indexOfLastStreet = -1;
 				
-				for(int y = 0; y < routeStreets_.length; y++){
+				/*for(int y = 0; y < routeStreets_.length; y++){
 					if(routeStreets_[y] == lastStreet){
 						indexOfLastStreet = y;
 						break;
 					}
-				}
-								
-				for(int z = indexOfLastStreet + 1; z < routeStreets_.length - 1; z++){
-					distance += routeStreets_[indexOfLastStreet].getLength();
-				}
-				if(routeDirections_[indexOfNextWaypoint-1]){
-					distance += lastStreet.getLength()-lastWaypoint_.getPositionOnStreet();
+				}*/
+				
+				if(routeStreets_.length < 2){
+					distance = Math.abs(lastWaypoint_.getPositionOnStreet()-nextWaypoint_.getPositionOnStreet());
 				}
 				else{
-					distance += lastWaypoint_.getPositionOnStreet();
-				}
-				if(routeDirections_[indexOfNextWaypoint]){
-					distance += nextStreet.getLength()-nextWaypoint_.getPositionOnStreet();
-				}
-				else{
-					distance += nextWaypoint_.getPositionOnStreet();
+					
+					
+					for(int i = 1; i < routeStreets_.length; i++){
+						distance += routeStreets_[i].getLength();
+					}
+					
+					if(routeDirections_[0]){
+						distance += lastStreet.getLength()-lastWaypoint_.getPositionOnStreet();
+					}
+					else{
+						distance += lastWaypoint_.getPositionOnStreet();
+					}
+					
+					if(routeDirections_[routeStreets_.length-1]){
+						distance += nextWaypoint_.getPositionOnStreet();
+					}
+					else{
+						distance += nextStreet.getLength()-nextWaypoint_.getPositionOnStreet();
+					}
 				}
 				
 				//System.out.println("Dis: "+distance);
