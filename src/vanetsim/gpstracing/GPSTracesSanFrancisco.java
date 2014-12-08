@@ -158,6 +158,7 @@ public class GPSTracesSanFrancisco {
 		if (fileArray != null) {
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
+				
 				// Add UUID per File, as one File is one vehicle
 				UUID TaxiID = UUID.randomUUID();
 
@@ -165,11 +166,13 @@ public class GPSTracesSanFrancisco {
 				String sCurrentLine = null;
 				try {
 					br = new BufferedReader(new FileReader(actualFile_));
+					
 					while ((sCurrentLine = br.readLine()) != null) {
 
 						if ((minLine <= Counter) && (maxLine >= Counter)) {
-							String[] columns = sCurrentLine.split(" ");
 
+							String[] columns = sCurrentLine.split(" ");
+							
 							String latitude = columns[0];
 							String longitude = columns[1];
 							// String occupancy = columns[2];

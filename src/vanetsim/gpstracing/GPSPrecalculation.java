@@ -165,12 +165,88 @@ public class GPSPrecalculation {
 		else if(simulationMode == 4){ 
 			
 			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
-		
-			Vehicle tmpVehicle;
-			destinations = new ArrayDeque<WayPoint>();	
-			ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
 			
-			for (int i = 0; i< parsedTraces_.size(); i=i+4){				
+			Vehicle tmpVehicle;
+
+			//Filter for ID
+			List<String> IDs= new ArrayList<String>();
+			for (int i = 0; i < parsedTraces_.size(); i=i+4){
+				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
+			}
+			long startTime = 0;
+			for (String s : IDs){
+				destinations = new ArrayDeque<WayPoint>();
+				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
+				for (int j = 0; j < parsedTraces_.size(); j=j+4){
+					if (s.equals(parsedTraces_.get(j))){
+						
+						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
+						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
+											
+						int[] Coordinates = new int[2];
+						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
+						if (!(MapHelper.translateGPSToMapMetric(Coordinates, x,y))){
+							continue;
+						}
+						WayPoint tmpWayPoint;
+						
+						try {
+							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
+							Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
+							destinations.add(tmpWayPoint);
+	
+							Date t1;
+							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssz").parse(parsedTraces_.get(j+3)); 
+							
+							long time = t1.getTime();
+							tripTimes.add(time);
+							System.out.println("Times added");
+							
+						} catch (ParseException e) {
+							System.out.println("Mapping Waypoint failed");
+							//e.printStackTrace();
+							continue;
+						} catch (IllegalArgumentException e1) {
+							System.out.println("Parsing Times in SF Traces failed");
+							//e1.printStackTrace();
+							continue;
+						}		
+					}
+				}
+				//
+				try {
+					if(destinations.size() >= 2){
+						System.out.println(tripTimes.size());
+						System.out.println(destinations.size());
+						startTime = tripTimes.peekFirst();
+					
+						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");	
+						System.out.println("Vehicle created");
+						if (RealTimeCalc_ == true){
+						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+						}
+						else{
+							Map.getInstance().addVehicle(tmpVehicle);
+						}
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}	
+			}
+		}
+
+/**
+			Vehicle tmpVehicle;
+			//Filter for ID						
+			List<String> IDs= new ArrayList<String>();
+			for (int i = 0; i < parsedTraces_.size(); i=i+4){
+				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
+			}
+			long startTime = 0;
+			for (String s : IDs){
+	
+
+			for (int i = 0; i< parsedTraces_.size(); i=i+4){
 				if (i==0){	
 					double x = (double)Double.parseDouble(parsedTraces_.get(i+1));
 					double y = (double)Double.parseDouble(parsedTraces_.get(i+2));
@@ -178,15 +254,17 @@ public class GPSPrecalculation {
 					int[] Coordinates = new int[2];
 					MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 					if (MapHelper.translateGPSToMapMetric(Coordinates, x,y) == false){
+						System.out.println("Maphelper failed");
 						continue;
 					}
 					WayPoint tmpWayPoint;
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
+						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						//e.printStackTrace();
 						continue;
 					}
 
@@ -194,8 +272,6 @@ public class GPSPrecalculation {
 					try {		
 						t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(parsedTraces_.get(i+3)); 
 						long time = t1.getTime();
-						//Time in ms
-						//long timeDif = t2.getTime() - t1.getTime();
 						tripTimes.add(time);
 					} catch (ParseException e1) {
 						System.out.println("Parsing Times in SF Traces Failed");
@@ -218,6 +294,7 @@ public class GPSPrecalculation {
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
+						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 					} catch (ParseException e) {
 						//e.printStackTrace();
 						continue;
@@ -240,8 +317,7 @@ public class GPSPrecalculation {
 					try {
 						if(destinations.size() >= 2){
 							tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-							
-							long startTime = tripTimes.getFirst(); //TODO: Get Last ?
+							long startTime = tripTimes.getFirst();
 							if (RealTimeCalc_ == true){
 								GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 								}
@@ -269,9 +345,9 @@ public class GPSPrecalculation {
 					try {
 						tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 						destinations.add(tmpWayPoint);
-
+						Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 					} catch (ParseException e) {			
-						e.printStackTrace();
+						//e.printStackTrace();
 					}
 					
 					Date t1;
@@ -288,10 +364,13 @@ public class GPSPrecalculation {
 					}
 				}
 			}
+			System.out.println(destinations.size());
 			try {
 				if(destinations.size() >= 2){
+					long startTime = tripTimes.getFirst(); 
 					tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-					long startTime = tripTimes.getFirst(); //TODO: Get Last ?
+					
+					System.out.println("Vehicle created");
 					if (RealTimeCalc_ == true){
 						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						}
@@ -388,7 +467,7 @@ public class GPSPrecalculation {
 							
 						}
 				
-					}
+					}*/
 		
 		// Precalculation for the general GPX-Files Szenario
 		else if(simulationMode == 6){ 
@@ -434,9 +513,11 @@ public class GPSPrecalculation {
 						} catch (ParseException e) {
 							System.out.println("Mapping Waypoint failed");
 							//e.printStackTrace();
+							continue;
 						} catch (IllegalArgumentException e1) {
 							System.out.println("Parsing Times in GPX Traces failed");
 							//e1.printStackTrace();
+							continue;
 						}		
 					}
 				}//TODO:
