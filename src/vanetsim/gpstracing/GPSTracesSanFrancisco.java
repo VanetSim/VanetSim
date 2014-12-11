@@ -156,6 +156,7 @@ public class GPSTracesSanFrancisco {
 		File[] fileArray = f.listFiles();
 
 		if (fileArray != null) {
+			//read over all files
 			for (int i = 0; i < fileArray.length; i++) {
 				File actualFile_ = fileArray[i];
 				
@@ -166,11 +167,11 @@ public class GPSTracesSanFrancisco {
 				String sCurrentLine = null;
 				try {
 					br = new BufferedReader(new FileReader(actualFile_));
-					
+					//read file until null
 					while ((sCurrentLine = br.readLine()) != null) {
-
+						//read lines in min/max Line area
 						if ((minLine <= Counter) && (maxLine >= Counter)) {
-
+							//Split at Space
 							String[] columns = sCurrentLine.split(" ");
 							
 							String latitude = columns[0];

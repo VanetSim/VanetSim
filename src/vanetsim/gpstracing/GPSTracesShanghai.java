@@ -148,9 +148,11 @@ public class GPSTracesShanghai {
 		try {
 			br = new BufferedReader(new FileReader(ShanghaiFile_));
 			int Counter = 0;
-
+			//read file until line is null
 			while ((sCurrentLine = br.readLine()) != null) {
+				//read inbetween min/max Line area
 				if ((minLine <= Counter) && (maxLine >= Counter)) {
+					//CSV File so split at ,
 					String[] columns = sCurrentLine.split(",");
 
 					// String ID = columns[0];

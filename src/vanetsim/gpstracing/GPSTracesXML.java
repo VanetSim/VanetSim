@@ -73,7 +73,7 @@ public class GPSTracesXML {
 		        System.out.println("Action");
 		      }
 		    });
-		    
+		    //Set endings for gpx, as only gpx format should be parsed
 		    FileNameExtensionFilter filter = new FileNameExtensionFilter("GPX", "gpx");
 		    fileChooser.addChoosableFileFilter(filter);
 		    fileChooser.setDialogTitle("Open GPX File");
@@ -84,9 +84,9 @@ public class GPSTracesXML {
 		    	//File selectedFile = fileChooser.getSelectedFile();
 		    	
 		    	File[] fileArray = fileChooser.getSelectedFiles();
-
+		    		//Check if files were selected
 		     		if(fileArray != null){
-  
+		     			//Read over all selected files
 		     			for(int i=0;i<fileArray.length;i++){
 		     				File actualFile_ = fileArray[i];
 		     				List<Location> points = null;
@@ -96,14 +96,16 @@ public class GPSTracesXML {
 		     						//Create one UUID per File as one File is one Vehicle
 		     						UUID idOne = UUID.randomUUID();
 		     						
+		     						//Make a new document builder
 		     						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		     						DocumentBuilder builder = factory.newDocumentBuilder();
-
+		     						//Set Input stream for current file
 		     						FileInputStream fis = new FileInputStream(actualFile_);
 		     						org.w3c.dom.Document dom = builder.parse(fis);	
 		     						Element root = (Element) dom.getDocumentElement();
+		     						//First node is always "trkpt"
 		     						NodeList items = root.getElementsByTagName("trkpt");
-
+		     						//go over all nodes in GPX file
 		     						for(int j = 0; j < items.getLength(); j++){		
 		     							Node item = items.item(j);
 		     							NamedNodeMap attrs = item.getAttributes();
@@ -111,13 +113,14 @@ public class GPSTracesXML {
 
 		     							String longtitude_;
 		     							String latitude_;
-		     							
+		     							//Select latitude and longtitude
 		     							latitude_ = (attrs.getNamedItem("lat").getTextContent());
 		     							longtitude_ = (attrs.getNamedItem("lon").getTextContent());
 		     							//The element ele is measuring the height in meters - not relevant at the moment
 		     							//Float ele_ = (float) Double.parseDouble(attrs.getNamedItem("ele").getTextContent());
 		     							//Float speed_ = (float) Double.parseDouble(attrs.getNamedItem("speed").getTextContent());
 
+		     							//get time to waypoint
 		     							for(int k = 0; k<props.getLength(); k++){
 		     								Node item2 = props.item (k);
 		     								String name = item2.getNodeName();
@@ -142,8 +145,9 @@ public class GPSTracesXML {
 	 
 		     		}	   
 		    }else if (status == JFileChooser.CANCEL_OPTION) {
-		    	System.out.println("calceled");
+		    	//System.out.println("calceled");
 		    }
+		    //return arrayList
 		    return GPXTraces_;
 	 }
 

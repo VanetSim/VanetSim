@@ -163,7 +163,7 @@ public class GPSTracesNY {
 				String sCurrentLine = null;
 				try {
 					br = new BufferedReader(new FileReader(actualFile_));
-
+					//read file until null
 					while (((sCurrentLine = br.readLine()) != null)) {
 
 						if ((minLine <= Counter)
@@ -177,7 +177,7 @@ public class GPSTracesNY {
 							// passenger_count, trip_time_in_secs, trip_distance, pickup_longitude,
 							// pickup_latitude, dropoff_longitude, dropoff_latitude
 							
-							//Parse only neccessary information. Other parts included for further usage.
+							//Parse only necessary information. Other parts included for further usage.
 							
 							//String medallion = columns[0]; // ID
 							// String hack_licence = columns[0];

@@ -74,9 +74,7 @@ public class GPSPrecalculation {
 		}
 		//GPX Traces - this is the only generic Function for opening Maps
 		else if(simulationMode == 6){
-			// File HHFile_ = new File("../Vanetsim/Hamburg_kl.xml"); 
-			// Map.getInstance().load(HHFile_, false);
-			
+			//open Map Dialog
 			VanetSimStart.getMainControlPanel().changeFileChooser(true, true, false);
 			int returnVal = VanetSimStart.getMainControlPanel().getFileChooser().showOpenDialog(VanetSimStart.getMainFrame());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {           
@@ -91,7 +89,7 @@ public class GPSPrecalculation {
 		
 		// Precalculation for the Shanghai Szenario
 		if(simulationMode == 3){ 
-			
+			//Parse Input File
 			ArrayList<String> parsedTraces_ = GPSTracesShanghai.getInstance().getShanghaiTraces(minLine, maxLine);
 			Vehicle tmpVehicle;
 			//Filter for ID						
@@ -100,16 +98,20 @@ public class GPSPrecalculation {
 				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
 			}
 			long startTime = 0;
+			//Go over all IDs
 			for (String s : IDs){
 				HashMap<Long, WayPoint> wayPointMap = new HashMap<Long, WayPoint>();
 				destinations = new ArrayDeque<WayPoint>();
-				ArrayDeque<Long> tripTimes; //(parsedTraces_.size()/4)
+				ArrayDeque<Long> tripTimes; 
+				//Go over Array List
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
 						
+						//Get Coordinates
 						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 						
+						//Parse Coordinates to MapMetric
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 						if (!(MapHelper.translateGPSToMapMetric(Coordinates, x,y))){
@@ -117,36 +119,39 @@ public class GPSPrecalculation {
 						}
 						WayPoint tmpWayPoint;
 						try {
+							//Add Waypoint
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
 							
-							//destinations.add(tmpWayPoint);
 							Date t1;
-								if(j+7 < parsedTraces_.size()){//&& j!=0
+								//Get time corresponding to waypoint
+								if(j+7 < parsedTraces_.size()){
 									t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(j+3));	
 									long time = t1.getTime();
-									//tripTimes.add(time);
 									wayPointMap.put(time, tmpWayPoint);
 								}
 							} catch (ParseException e) {
-								System.out.println("Mapping Waypoint failed");
 								//e.printStackTrace();
 							} catch (IllegalArgumentException e1) {
-								System.out.println("Parsing Times in Shanghai Traces failed");
 								//e1.printStackTrace();
 							}		
 					}
 					
 				}
 				try {
+					//Check that Waypoints were selected
 					if(wayPointMap.size() >= 2){
+						//Sort List 
 						ArrayList<Long> tripTimesAsArray = new ArrayList<Long>(wayPointMap.keySet());
 						Collections.sort(tripTimesAsArray);
 						tripTimes = new ArrayDeque<Long>(tripTimesAsArray);
+						//Get start time for vehicle
 						startTime = tripTimes.peekFirst();
+						//Add Waypoints to destinations
 						for(int i = 0; i < tripTimesAsArray.size(); i++){
 							destinations.add(wayPointMap.get(tripTimesAsArray.get(i)));
 						}
 						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");		
+						//Check if real time scenario or all vehicles start at once
 						if (RealTimeCalc_ == true){
 						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						}
@@ -156,7 +161,6 @@ public class GPSPrecalculation {
 					}
 				} catch (ParseException e) {
 					//e.printStackTrace();
-					System.out.println("Vehicle creation failed");
 				}	
 			}
 		}
@@ -164,54 +168,52 @@ public class GPSPrecalculation {
 		// Precalculation for the San Francisco Szenario
 		else if(simulationMode == 4){ 
 			
+			//Parse Input File
 			ArrayList<String> parsedTraces_ = GPSTracesSanFrancisco.getInstance().getSanFranciscoTraces(minLine, maxLine);
 			
 			Vehicle tmpVehicle;
 
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
-			
+			//Go over Array List
 			for (int i = 0; i < parsedTraces_.size(); i=i+4){
 				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
 			}
 			long startTime = 0;
-			
+			//Go over all IDs
 			for (String s : IDs){
 				HashMap<Long, WayPoint> wayPointMap = new HashMap<Long, WayPoint>();
 				destinations = new ArrayDeque<WayPoint>();
-				ArrayDeque<Long> tripTimes; //(parsedTraces_.size()/4)
+				ArrayDeque<Long> tripTimes;
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
-						
+						//Get Coordinates
 						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
-											
+						
+						//Parse Coordinates to MapMetric					
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 						if (!(MapHelper.translateGPSToMapMetric(Coordinates, x,y))){
 							continue;
 						}
 						WayPoint tmpWayPoint;
-						
+						//Add Waypoint
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-							Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
-							//destinations.add(tmpWayPoint);
-	
+							//Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
+							//Get time corresponding to waypoint
 							Date t1;
 							t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssz").parse(parsedTraces_.get(j+3)); 
 							
 							long time = t1.getTime();
 							wayPointMap.put(time, tmpWayPoint);
 							//tripTimes.add(time);
-							//System.out.println("Times added");
 							
 						} catch (ParseException e) {
-							//System.out.println("Mapping Waypoint failed");
 							//e.printStackTrace();
 							continue;
 						} catch (IllegalArgumentException e1) {
-							//System.out.println("Parsing Times in SF Traces failed");
 							//e1.printStackTrace();
 							continue;
 						}		
@@ -219,12 +221,13 @@ public class GPSPrecalculation {
 				}
 				//
 				try {
+					//Check that Waypoints were selected
 					if(wayPointMap.size() >= 2){
-						//System.out.println(tripTimes.size());
-						//System.out.println(destinations.size());
+
 						ArrayList<Long> tripTimesAsArray = new ArrayList<Long>(wayPointMap.keySet());
 						Collections.sort(tripTimesAsArray);
 						tripTimes = new ArrayDeque<Long>(tripTimesAsArray);
+						//Get start time for vehicle
 						startTime = tripTimes.peekFirst();
 						
 						for(int i = 0; i < tripTimesAsArray.size(); i++){
@@ -232,7 +235,7 @@ public class GPSPrecalculation {
 						}
 						
 						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");	
-						//System.out.println("Vehicle created");
+						//Check if real time scenario or all vehicles start at once
 						if (RealTimeCalc_ == true){
 						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						}
@@ -241,7 +244,7 @@ public class GPSPrecalculation {
 						}
 					}
 				} catch (ParseException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}	
 			}
 		}
@@ -250,147 +253,143 @@ public class GPSPrecalculation {
 		
 		//Precalculation for the New York Szenario
 		else if(simulationMode == 5){
+			
+			//Parse Input File
+			ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
+			Vehicle tmpVehicle;
+				//Go over Array List
+				for(int i = 0; i < parsedTraces_.size(); i=i+7){
+					
+					ArrayDeque<Long> tripTimes = new ArrayDeque<Long>();	
+					destinations = new ArrayDeque<WayPoint>(2);		
+					
+					try{
+						//Get Coordinates
+						double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
+						double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));		
 
-				ArrayList<String> parsedTraces_ = GPSTracesNY.getInstance().getNYTraces(minLine, maxLine);
-				Vehicle tmpVehicle;
-				
-					for(int i = 0; i < parsedTraces_.size(); i=i+7){
-						
-						ArrayDeque<Long> tripTimes = new ArrayDeque<Long>();		//(parsedTraces_.size()/7)
-						destinations = new ArrayDeque<WayPoint>(2);		
-						
-							try{
-				
-								double pickupX_ = (double)Double.parseDouble(parsedTraces_.get(i+1));
-								double pickupY_ = (double)Double.parseDouble(parsedTraces_.get(i+2));		
-
-								//Add first way points here
-								int[] CoordinatesPickup = new int[2];
-								
-								if (MapHelper.translateGPSToMapMetric(CoordinatesPickup, pickupX_, pickupY_) == false){
-									destinations.clear();
-									continue;
-								}
-													
-								WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], 0);
-									destinations.add(tmpWayPoint);
-									Date t3;
-									//System.out.println("Time 1: " + parsedTraces_.get(i+3));
-									t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+3));
-									long time = t3.getTime();
-									//long time = (long)Long.parseLong(parsedTraces_.get(i+3));
-									//TripTime is in Seconds
-									tripTimes.add(time);
-									
-
-								double dropoffX_ = (double)Double.parseDouble(parsedTraces_.get(i+6));
-								double dropoffY_ = (double)Double.parseDouble(parsedTraces_.get(i+7));							
-								//Add second way points here
-								int[] CoordinatesDropoff = new int[2];
-								
-								if (MapHelper.translateGPSToMapMetric(CoordinatesDropoff, dropoffX_,dropoffY_) == false){
-									destinations.clear();
-									continue;
-								}
-								WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], 0);
-									destinations.add(tmpWayPoint_2);
-									
-									//long time2 = (long)Long.parseLong(parsedTraces_.get(i+4));
-									//TripTime is in Seconds
-									//System.out.println("Time 2: " + parsedTraces_.get(i+4));
-									Date t2;
-									t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+4));
-									long time2 = t2.getTime();
-									tripTimes.add(time2);
-								
-							} catch (Exception e) {
-								System.out.println("Routing failed");
-							}
-							//Create vehicle
-							try {
-								if(!(destinations.size() <2)){							
-									//Time in ms
-									//Times can be added here, as there is only one trip time per vehicle, as New York Taxis always only have 2 pOints
-
-									//Date t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+3)); 
-									long startTime = tripTimes.peekFirst();
-									
-									tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
-									if (RealTimeCalc_ == true){
-										GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
-										}
-										else{
-											Map.getInstance().addVehicle(tmpVehicle);
-										}
-
-								}
-							} catch (ParseException e) {
-								System.out.println("Vehicle creation failed");
-								e.printStackTrace();
-							}
-							
-							
+						//Parse Coordinates to MapMetric
+						int[] CoordinatesPickup = new int[2];
+						if (MapHelper.translateGPSToMapMetric(CoordinatesPickup, pickupX_, pickupY_) == false){
+							destinations.clear();
+							continue;
 						}
-				
+						//Add Waypoint					
+						WayPoint tmpWayPoint = new WayPoint(CoordinatesPickup[0],CoordinatesPickup[1], 0);
+						destinations.add(tmpWayPoint);
+						//Get time corresponding to waypoint
+						Date t3;
+						t3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+3));
+						long time = t3.getTime();
+						tripTimes.add(time);
+							
+						//Get Coordinates
+						double dropoffX_ = (double)Double.parseDouble(parsedTraces_.get(i+6));
+						double dropoffY_ = (double)Double.parseDouble(parsedTraces_.get(i+7));	
+						
+						//Parse Coordinates to MapMetric
+						int[] CoordinatesDropoff = new int[2];
+						if (MapHelper.translateGPSToMapMetric(CoordinatesDropoff, dropoffX_,dropoffY_) == false){
+							destinations.clear();
+							continue;
+						}
+						//Add Waypoint
+						WayPoint tmpWayPoint_2 = new WayPoint(CoordinatesDropoff[0],CoordinatesDropoff[1], 0);
+						destinations.add(tmpWayPoint_2);
+						//Get time corresponding to waypoint
+						Date t2;
+						t2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(parsedTraces_.get(i+4));
+						long time2 = t2.getTime();
+						tripTimes.add(time2);
+						
+					} catch (Exception e) {
+						//System.out.println("Routing failed");
 					}
+					//Create vehicle
+					try {
+						//Check that Waypoints were selected
+						if(!(destinations.size() <2)){				
+							//Get start time for vehicle
+							long startTime = tripTimes.peekFirst();	
+							tmpVehicle = new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");
+							//Check if real time scenario or all vehicles start at once
+							if (RealTimeCalc_ == true){
+								GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
+								}
+								else{
+									Map.getInstance().addVehicle(tmpVehicle);
+								}
+
+						}
+					} catch (ParseException e) {
+						//e.printStackTrace();
+					}
+					
+					
+				}
+		
+			}
 		
 		// Precalculation for the general GPX-Files Szenario
 		else if(simulationMode == 6){ 
 			
+			//Parse Input File
 			ArrayList<String> parsedTraces_ = GPSTracesXML.getInstance().getGpxTraces();
 			
 			Vehicle tmpVehicle;
-
 			//Filter for ID
 			List<String> IDs= new ArrayList<String>();
+			//Go over Array List
 			for (int i = 0; i < parsedTraces_.size(); i=i+4){
 				if(!ArrayContainsElem(parsedTraces_.get(i), IDs)) IDs.add(parsedTraces_.get(i));
 			}
 			long startTime = 0;
+			//Go over all IDs
 			for (String s : IDs){
 				destinations = new ArrayDeque<WayPoint>();
-				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>(); //(parsedTraces_.size()/4)
+				ArrayDeque<Long> tripTimes = new ArrayDeque<Long>();
 				for (int j = 0; j < parsedTraces_.size(); j=j+4){
 					if (s.equals(parsedTraces_.get(j))){
-						
+						//Get Coordinates
 						double x = (double)Double.parseDouble(parsedTraces_.get(j+1));
 						double y = (double)Double.parseDouble(parsedTraces_.get(j+2));
 											
+						//Parse Coordinates to MapMetric
 						int[] Coordinates = new int[2];
 						MapHelper.translateGPSToMapMetric(Coordinates, x,y);
 						if (!(MapHelper.translateGPSToMapMetric(Coordinates, x,y))){
 							continue;
 						}
 						WayPoint tmpWayPoint;
-						
+						//Add Waypoint
 						try {
 							tmpWayPoint = new WayPoint(Coordinates[0],Coordinates[1], 0);
-							Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
+							//Map.getInstance().addRSU(new RSU(Coordinates[0],Coordinates[1], 500, false));
 							destinations.add(tmpWayPoint);
-	
+							
+							//Get time corresponding to waypoint
 							Date t1;
-		
 							if(j+7 < parsedTraces_.size() && j != 0){
 								t1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parsedTraces_.get(j+3)); 
 								long time = t1.getTime();
 								tripTimes.add(time);
 							}
 						} catch (ParseException e) {
-							System.out.println("Mapping Waypoint failed");
 							//e.printStackTrace();
 							continue;
 						} catch (IllegalArgumentException e1) {
-							System.out.println("Parsing Times in GPX Traces failed");
 							//e1.printStackTrace();
 							continue;
 						}		
 					}
-				}//TODO:
-				//
+				}
 				try {
+					//Check that Waypoints were selected
 					if(destinations.size() >= 2){
+						//Get start time for vehicle
 						startTime = tripTimes.peekFirst();
 						tmpVehicle =  new Vehicle(destinations, tripTimes, 1, 1, 1, false, false, 1, 1, 1, 1, 1, new Color(0,255,0), false, "");		
+						//Check if real time scenario or all vehicles start at once
 						if (RealTimeCalc_ == true){
 						GPSVehicleMaster.getInstance().addVehicle(tmpVehicle, startTime);
 						}
@@ -399,7 +398,7 @@ public class GPSPrecalculation {
 						}
 					}
 				} catch (ParseException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}	
 			}
 		}
@@ -417,8 +416,8 @@ public class GPSPrecalculation {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Done :)");
-		VanetSimStart.setProgressBar(false);
+	//	System.out.println("Done :)");
+	//	VanetSimStart.setProgressBar(false);
 	}
 	
 	private static boolean ArrayContainsElem(String elem, List<String> array){

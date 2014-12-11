@@ -632,8 +632,7 @@ public final class WorkerThread extends Thread {
 				
 			}
 		}
-		
-		//TODO: Number 3 -> Shanghai
+		//All GPS Simulations
 		else if(simulationMode_ == 3){
 			while(true){
 				// ================================= 
@@ -669,7 +668,7 @@ public final class WorkerThread extends Thread {
 						vehicleSubarray = vehicles[i];
 						length = vehicleSubarray.length;
 						for(j = 0; j < length; ++j){
-						//	vehicleSubarray[j].adjustSpeedWithSJTUTraceFiles(timePerStep_);
+							//Call adjust Speed with GPS as generic function
 							vehicleSubarray[j].adjustSpeedWithGPS(timePerStep_);
 						}
 					}
@@ -682,8 +681,7 @@ public final class WorkerThread extends Thread {
 							rsuSubarray[j].cleanup(timePerStep_);
 						}
 					}
-
-					
+				
 					// Wait for all concurrent threads to synchronize			
 					
 					barrierDuringWork_.await();

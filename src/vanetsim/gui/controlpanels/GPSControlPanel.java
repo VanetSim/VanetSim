@@ -90,78 +90,78 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 	/** A JComboBox to switch between traffic models. */
 	private JComboBox<String> chooseGPSTraces_;
 	
-	/** A Label for the GOS Info Text Box */
-	private JLabel Infobox_;
-	
+	/** Method of building the GUI of the GPS Panel */
 	public GPSControlPanel() {
 		setLayout(new GridBagLayout());
 		
 		// global layout settings
-				GridBagConstraints c = new GridBagConstraints();
-				c.fill = GridBagConstraints.BOTH;
-				c.anchor = GridBagConstraints.PAGE_START;
-				c.weightx = 0.5;
-				c.gridx = 0;
-				c.gridy = 0;
-				c.gridheight = 1;			
-				c.gridwidth = 1;
-				c.insets = new Insets(5,5,5,5);
-				c.gridx = 0;
-				
-				//Auswahlbereich Traces
-				c.gridx = 0;
-				chooseGPSTracesLabel_ = new JLabel(Messages.getString("GPSControlPanel.ChooseGPSTracesPanel")); //$NON-NLS-1$
-				++c.gridy;
-				add(chooseGPSTracesLabel_,c);
-				chooseGPSTraces_ = new JComboBox<String>();
-				chooseGPSTraces_.setActionCommand("chooseGPSTraces");
-				chooseGPSTraces_.addItem("GPX Trace Files"); //TODO:Welche Karte
-				chooseGPSTraces_.addItem("GPS Traces New York");
-				chooseGPSTraces_.addItem("GPS Traces Shanghai");
-				chooseGPSTraces_.addItem("GPS Traces San Francisco");
-				chooseGPSTraces_.addActionListener(this);
-				c.gridx = 1;
-				add(chooseGPSTraces_, c);
-				
-				c.gridx = 0;
-				JLabel jLabel1 = new JLabel(Messages.getString("GPSControlPanel.minLine")); //$NON-NLS-1$
-				++c.gridy;
-				add(jLabel1,c);		
-				minLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
-				minLine_.setValue(0);
-				minLine_.setPreferredSize(new Dimension(60,20));
-				c.gridx = 1;
-				add(minLine_,c);
-				c.gridx = 2; 
-				
-				c.gridx = 0;
-				jLabel1 = new JLabel(Messages.getString("GPSControlPanel.maxLine")); //$NON-NLS-1$
-				++c.gridy;
-				add(jLabel1,c);		
-				maxLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
-				maxLine_.setValue(250);
-				maxLine_.setPreferredSize(new Dimension(60,20));;
-				c.gridx = 1;
-				add(maxLine_,c);
-				
-				//Add Real Time Calculation Chcekbox
-				RealTimeCalcCheckBox_ = new JCheckBox(Messages.getString("GPSControlPanel.RealTimeCalc"), false); //$NON-NLS-1$
-				RealTimeCalcCheckBox_.addItemListener(this);
-				++c.gridy;
-				add(RealTimeCalcCheckBox_,c);
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.PAGE_START;
+		c.weightx = 0.5;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridheight = 1;			
+		c.gridwidth = 1;
+		c.insets = new Insets(5,5,5,5);
+		c.gridx = 0;
+		
+		//selection Area Traces
+		c.gridx = 0;
+		chooseGPSTracesLabel_ = new JLabel(Messages.getString("GPSControlPanel.ChooseGPSTracesPanel")); //$NON-NLS-1$
+		++c.gridy;
+		add(chooseGPSTracesLabel_,c);
+		chooseGPSTraces_ = new JComboBox<String>();
+		chooseGPSTraces_.setActionCommand("chooseGPSTraces");
+		chooseGPSTraces_.addItem("GPX Trace Files"); 
+		chooseGPSTraces_.addItem("GPS Traces New York");
+		chooseGPSTraces_.addItem("GPS Traces Shanghai");
+		chooseGPSTraces_.addItem("GPS Traces San Francisco");
+		chooseGPSTraces_.addActionListener(this);
+		c.gridx = 1;
+		add(chooseGPSTraces_, c);
+		
+		//Min line Area
+		c.gridx = 0;
+		JLabel jLabel1 = new JLabel(Messages.getString("GPSControlPanel.minLine")); //$NON-NLS-1$
+		++c.gridy;
+		add(jLabel1,c);		
+		minLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		minLine_.setValue(0);
+		minLine_.setPreferredSize(new Dimension(60,20));
+		c.gridx = 1;
+		add(minLine_,c);
+		c.gridx = 2; 
+		
+		//Max line Area
+		c.gridx = 0;
+		jLabel1 = new JLabel(Messages.getString("GPSControlPanel.maxLine")); //$NON-NLS-1$
+		++c.gridy;
+		add(jLabel1,c);		
+		maxLine_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		maxLine_.setValue(250);
+		maxLine_.setPreferredSize(new Dimension(60,20));;
+		c.gridx = 1;
+		add(maxLine_,c);
+		
+		// Real Time Calculation Chcekbox
+		RealTimeCalcCheckBox_ = new JCheckBox(Messages.getString("GPSControlPanel.RealTimeCalc"), false); //$NON-NLS-1$
+		RealTimeCalcCheckBox_.addItemListener(this);
+		++c.gridy;
+		add(RealTimeCalcCheckBox_,c);
 
-				LoadJPanel_ = new JPanel(new CardLayout());
-				LoadJPanel_.add(ButtonCreator.getJButton("start.png", "load", Messages.getString("GPSControlPanel.load"), this), "load"); 
-				++c.gridy;
-				c.gridwidth = 1;
-				add(LoadJPanel_, c);
-				
-				//to consume the rest of the space
-				c.weighty = 1.0;
-				++c.gridy;
-				JPanel space = new JPanel();
-				space.setOpaque(false);
-				add(space, c);
+		LoadJPanel_ = new JPanel(new CardLayout());
+		LoadJPanel_.add(ButtonCreator.getJButton("start.png", "load", Messages.getString("GPSControlPanel.load"), this), "load"); 
+		++c.gridy;
+		c.gridwidth = 1;
+		add(LoadJPanel_, c);
+		
+		//to consume the rest of the space
+		c.weighty = 1.0;
+		++c.gridy;
+		JPanel space = new JPanel();
+		space.setOpaque(false);
+		add(space, c);
 	}
 
 	public void setLoading(){
@@ -177,9 +177,9 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 		int minLineValue = ((Number)minLine_.getValue()).intValue();
 		int maxLineValue = ((Number)maxLine_.getValue()).intValue();		
 		
-		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 Hamburg
+		// 4 ->San Francisco ,  3 -> Shanghai, 5 -> New York -> 6 GPX
 		if("chooseGPSTraces".equals(command)){	
-			//display Traces selection related gui elements
+			//display Traces selection related GUI elements
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces New York")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
@@ -195,7 +195,7 @@ public final class GPSControlPanel extends JPanel implements ActionListener, Cha
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces Shanghai")) WorkerThread.setSimulationMode_(3);
 			else if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPS Traces San Francisco")) WorkerThread.setSimulationMode_(3);
 		}
-		if ("load".equals(command)){ //$NON-NLS-1$
+		if ("load".equals(command)){ 
 			if(((String)chooseGPSTraces_.getSelectedItem()).equals("GPX Trace Files")){ 
 				GPSPrecalculation.openMap(6); 
 				GPSPrecalculation.precalculateRoute(6, 0, 0);
