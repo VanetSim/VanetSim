@@ -77,7 +77,7 @@ public class KnownVehiclesList{
 	 * @param rssi      the rssi received in this beacon, <code>0</code> if no rssi was send
 	 */
 	public synchronized void updateVehicle(Vehicle vehicle, long ID, int x, int y, double speed, long sourceID, boolean isEncrypted, boolean isARSU, double rssi){
-		boolean found = false;
+	    boolean found = false;
 		newBeaconsToExchange = true;
 		int hash = (int)(ID % HASH_SIZE);
 		if(hash < 0) hash = -hash;

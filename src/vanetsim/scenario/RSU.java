@@ -22,23 +22,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ArrayDeque;
 
-
-
-
-
-
-
-
-
-
-
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
 import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.map.Street;
 import vanetsim.scenario.messages.Message;
-import vanetsim.scenario.propagation.PropagationModel;
+import vanetsim.scenario.positionverification.PositioningHelper;
+import vanetsim.scenario.positionverification.PropagationModel;
 import vanetsim.map.Map;
 
 
@@ -133,13 +124,12 @@ public final class RSU {
 	/** activates demonstration mode of encrypted Mix-Zones */
 	private static boolean showEncryptedBeaconsInMix_ = false;
 	
-	//TODO: reuse for verification
 	private HashMap<Long, ArrayList<PositionEntity>> positionVerificationEntryMap = new HashMap<Long, ArrayList<PositionEntity>>();
-	private ArrayList<Long> knownVehicleShortList =null;
 	
-	//TODO: need to be cleared after position verification is done
-    private ArrayList<PositionEntity> receivedVehiclelists = new ArrayList<PositionEntity>();
-
+    private ArrayList<PositionEntity> receivedFromRSUVehiclelists = new ArrayList<PositionEntity>();
+    private ArrayList<PositionEntity> receivedFromVehicleVehiclelists = new ArrayList<PositionEntity>();
+    private ArrayList<PositionEntity> ownPositionEntryList =  new ArrayList<PositionEntity>();
+    
 	/** static array to save the colored vehicles that are behind the marked vehicle */
 	private Vehicle[] vehicleBehind_;
 	
@@ -873,9 +863,7 @@ public final class RSU {
             //TODO: check if this can occur
             return;
         }
-        // get all KnownVehicles (Vehicles from which we have received beacons)
-        KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
-       
+
         // send to neighbor RSUs
         int i, j, size = 0, MapMinX, MapMinY, MapMaxX, MapMaxY, RegionMinX, RegionMinY, RegionMaxX, RegionMaxY;
         RSU[] rsus = null;
@@ -931,6 +919,8 @@ public final class RSU {
         RegionMaxX = tmpregion.getX();
         RegionMaxY = tmpregion.getY();
 
+        ownPositionEntryList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
+        
         // iterate through all regions in range
         for (i = RegionMinX; i <= RegionMaxX; ++i) {
             for (j = RegionMinY; j <= RegionMaxY; ++j) {
@@ -945,7 +935,7 @@ public final class RSU {
                         dy = rsu.getY() - y_;
                         if ((dx * dx + dy * dy) <= maxCommDistanceSquared) {
                             // do exchanging here here
-                            rsu.receiveKnownVehicles(true, rsuID_, x_, y_, knownVehicleArray);
+                            rsu.receiveKnownVehicles(true, ownPositionEntryList);
                         }
                     }
                 }
@@ -953,10 +943,145 @@ public final class RSU {
         }
     }
 
-    public void receiveKnownVehicles(boolean sourceIsRSU, long receiverID, int receiverX, int receiverY, KnownVehicle[] knownVehicleArray) {
-        //TODO: take note if knownvehicles come from "trusted" RSU or Vehicle -> split into 2 lists
-        receivedVehiclelists.add(new PositionEntity(receiverID, receiverX, receiverY, knownVehicleArray));
-        System.out.println("RSU: "+ this.rsuID_ + " receivec from: "+receiverID);
+    private ArrayList<PositionEntity> createPositionEntityList(KnownVehicle[] knownVehicleArray) {
+        ArrayList<PositionEntity> result = new ArrayList<PositionEntity>();
+
+        KnownVehicle tmpKnownVehicle;
+        for (int i = 0; i < knownVehicleArray.length; i++) {
+            tmpKnownVehicle = knownVehicleArray[i];
+            while (tmpKnownVehicle != null) {
+
+                result.add(new PositionEntity(this.getRSUID(), this.getX(), this.getY(),tmpKnownVehicle));
+                tmpKnownVehicle = tmpKnownVehicle.getNext();
+            }
+        }
+        return result;
     }
 
+    public synchronized void receiveKnownVehicles(boolean sourceIsRSU, ArrayList<PositionEntity> positionEntityArray) {
+        if (sourceIsRSU) {
+            receivedFromRSUVehiclelists.addAll(positionEntityArray);
+        } else {
+            receivedFromVehicleVehiclelists.addAll(positionEntityArray);
+        }
+    }
+
+    
+    public void doPositionVerification() {
+        // clear the map of received information
+        positionVerificationEntryMap.clear();
+
+        // group received information according to the claimed VehicleID
+        if (PositioningHelper.isPositionVerificationVehilceSendRssiToRsu()) {
+            groupByID(receivedFromVehicleVehiclelists);
+        }
+        if (PositioningHelper.isPositionVerificationRsuSendRssiToRsu()) {
+            groupByID(receivedFromRSUVehiclelists);
+        }
+
+        // RSU Triangulation
+        if (PositioningHelper.isPositionVerificationRSU_Triangulation()) {
+            // für jedes Fahrzeug das dieser RSU bekannt ist die verifizierung durchführen
+            // nur wenn für das Fahrzeug auch meldungen der anderen RSUs vorhanden sind kann eine aussage getroffen werden
+            for (PositionEntity entry : ownPositionEntryList) {
+                long vehicleID = entry.getSenderID();
+                int vehicleX = entry.getSenderX();
+                int vehicleY = entry.getSenderY();
+
+                ArrayList<PositionEntity> entryList = positionVerificationEntryMap.get(vehicleID);
+                if (entryList == null || (entryList.size() < 2)) {
+                    continue;
+                }
+
+                // calculate the distances from the RSU to the Vehicle based on the RSSI Measurements
+                double[] dist = new double[3];
+                dist[0] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        entry.getRSSI());
+                dist[1] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        entryList.get(0).getRSSI());
+                ;
+                dist[2] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        entryList.get(1).getRSSI());
+
+                int[] rsusX = { this.getX(), entryList.get(0).getReceiverX(), entryList.get(1).getReceiverX() };
+                int[] rsusY = { this.getY(), entryList.get(0).getReceiverY(), entryList.get(1).getReceiverY() };
+
+                // TODO: wurzel entfernen
+                double distanceRSU1_RSU2 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[1], rsusY[1]));
+                double distanceRSU1_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[2], rsusY[2]));
+                double distanceRSU2_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[1], rsusY[1], rsusX[2], rsusY[2]));
+                System.out.println("This RSU is: " + this.getRSUID() + " distance Vehicle to RSU1 ID1: " + this.getRSUID() + " dist: " + dist[0]
+                        + " distance Vehicle to RSU2 ID2: " + entryList.get(0).getReceiverID() + " dist: " + dist[1]
+                        + " distance Vehicle to RSU3 ID3: " + entryList.get(1).getReceiverID() + " dist: " + dist[2] + " distance RSU1-RSU2: "
+                        + distanceRSU1_RSU2 + " distance RSU1-RSU3: " + distanceRSU1_RSU3 + " distance RSU2-RSU3: " + distanceRSU2_RSU3 + " R1-X: "
+                        + this.getX() + " R1-Y: " + this.getY() + " R2-X: " + entryList.get(0).getReceiverX() + " R2-Y: "
+                        + entryList.get(0).getReceiverY() + " R3-X: " + entryList.get(1).getReceiverX() + " R3-Y: " + entryList.get(1).getReceiverY()
+                        + " Vehicle X: " + entry.getSenderX() + " Y: " + entry.getSenderY());
+
+                // check, so existieren garantiert schnittpunkte der Kreise mit <= kann es auch nur ein Schnittpunkt sein
+                // TODO: wurzel entfernen s.o.
+                boolean c1 = (dist[0] + dist[1] < distanceRSU1_RSU2);
+                boolean c2 = (dist[0] + dist[2] < distanceRSU1_RSU3);
+                boolean c3 = (dist[1] + dist[2] < distanceRSU2_RSU3);
+                if (c1 || c2 || c3) {
+                    continue;
+                }
+                
+                // all clear, this RSU may do Verification now
+                System.out.println("RSU: " + this.getRSUID() + " do verification");
+                // TODO: add GUI setting
+                int allowedError = 60;// [mm]
+                // boolean b1 = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY) <= ((dist[0] + allowedError) * (dist[0] +
+                // allowedError));
+                double d = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY);
+                double d2 = ((dist[0] + allowedError) * (dist[0] + allowedError));
+
+                boolean b1 = d <= d2;
+                boolean b2 = calculateSquaredDistance(rsusX[1], rsusY[1], vehicleX, vehicleY) <= ((dist[1] + allowedError) * (dist[1] + allowedError));
+                boolean b3 = calculateSquaredDistance(rsusX[2], rsusY[2], vehicleX, vehicleY) <= ((dist[2] + allowedError) * (dist[2] + allowedError));
+
+                if (b1 && b2 && b3) {
+                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is plausible");
+                    //TODO: add Vehilce mark
+                } else {
+                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is suspect"
+                            + " real Position X: " + entry.getKnownVehicle().getVehicle().getX() + " real Position Y: "
+                            + entry.getKnownVehicle().getVehicle().getY());
+                }
+            }
+        }
+        // do some cleanup for future phases
+        receivedFromVehicleVehiclelists.clear();
+        receivedFromRSUVehiclelists.clear();
+    }
+
+    /**
+     * @param positionEntityArray
+     */
+    private void groupByID(ArrayList<PositionEntity> positionEntityArray) {
+        
+        for (PositionEntity positionEntity : positionEntityArray) {
+            Long senderID = new Long(positionEntity.getSenderID());
+            if (positionVerificationEntryMap.get(senderID) == null) {
+                // add entry if ID is not present
+                positionVerificationEntryMap.put(senderID, new ArrayList<PositionEntity>());
+            }
+            // add entry if ID is present
+            positionVerificationEntryMap.get(senderID).add(positionEntity);
+        }
+
+    }
+
+    /**
+     * calculates the squared distance between two points (x1,y1) and (x2,y2).
+     * 
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return the distance (no unit conversion)
+     */
+    private double calculateSquaredDistance(int x1, int y1, int x2, int y2) {
+        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    }
 }

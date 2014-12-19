@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.ArrayDeque;
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -39,7 +40,7 @@ import vanetsim.routing.A_Star.A_Star_Algorithm;
 import vanetsim.scenario.events.BlockingObject;
 import vanetsim.scenario.messages.Message;
 import vanetsim.scenario.messages.PenaltyMessage;
-import vanetsim.scenario.propagation.PropagationModel;
+import vanetsim.scenario.positionverification.PropagationModel;
 
 /**
  * A vehicle which can move and communicate (if wifi is enabled).
@@ -232,8 +233,10 @@ public class Vehicle extends LaneObject{
 	//TODO: this must be set by GUI, default must be false
 	private static boolean sendRssiEnabled_ = true;
 	
-	private ArrayList<PositionEntity> receivedVehiclelists = new ArrayList<PositionEntity>();
-	
+	//TODO: need to be cleared after position verification is done
+    private ArrayList<PositionEntity> receivedFromRSUVehiclelists = new ArrayList<PositionEntity>();
+    private ArrayList<PositionEntity> receivedFromVehicleVehiclelists = new ArrayList<PositionEntity>();	
+    
 	/** the counter for the rhcn message */
 	private int waitToSendRHCNCounter_ = -1;
 	
@@ -3122,6 +3125,9 @@ public class Vehicle extends LaneObject{
                     rsus = regions_[i][j].getRSUs();
                     size = rsus.length;
                     currentRssi = 0;
+                    //TODO: remove system out
+                    count++;
+                    System.out.println("vehicle->RSU B counter: " + count);
                     for (int index = 0; index < size; ++index) {
                         rsu = rsus[index];
                         if (rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
@@ -3136,10 +3142,19 @@ public class Vehicle extends LaneObject{
                                     }
                                     currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
                                 }
-                                count++;
-                                System.out.println("vehicle->RSU B counter: " + count);
                                 rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
                                         currentRssi);
+                                //TODO: remove system.out
+                                System.out.println(
+                                        "vehicleID: "+ID_ +
+                                        " vX: "+curX_+
+                                        " vY: "+curY_+
+                                        " RSSI: "+currentRssi+
+                                        " RSU_ID: "+rsu.getRSUID()+
+                                        " rX: "+rsu.getX()+
+                                        " rY: "+rsu.getY()+
+                                        " distance: "+propagationModel_.calculateDistance(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, currentRssi)
+                                        );
                             }
                         }
                     }
@@ -5175,14 +5190,12 @@ public class Vehicle extends LaneObject{
         long maxCommDistanceSquared = (long) maxCommDistance_ * maxCommDistance_;
         long dx, dy;
 
-        // get all KnownVehicles (Vehicles from which we have received beacons)
-        KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
-
         // send to neighbor RSUs
         // we only send information to knownRSUs (kind of direct communiation), therfore only RSUs from wich we have knowledge are used
         KnownRSU tmpKnownRSU = null;
         KnownRSU[] tmpRSUList = knownRSUsList_.getFirstKnownRSU();
-
+        ArrayList<PositionEntity> tmpList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
+        
         for (int i = 0; i < tmpRSUList.length; i++) {
             tmpKnownRSU = tmpRSUList[i];
             while (tmpKnownRSU != null) {
@@ -5196,7 +5209,7 @@ public class Vehicle extends LaneObject{
                     // little bit performance
 
                     // do sending knownvehicles here
-                    tmpKnownRSU.getRSU().receiveKnownVehicles(false, this.getID(), curX_, curY_, knownVehicleArray);
+                    tmpKnownRSU.getRSU().receiveKnownVehicles(false, tmpList);
                 }
 
                 // advance to next RSU
@@ -5204,6 +5217,22 @@ public class Vehicle extends LaneObject{
             }
         }
     }
+
+    private ArrayList<PositionEntity> createPositionEntityList(KnownVehicle[] knownVehicleArray) {
+        ArrayList<PositionEntity> result = new ArrayList<PositionEntity>();
+
+        KnownVehicle tmpKnownVehicle;
+        for (int i = 0; i < knownVehicleArray.length; i++) {
+            tmpKnownVehicle = knownVehicleArray[i];
+            while (tmpKnownVehicle != null) {
+
+                result.add(new PositionEntity(this.getID(), this.getX(), this.getY(),tmpKnownVehicle));
+                tmpKnownVehicle = tmpKnownVehicle.getNext();
+            }
+        }
+        return result;
+    }
+
 
     //TODO: comment
     public void sendReceivedRssToVehicles() {
@@ -5220,7 +5249,7 @@ public class Vehicle extends LaneObject{
         // get all KnownVehicles (Vehicles from which we have received beacons)
         KnownVehicle[] knownVehicleArray = knownVehiclesList_.getFirstKnownVehicle();
         KnownVehicle tmpKnownVehicle = null;
-
+        ArrayList<PositionEntity> tmpList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
         for (int i = 0; i < knownVehicleArray.length; i++) {
             tmpKnownVehicle = knownVehicleArray[i];
 
@@ -5235,7 +5264,7 @@ public class Vehicle extends LaneObject{
                                                                     // little bit performance
 
                     // do sending knownvehicles here
-                    tmpKnownVehicle.getVehicle().receiveKnownVehicles(false, this.getID(), curX_, curY_, knownVehicleArray);
+                    tmpKnownVehicle.getVehicle().receiveKnownVehicles(false, tmpList);
                 }
                 // advance to next RSU
                 tmpKnownVehicle = tmpKnownVehicle.getNext();
@@ -5244,8 +5273,12 @@ public class Vehicle extends LaneObject{
     }
     
     //TODO: comment
-    private void receiveKnownVehicles(boolean sourceIsRSU, long receiverID, int receiverX, int receiverY, KnownVehicle[] knownVehicleArray) {
-        receivedVehiclelists.add(new PositionEntity(receiverID, receiverX, receiverY, knownVehicleArray));
+    public void receiveKnownVehicles(boolean sourceIsRSU, ArrayList<PositionEntity> positionEntityArray) {
+        if (sourceIsRSU) {
+            receivedFromRSUVehiclelists.addAll(positionEntityArray);
+        } else {
+            receivedFromVehicleVehiclelists.addAll(positionEntityArray);
+        }
     }
 
 

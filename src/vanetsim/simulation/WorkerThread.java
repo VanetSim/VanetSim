@@ -29,7 +29,7 @@ import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.scenario.Vehicle;
 import vanetsim.scenario.RSU;
-import vanetsim.scenario.propagation.PropagationModel;
+import vanetsim.scenario.positionverification.PositioningHelper;
 
 
 /**
@@ -141,11 +141,15 @@ public final class WorkerThread extends Thread {
 		boolean idsEnabled = Vehicle.isIdsActivated();
 
 		// variables controlling the Position verification
-		boolean positionVerificationByRSUEnabled = PropagationModel.getPositionVerificationByRSUEnabled();
-		boolean positionVerificationByVehicleEnabled  = PropagationModel.getPositionVerificationByVehicleEnabled();
-		boolean positionVerificationVehilceSendRssiToRsu = false;
-		boolean positionVerificationRsuSendRssiToRsu = false;
-		boolean positionVerificationVehilceSendRssiToVehicle = true;
+		boolean positionVerificationByRSUEnabled = PositioningHelper.getPositionVerificationByRSUEnabled();
+		boolean positionVerificationByVehicleEnabled  = PositioningHelper.getPositionVerificationByVehicleEnabled();
+		
+		// Vehicle share received information
+		boolean positionVerificationVehilceSendRssiToRsu = PositioningHelper.isPositionVerificationVehilceSendRssiToRsu();
+		boolean positionVerificationVehilceSendRssiToVehicle = PositioningHelper.isPositionVerificationVehilceSendRssiToVehicle();
+		// RSUs share received information
+		boolean positionVerificationRsuSendRssiToRsu = PositioningHelper.isPositionVerificationRsuSendRssiToRsu();
+		
 		
 		//sleep if no barriers have been set yet
 		while (barrierStart_ == null || barrierDuringWork_ == null || barrierFinish_ == null){
@@ -359,8 +363,35 @@ public final class WorkerThread extends Thread {
 
                         // verifiers calculate the real position and compare them to the advertised position. 
                         // If Position is false mark Vehicle as fake
-                        //TODO: verify position here
-                       
+                        
+                      //vehicles: do verification
+                        if (positionVerificationByVehicleEnabled && false) {
+                            for (i = 0; i < ourRegionsLength; ++i) {
+                                vehicleSubarray = vehicles[i];
+                                length = vehicleSubarray.length;
+                                for (j = 0; j < length; ++j) {
+                                    vehicle = vehicleSubarray[j];
+                                    if (vehicle.isActive() && vehicle.isWiFiEnabled() && false) {
+                                    }
+
+                                }
+                            }
+                        }
+                        
+                        // RSUS: do verification
+                        if (positionVerificationByRSUEnabled && true) {
+                            for (i = 0; i < ourRegionsLength; ++i) {
+                                rsuSubarray = rsus[i];
+                                length = rsuSubarray.length;
+                                for (j = 0; j < length; ++j) {
+                                    rsu = rsuSubarray[j];
+                                    rsu.doPositionVerification();
+                                }
+                            }
+                        }
+                        
+                        
+                        
                      // ----------------------------------------------------------------------------------------------------
 						
 						//rsu: send beacons

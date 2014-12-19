@@ -1,10 +1,8 @@
-package vanetsim.scenario.propagation;
+package vanetsim.scenario.positionverification;
 
 import java.util.Random;
 
 import org.apache.commons.math3.distribution.GammaDistribution;
-
-import vanetsim.scenario.RSU;
 
 public class PropagationModel {
 
@@ -24,14 +22,11 @@ public class PropagationModel {
      * <code>0</code> if no global Model is used.
      */
     // TODO: set the default to 0 when GUI sets this
+    //TODO: if globalPropagationModel==0 there should be some kind of warning until individual propagation models are implemented
     private int globalPropagationModel = 1;
 
     /** Random Number generator used for Gauss Distribution */
     private Random rand_ = new Random(System.currentTimeMillis());
-
-    // TODO: add GUI setting
-    private static boolean positionVerificationByRSUEnabled = false;
-    private static boolean positionVerificationByVehicleEnabled = false;
 
     /** The standard deviation of the Gauss Distribution, used for e.g. Shadowing Propagation */
     double sigma_ = 4;
@@ -147,9 +142,11 @@ public class PropagationModel {
      *            the propagationmodel to be used
      * @param rssi
      *            the rssi value to which the distance should be calculated
-     * @return the distance in [m]
+     * @return the distance
      */
     public double calculateDistance(int propagationModel, double rssi) {
+        // TODO: HACK!!
+        // propagationModel=PROPAGATION_MODEL_FREE_SPACE;
         double result = Double.NaN;
         switch (propagationModel) {
             case PROPAGATION_MODEL_FREE_SPACE:
@@ -164,7 +161,7 @@ public class PropagationModel {
                 double tmp_mean = 0;
 
                 // get a random gaussian value
-                // maybe this doesn't need to be used at all, further experiments will show if this acually impacts results
+                // maybe this doesn't need to be used at all, further experiments will show if this actually impacts results
                 double X = rand_.nextGaussian() * tmp_sigma + tmp_mean;
 
                 // calculate a distance from the rssi value
@@ -178,15 +175,7 @@ public class PropagationModel {
                 result = Double.NaN;
                 break;
         }
-        return result;
-    }
-
-    public static boolean getPositionVerificationByRSUEnabled() {
-        return positionVerificationByRSUEnabled;
-    }
-
-    public static boolean getPositionVerificationByVehicleEnabled() {
-        return positionVerificationByVehicleEnabled;
+        return result * 10000;
     }
 
 }
