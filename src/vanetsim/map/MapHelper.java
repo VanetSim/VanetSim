@@ -27,10 +27,16 @@ import vanetsim.scenario.Vehicle;
  */
 public final class MapHelper {
 
+	/** Nodes of the map with minimum/maximum X-/Y-Values,
+	 * which are important for the GPS->MapMetrik mapping
+	 * To make the mapping more efficient these Nodes are stored */
 	public static Node minimumNodeX_ = null;
 	public static Node maximumNodeX_ = null;
 	public static Node minimumNodeY_ = null;
 	public static Node maximumNodeY_ = null;
+	
+	/** boolean flag to decide whether nodes with
+	 * min./max. X-/Y-Values should be searched */
 	private static boolean nodeValuesInitialized_ = false;
 	
 
@@ -51,12 +57,15 @@ public final class MapHelper {
 			double longitude, double latitude) {
 		Map map = Map.getInstance();
 
+		// search for the nodes with min./max. X-/Y-Values
 		if (!nodeValuesInitialized_) {
 			Node minimumNodeX = null;
 			Node maximumNodeX = null;
 			Node minimumNodeY = null;
 			Node maximumNodeY = null;
 
+			// iterating over all regions and
+			// over all nodes within these regions
 			Region[][] regions = map.getRegions();
 			for (int i = 0; i < regions.length; i++) {
 				for (int j = 0; j < regions[i].length; j++) {
@@ -96,34 +105,39 @@ public final class MapHelper {
 			nodeValuesInitialized_ = true;
 		}
 
+		// Get longitude and latitude values for the min./max. Nodes
 		double minLongitude = minimumNodeX_.getLong();
 		double maxLongitude = maximumNodeX_.getLong();
 		double minLatitude = minimumNodeY_.getLat();
 		double maxLatitude = maximumNodeY_.getLat();
 		
+		// Calculate the bearing in degrees to determine whether the point is
+		// within a 90° degree radius and there for within the map 
 		double bearingMinPointToPoint = GPSBearingBetweenCoords(minLatitude, minLongitude, latitude, longitude);
 		double bearingPointToMaxPoint = GPSBearingBetweenCoords(latitude, longitude, maxLatitude, maxLongitude);
 
-		
+		// If the bearing is out of the 90 degree radius the mapping fails
 		if (bearingMinPointToPoint > 180 || bearingMinPointToPoint < 90) {
 			return false;
 		} else if (bearingPointToMaxPoint > 180 || bearingPointToMaxPoint < 90) {
 			return false;
 		} else {
-
-			/*result[0] = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude)+minimumNodeX_.getX();
-			result[1] = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude)+minimumNodeY_.getY();
-			return true;*/
 			
+			// calculate the distance with the haversine formaula
 			int x = GPSDistanceInCM(minLatitude, minLongitude, minLatitude, longitude)+minimumNodeX_.getX();
 			int y = GPSDistanceInCM(minLatitude, minLongitude, latitude, minLongitude)+minimumNodeY_.getY();
 			
+			// with the calculated distances search for the region
+			// the calculated point is in
 			Region region = Map.getInstance().getRegionOfPoint(x, y);
 			Node[] nodes = region.getNodes();
 			
+			// If the region has no nodes the mappig fails
 			if(nodes.length == 0){
 				return false;
 			}
+			
+			// search for the min./max. Nodes within the region
 			
 			Node regionMinimumNodeX = nodes[0];
 			Node regionMinimumNodeY = nodes[0];
@@ -138,6 +152,9 @@ public final class MapHelper {
 				}
 			}
 			
+			// repeat the distance calculation with the haversine formula
+			// and the regionNodes to increase accuaracy of the mapping
+			
 			minLongitude = regionMinimumNodeX.getLong();
 			minLatitude = regionMinimumNodeY.getLat();
 			
@@ -147,7 +164,16 @@ public final class MapHelper {
 		}
 	}
 	
-	
+	/**
+	 * Implementation of the haversine formula to compute distances between
+	 * two points an a sphere
+	 * 
+	 * @param lat1
+	 * @param long1
+	 * @param lat2
+	 * @param long2
+	 * @return distance in cm
+	 */
 	private static int GPSDistanceInCM(double lat1, double long1, double lat2, double long2)
 	{
 	    double dlong = Math.toRadians((long2 - long1));
@@ -159,6 +185,16 @@ public final class MapHelper {
 	    return d;
 	}
 	
+	/**
+	 * Implementation of a function to compute the bearin in degrees between
+	 * two points on a sphere
+	 * 
+	 * @param lat1
+	 * @param lon1
+	 * @param lat2
+	 * @param lon2
+	 * @return
+	 */
 	private static double GPSBearingBetweenCoords(double lat1, double lon1, double lat2, double lon2){
 		double longitude1 = lon1;
 		double longitude2 = lon2;
