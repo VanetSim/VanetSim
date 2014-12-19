@@ -578,11 +578,9 @@ public class Vehicle extends LaneObject{
 	private double distanceToJunction_ = 150;
 	
 	/** GPS-specific values used in the computation of the velocity of GPS vehicles*/
-	private int GPSArrayIterator_ = 0;
 	private ArrayDeque<Long> tripTimes_;
 	private WayPoint lastWaypoint_;
 	private WayPoint nextWaypoint_;
-	private int waypointCount_;
 
 	private int EVAMessageDelay_ = 3;
 
@@ -620,7 +618,6 @@ public class Vehicle extends LaneObject{
 			tripTimes_ = triptimes;
 			originalDestinations_ = destinations; 
 			destinations_ = originalDestinations_.clone();
-			waypointCount_ = destinations_.size();
 			ID_ = RANDOM.nextLong();
 			steadyID_ = steadyIDCounter++;
 			vehicleLength_ = vehicleLength;
@@ -1713,6 +1710,7 @@ public class Vehicle extends LaneObject{
 				Object[] waypointArray = originalDestinations_.toArray();
 				Object[] tripTimesArray = tripTimes_.toArray();
 				
+				// Getting the relevant waypoints
 				
 				nextWaypoint_ = destinations_.peekFirst();
 				
@@ -1720,25 +1718,20 @@ public class Vehicle extends LaneObject{
 								
 				lastWaypoint_ = ((WayPoint)waypointArray[indexOfNextWaypoint-1]);
 				
+				// compute the timeDistance between the waypoints
+				
 				long timeLast = (long)tripTimesArray[indexOfNextWaypoint-1];
 				long timeNext = (long)tripTimesArray[indexOfNextWaypoint];
 				
 				long timeDif = (timeNext-timeLast)/1000;
 				
-				//System.out.println("TimeDif: "+timeDif);
 				
 				Street lastStreet = lastWaypoint_.getStreet();
 				Street nextStreet = nextWaypoint_.getStreet();
 				
+				// Computing the distance between the waypoints
+				// by iterating over the streets
 				double distance = 0;
-				//int indexOfLastStreet = -1;
-				
-				/*for(int y = 0; y < routeStreets_.length; y++){
-					if(routeStreets_[y] == lastStreet){
-						indexOfLastStreet = y;
-						break;
-					}
-				}*/
 				
 				if(routeStreets_.length < 2){
 					distance = Math.abs(lastWaypoint_.getPositionOnStreet()-nextWaypoint_.getPositionOnStreet());
@@ -1765,11 +1758,9 @@ public class Vehicle extends LaneObject{
 					}
 				}
 				
-				//System.out.println("Dis: "+distance);
 				
 				newSpeed_ = distance/timeDif;
 				
-				//System.out.println(newSpeed_);
 				
 				
 				// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
