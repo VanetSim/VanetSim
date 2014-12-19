@@ -22,22 +22,34 @@ import vanetsim.scenario.Vehicle;
 
 public class GPSVehicleMaster {
 
+	/** Instance for the Singleton usage */
 	private static GPSVehicleMaster instance_;
 
+	/** A SortedVehicleQueue for storing the GPS vehicles
+	 * in order by their StartTime */
 	private SortedVehicleQueue vehicles_;
+	
+	/** A boolean flag to prevent inserting Vehicles into
+	 * the SortedVehcile after the simulation was started */
 	private boolean simulationIsRunning_ = false;
+	
+	/**
+	 * The minimum StartTime known at start the simulation */
 	private long minimumAtStart_;
 
+	
 	/**
-	 * 
+	 * Constructor of the GPSVehicleMaster
+	 * Set to private for Singleton usage 
 	 */
 	private GPSVehicleMaster() {
 		vehicles_ = new SortedVehicleQueue();
 	}
 
 	/**
-	 * 
-	 * @return
+	 * static method for getting an GPSVehicleMaster instance
+	 * GPSVehicleMaster is designed as a Singleton class
+	 * @return GPSVehicleMaster
 	 */
 	public static GPSVehicleMaster getInstance() {
 
@@ -48,14 +60,27 @@ public class GPSVehicleMaster {
 		return instance_;
 	}
 
+	
+	/**
+	 * Adding a vehicle to the SortedVehcileQueue
+	 * The vehicle will only be added if simulation hasn't
+	 * started yet
+	 * 
+	 * @param vehicle
+	 * @param startTime
+	 */
 	public void addVehicle(Vehicle vehicle, long startTime) {
 		if (!simulationIsRunning_) {
 			vehicles_.add(vehicle, startTime);
 		}
 	}
 
+	
 	/**
-	 * 
+	 * Method for preparing the VehicleMaster for simulation
+	 * There for the SortedVehicleQueue must be filled
+	 * The StartTime of the first element of the SortedVehicleQueue
+	 * will become the minimumStartTime
 	 */
 	public void startSim() throws NoVehicleFoundException{
 		simulationIsRunning_ = true;
@@ -69,7 +94,10 @@ public class GPSVehicleMaster {
 	}
 
 	/**
-	 * 
+	 * This function is called from an outside class and tranfers
+	 * the actual simulationTime to the GPSVehicleMaster
+	 * If minimumStartTime - StartTime of an vehicle is smaller than
+	 * the received simulationTime, the vehicle will be added to the simulation
 	 * @param simTime
 	 */
 	public void receiveSimulationTime(long simTime) {
