@@ -20,7 +20,9 @@ package vanetsim.gpstracing;
 import vanetsim.scenario.Vehicle;
 
 /**
- * 
+ * SortedVehicleQueue is a Double-Linked-List, which is automatically sorted by
+ * the given StartTime of a inserted Vehicle. Die smallest StartTime is on the
+ * Head of the List.
  *
  */
 public class SortedVehicleQueue {
@@ -37,7 +39,8 @@ public class SortedVehicleQueue {
 	}
 
 	/**
-	 * 
+	 * Inserts a new Vehicle into the SortedVehicleQueue
+	 * Therefore a Vehicle and its StartTime is needed.
 	 * @param vehicle
 	 * @param startTime
 	 */
@@ -60,8 +63,10 @@ public class SortedVehicleQueue {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * This Function remove the first element of the SortedVehicleQueue
+	 * and return it.
+	 * The function is equivalent to the poll() function the Queue
+	 * @return firstElement
 	 */
 	public Node remove() {
 
@@ -78,8 +83,9 @@ public class SortedVehicleQueue {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * This Function get the first element of the SortedVehicleQueue.
+	 * The function is equivalent to the peek() function the Queue
+	 * @return firstElement
 	 */
 	public Node peek() {
 		Node result = null;
@@ -92,15 +98,15 @@ public class SortedVehicleQueue {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Return whether the SortedVehicleQueue is empty 
+	 * @return isEmpty
 	 */
 	public boolean isEmpty() {
 		return (counter_ == 0);
 	}
 
 	/**
-	 * Nested Node class
+	 * Nested Node class for the SortedVehicleQueue
 	 * 
 	 */
 	class Node {
@@ -125,7 +131,7 @@ public class SortedVehicleQueue {
 		}
 
 		/**
-		 * 
+		 * Function for setting the Successor
 		 * @param node
 		 */
 		public void setSuccessor(Node node) {
@@ -133,7 +139,7 @@ public class SortedVehicleQueue {
 		}
 
 		/**
-		 * 
+		 * Function for setting the Predecessor
 		 * @param node
 		 */
 		public void setPredecessor(Node node) {
@@ -141,30 +147,32 @@ public class SortedVehicleQueue {
 		}
 
 		/**
-		 * 
-		 * @return
+		 * Function for getting the Successor
+		 * @return Successor
 		 */
 		public Node getSuccessor() {
 			return successor_;
 		}
 
 		/**
-		 * 
-		 * @return
+		 * Function for getting the Predecessor
+		 * @return Predecessor
 		 */
 		public Node getPredecessor() {
 			return predecessor_;
 		}
 
 		/**
-		 * 
-		 * @return
+		 * Function for getting the StartTime of a Vehicle
+		 * @return StartTime
 		 */
 		public long getStartTime() {
 			return startTime_;
 		}
 
 		/**
+		 * Function for getting the Vehicle
+		 * @return Vehicle
 		 */
 		public Vehicle getVehicle() {
 			return vehicle_;
