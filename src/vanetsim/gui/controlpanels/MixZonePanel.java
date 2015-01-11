@@ -163,7 +163,6 @@ public class MixZonePanel extends JPanel implements ActionListener{
 		add(radiusLabel_,c);		
 		mixRadius_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
 		mixRadius_.setValue(100);
-
 		mixRadius_.setPreferredSize(new Dimension(60,20));
 		c.gridx = 1;
 		add(mixRadius_,c);

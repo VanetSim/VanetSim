@@ -703,7 +703,8 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 								else emergencyEnabled = false;
 								if(getRandomRange(0, 99, random) < vehiclesFaking) fakingEnabled = true;
 								else fakingEnabled = false;
-								tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  colorPreview_.getBackground(), fakingEnabled, fakeMessagesTypes_.getSelectedItem().toString());
+								//TODO: check if we need to add sybil vehicle creation here
+								tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  colorPreview_.getBackground(), fakingEnabled, fakeMessagesTypes_.getSelectedItem().toString(),false);
 								Map.getInstance().addVehicle(tmpVehicle);
 								++i;
 							} catch (Exception e) {}				

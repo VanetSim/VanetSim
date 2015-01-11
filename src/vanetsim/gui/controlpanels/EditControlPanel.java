@@ -93,14 +93,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** The control panel to edit location verification settings. */
 	private final EditLocationVerificationControlPanel editLocationVerificationPanel_ = new EditLocationVerificationControlPanel();
 	
-    // TODO: implement this
-    /** The control panel to edit the propagation modell and RSSI generation. */
-    // private final EditLocationVerificationPropagationModellPanel editLocationVerificationPropagationModellPanel_ = new EditPropagationControlPanel();
-
-    // TODO: implement this
-    /** The control panel to edit the Location Technique. */
-    // private final EditEventControlPanel editLocationVerificationTechniquePanel_ = new EditLocationTechniqueControlPanel();
-	
 	/** The control panel to edit silent periods. */
 	private final SilentPeriodPanel editSilentPeriodPanel_ = new SilentPeriodPanel();
 	
@@ -146,9 +138,12 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** Tabbed pane for events. */
 	private final JTabbedPane tabbedPaneEvents_;
 	
-	//TODO: implement
 	/** Tabbed pane for location verification. */
-//    private final JTabbedPane tabbedPaneLocationVerification_;
+    private final JTabbedPane tabbedPaneLocationVerification_;
+    
+    /** The control panel to edit mix zones. */
+    private final PropagationModelPanel editLocationVerificationPropagationModellPanel_ = new PropagationModelPanel();
+    private final LocationTechniquePanel editLocationVerificationTechniquePanel_ = new LocationTechniquePanel();
 	
 	/**
 	 * Constructor for this ControlPanel.
@@ -230,22 +225,18 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		editCardPanel_.add(editTrafficLightsPanel_, "trafficLights"); //$NON-NLS-1$
 		editTrafficLightsPanel_.setOpaque(false);
 		
-		
-        // TODO: elmo check Tabbed Interface
-        // --- old locationVerification interface
-		editCardPanel_.add(editLocationVerificationPanel_, "locationVerification"); //$NON-NLS-1$
-		editLocationVerificationPanel_.setOpaque(false);
-		
-		// tabbed pane for location verification
-//        tabbedPaneLocationVerification_ = new JTabbedPane();
-//        tabbedPaneLocationVerification_.setOpaque(false);
-//        editLocationVerificationPropagationModellPanel_.setOpaque(false);
-//        editLocationVerificationTechniquePanel_.setOpaque(false);
-//        tabbedPaneEvents_
-//                .add(Messages.getString("EditLovationVerificationControlPanel.propagation"), editLocationVerificationPropagationModellPanel_);
-//        tabbedPaneEvents_.add(Messages.getString("EditLovationVerificationControlPanel.technique"), editLocationVerificationTechniquePanel_);
-//        editCardPanel_.add(tabbedPaneLocationVerification_, "locationVerification"); //$NON-NLS-1$
-		
+        // tabbed pane for location verification
+        tabbedPaneLocationVerification_ = new JTabbedPane();
+
+        tabbedPaneLocationVerification_.setOpaque(false);
+        editLocationVerificationPropagationModellPanel_.setOpaque(false);
+        editLocationVerificationTechniquePanel_.setOpaque(false);
+
+        tabbedPaneLocationVerification_.add(Messages.getString("EditLovationVerificationControlPanel.propagation"),
+                editLocationVerificationPropagationModellPanel_);
+        tabbedPaneLocationVerification_.add(Messages.getString("EditLovationVerificationControlPanel.technique"),
+                editLocationVerificationTechniquePanel_);
+        editCardPanel_.add(tabbedPaneLocationVerification_, "locationVerification"); //$NON-NLS-1$
         
 		//tabbed pane for events
 		tabbedPaneEvents_ = new JTabbedPane();
@@ -255,7 +246,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		tabbedPaneEvents_.add(Messages.getString("EditEventControlPanel.events"), editEventPanel_);
 		tabbedPaneEvents_.add(Messages.getString("EditEventControlPanel.eventSpots"), editEventSpotsPanel_);
 		editCardPanel_.add(tabbedPaneEvents_, "event"); //$NON-NLS-1$
-		
 		
 		// A tabbed panel for privacy functions
 		privacyTabbedPane_ = new JTabbedPane();
@@ -416,6 +406,8 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.locationVerification"))){ //$NON-NLS-1$
 					Renderer.getInstance().ReRender(true, false);
+					editLocationVerificationPropagationModellPanel_.loadAttributes();
+		            editLocationVerificationTechniquePanel_.loadAttributes();
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.privacy"))){ //$NON-NLS-1$
 					Renderer.getInstance().setShowMixZones(true);
 					Renderer.getInstance().setHighlightNodes(true);
@@ -466,6 +458,9 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			editSilentPeriodPanel_.saveAttributes();
 			editIDSControlPanel_.saveAttributes();
 			editSlowPanel_.saveAttributes();
+			editLocationVerificationPropagationModellPanel_.saveAttributes();
+			editLocationVerificationTechniquePanel_.saveAttributes();
+			
 		} else if ("comboBoxChanged".equals(command)){ //$NON-NLS-1$
 	        String item = (String)editChoice_.getSelectedItem();
 	        CardLayout cl = (CardLayout)(editCardPanel_.getLayout());
