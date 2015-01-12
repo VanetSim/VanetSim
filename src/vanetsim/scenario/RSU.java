@@ -55,8 +55,7 @@ public final class RSU {
 	private static boolean communicationEnabled_ = Vehicle.getCommunicationEnabled();	
 
     /** is sending RSSI Values globally enabled */
-    //TODO: this must be set by GUI, default must be false
-    private static boolean sendRssiEnabled_ = true;
+    private static boolean sendRssiEnabled_ = false;
     
 	/** If beacons are enabled */
 	private static boolean beaconsEnabled_ = Vehicle.getBeaconsEnabled();
