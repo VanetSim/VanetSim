@@ -6,7 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -143,7 +143,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         gaussSigmaLabel_ = new JLabel(Messages.getString("PropagationModelPanel.sigma")); //$NON-NLS-1$
         ++c.gridy;
         add(gaussSigmaLabel_, c);
-        gaussSigma_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        gaussSigma_ = new JFormattedTextField(new DecimalFormat());
         gaussSigma_.setValue(new Double(4));
         gaussSigma_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -154,7 +154,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         gaussMeanLabel_ = new JLabel(Messages.getString("PropagationModelPanel.mean")); //$NON-NLS-1$
         ++c.gridy;
         add(gaussMeanLabel_, c);
-        gaussMean_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        gaussMean_ = new JFormattedTextField(new DecimalFormat());
         gaussMean_.setValue(new Double(0));
         gaussMean_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -194,7 +194,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         referenceDistnaceLabel_ = new JLabel(Messages.getString("PropagationModelPanel.refDist")); //$NON-NLS-1$
         ++c.gridy;
         add(referenceDistnaceLabel_, c);
-        referenceDistnace_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        referenceDistnace_ = new JFormattedTextField(new DecimalFormat());
         referenceDistnace_.setValue(new Double(1));
         referenceDistnace_.setPreferredSize(new Dimension(60, 20));
         referenceDistnace_.setEditable(false);
@@ -206,7 +206,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         pr_0Label_ = new JLabel(Messages.getString("PropagationModelPanel.refPr0")); //$NON-NLS-1$
         ++c.gridy;
         add(pr_0Label_, c);
-        pr_0_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        pr_0_ = new JFormattedTextField(new DecimalFormat());
         pr_0_.setValue(new Double(Double.NaN));
         pr_0_.setPreferredSize(new Dimension(60, 20));
         pr_0_.setEditable(false);
@@ -222,7 +222,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         pSendLabel_ = new JLabel(Messages.getString("PropagationModelPanel.psend")); //$NON-NLS-1$
         ++c.gridy;
         add(pSendLabel_, c);
-        pSend_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        pSend_ = new JFormattedTextField(new DecimalFormat());
         pSend_.setValue(new Double(1));
         pSend_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -233,7 +233,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         gainSendLabel_ = new JLabel(Messages.getString("PropagationModelPanel.sendgain")); //$NON-NLS-1$
         ++c.gridy;
         add(gainSendLabel_, c);
-        gainSend_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        gainSend_ = new JFormattedTextField(new DecimalFormat());
         gainSend_.setValue(new Double(1));
         gainSend_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -244,7 +244,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         gainReceiveLabel_ = new JLabel(Messages.getString("PropagationModelPanel.receivegain")); //$NON-NLS-1$
         ++c.gridy;
         add(gainReceiveLabel_, c);
-        gainReceive_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        gainReceive_ = new JFormattedTextField(new DecimalFormat());
         gainReceive_.setValue(new Double(1));
         gainReceive_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -255,8 +255,8 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         pathLossFactorLabel_ = new JLabel(Messages.getString("PropagationModelPanel.pathloass")); //$NON-NLS-1$
         ++c.gridy;
         add(pathLossFactorLabel_, c);
-        pathLossFactor_ = new JFormattedTextField(NumberFormat.getNumberInstance());
-        pathLossFactor_.setValue(new Double(1));
+        pathLossFactor_ = new JFormattedTextField(new DecimalFormat());
+        pathLossFactor_.setValue(new Double(1.2));
         pathLossFactor_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
         add(pathLossFactor_, c);
@@ -266,7 +266,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         lambdaLabel_ = new JLabel(Messages.getString("PropagationModelPanel.lambda")); //$NON-NLS-1$
         ++c.gridy;
         add(lambdaLabel_, c);
-        lambda_ = new JFormattedTextField(NumberFormat.getNumberInstance());
+        lambda_ = new JFormattedTextField(new DecimalFormat());
         lambda_.setValue(new Double(1));
         lambda_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
@@ -315,7 +315,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
 
         PropagationModel.setReceivingGain(((Number) gainReceive_.getValue()).doubleValue());
 
-        PropagationModel.setPassLossFactor(((Number) pathLossFactor_.getValue()).doubleValue());
+        PropagationModel.setPassLossFactor( ((Number) pathLossFactor_.getValue()).doubleValue());
 
         PropagationModel.setWaveLength_(((Number) lambda_.getValue()).doubleValue());
 

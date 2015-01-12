@@ -405,9 +405,9 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.presentationMode"))){ //$NON-NLS-1$
 					Renderer.getInstance().ReRender(true, false);
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.locationVerification"))){ //$NON-NLS-1$
-					Renderer.getInstance().ReRender(true, false);
-					editLocationVerificationPropagationModellPanel_.loadAttributes();
-		            editLocationVerificationTechniquePanel_.loadAttributes();
+				    Renderer.getInstance().ReRender(true, false);
+				    editLocationVerificationPropagationModellPanel_.loadAttributes();
+                    editLocationVerificationTechniquePanel_.loadAttributes();
 				} else if(((String)editChoice_.getSelectedItem()).equals(Messages.getString("EditControlPanel.privacy"))){ //$NON-NLS-1$
 					Renderer.getInstance().setShowMixZones(true);
 					Renderer.getInstance().setHighlightNodes(true);
@@ -535,6 +535,8 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	        	Renderer.getInstance().setHighlightNodes(false);
 	        	Renderer.getInstance().setShowAllBlockings(false);
 	        	Renderer.getInstance().ReRender(true, false);
+	        	editLocationVerificationPropagationModellPanel_.loadAttributes();
+                editLocationVerificationTechniquePanel_.loadAttributes();
 	        } else if(Messages.getString("EditControlPanel.trafficLights").equals(item)){	//$NON-NLS-1$
 	        	cl.show(editCardPanel_, "trafficLights"); //$NON-NLS-1$
 	        	Renderer.getInstance().setHighlightNodes(true);
@@ -696,4 +698,12 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	public JComboBox<String> getEditChoice_() {
 		return editChoice_;
 	}
+
+    public PropagationModelPanel getEditLocationVerificationPropagationModellPanel_() {
+        return editLocationVerificationPropagationModellPanel_;
+    }
+
+    public LocationTechniquePanel getEditLocationVerificationTechniquePanel_() {
+        return editLocationVerificationTechniquePanel_;
+    }
 }
