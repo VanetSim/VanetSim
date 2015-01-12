@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import java.util.ArrayDeque;
 
 import javax.xml.stream.XMLInputFactory;
@@ -63,6 +62,8 @@ import vanetsim.scenario.events.EventSpot;
 import vanetsim.scenario.events.EventSpotList;
 import vanetsim.scenario.events.StartBlocking;
 import vanetsim.scenario.events.StopBlocking;
+import vanetsim.scenario.positionverification.PositioningHelper;
+import vanetsim.scenario.positionverification.PropagationModel;
 import vanetsim.simulation.WorkerThread;
 
 /**
@@ -147,9 +148,10 @@ public final class Scenario{
 			if(!Renderer.getInstance().isConsoleStart())VanetSimStart.setProgressBar(true);
 			initNewScenario();
 			String type, penaltyType, fakeMessageType, eventSpotType;
-			int x, y, frequency, radius, time, maxSpeed, vehicleLength, maxCommDistance, direction, lanes, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, color, mixX, mixY, mixRadius, wifiX, wifiY, wifiRadius;
-			boolean tmpBoolean, wifi, emergencyVehicle, tmpAttacker, tmpAttacked, isEncrypted, mixHasRSU, isFake, fakingMessages;
+			int tmpInt,x, y, frequency, radius, time, maxSpeed, vehicleLength, maxCommDistance, direction, lanes, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, color, mixX, mixY, mixRadius, wifiX, wifiY, wifiRadius;
+			boolean tmpBoolean, wifi,sybilVehicle, emergencyVehicle, tmpAttacker, tmpAttacked, isEncrypted, mixHasRSU, isFake, fakingMessages;
 			long seed;
+			double tmpDouble;
 			ArrayDeque<WayPoint> destinations;
 			WayPoint tmpWayPoint;
 			Vehicle tmpVehicle;
@@ -190,7 +192,140 @@ public final class Scenario{
 								if(!Renderer.getInstance().isConsoleStart())VanetSimStart.getMainControlPanel().getEditPanel().getEditSettingsPanel().setCommunication(tmpBoolean);
 								Vehicle.setCommunicationEnabled(tmpBoolean);
 								RSU.setCommunicationEnabled(tmpBoolean);
-							} else if(settingsCrsr.getLocalName().toLowerCase().equals("beaconsenabled")){ //$NON-NLS-1$
+								}
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationenablerssi")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                Vehicle.setSendRssiEnabled(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpropmodell")) { //$NON-NLS-1$
+                                try{
+                                tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
+                                PropagationModel.setGlobalPropagationModel(tmpInt);
+                                } catch (Exception e) {}
+                            }	
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationallowederror")) { //$NON-NLS-1$
+                                try{
+                                tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
+                                PositioningHelper.setAllowedError(tmpInt);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationsigma")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setSigma(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationmean")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setMean(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationrefdist")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setReferenceDistance(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpr0")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setPr_0(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpsend")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setSendingPower(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationsendgain")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setSendingGain(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationreceivgain")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setReceivingGain(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpathloss")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setPassLossFactor(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationlambda")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setWaveLength_(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+							
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationrsutrilateration")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationRSU_Trilateration(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationrsupredict")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationRSU_PredictMovement(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationverifybyrsu")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationByRSUEnabled(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationverifybyvehicle")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationByVehicleEnabled(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationvehiclesendtorsu")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationVehilceSendRssiToRsu(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationrsusendtorsu")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationRsuSendRssiToRsu(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationvehiclesendtovehicle")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationVehilceSendRssiToVehicle(tmpBoolean);
+                            }
+							 else if(settingsCrsr.getLocalName().toLowerCase().equals("beaconsenabled")){ //$NON-NLS-1$
 								if(settingsCrsr.collectDescendantText(false).equals("true")) tmpBoolean = true;	//$NON-NLS-1$
 								else tmpBoolean = false;
 								if(!Renderer.getInstance().isConsoleStart())VanetSimStart.getMainControlPanel().getEditPanel().getEditSettingsPanel().setBeacons(tmpBoolean);
@@ -529,6 +664,7 @@ public final class Scenario{
 								vehicleLength = 2500;
 								maxSpeed = 10000;
 								wifi = true;
+								sybilVehicle = false;
 								emergencyVehicle = false;
 								braking_rate = 100;
 								acceleration_rate = 200;
@@ -559,6 +695,10 @@ public final class Scenario{
 										try{
 											wifi = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
 										} catch (Exception e) {}
+									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("isSybilVehicle")){ //$NON-NLS-1$
+                                        try{
+                                            sybilVehicle = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
+                                        } catch (Exception e) {}
 									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("emergencyvehicle")){ //$NON-NLS-1$
 										try{
 											emergencyVehicle = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
@@ -638,7 +778,7 @@ public final class Scenario{
 								}
 								if(maxCommDistance != -1 && maxSpeed != -1 && destinations.size() > 1){
 									try{
-										tmpVehicle = new Vehicle(destinations, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType);
+										tmpVehicle = new Vehicle(destinations, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType,sybilVehicle);
 										Map.getInstance().addVehicle(tmpVehicle);
 										if(tmpAttacker) Renderer.getInstance().setAttackerVehicle(tmpVehicle);
 										if(tmpAttacked) {
@@ -994,7 +1134,30 @@ public final class Scenario{
 			settings.addElement("SpamTimeThreshold").addCharacters(KnownEventSource.getSpammingtimethreshold() + "");
 
 			settings.addElement("TrafficModel").addValue(WorkerThread.getSimulationMode_());
-
+			
+			// save Propagation Settings
+			VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationPropagationModellPanel_().saveAttributes();
+			VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().saveAttributes();
+            settings.addElement("propagationenablerssi").addValue(Vehicle.isSendRssiEnabled());
+            settings.addElement("propagationsigma").addValue((int) (PropagationModel.getSigma()*1000));
+            settings.addElement("propagationmean").addValue((int) (PropagationModel.getMean()*1000));
+            settings.addElement("propagationrefdist").addValue((int) (PropagationModel.getReferenceDistance()*1000));
+            settings.addElement("propagationpr0").addValue((int) (PropagationModel.getPr_0()*1000));
+            settings.addElement("propagationpsend").addValue((int) (PropagationModel.getSendingPower()*1000));
+            settings.addElement("propagationsendgain").addValue((int) (PropagationModel.getSendingGain()*1000));
+            settings.addElement("propagationreceivgain").addValue((int) (PropagationModel.getReceivingGain()*1000));
+            settings.addElement("propagationpathloss").addValue((int) (PropagationModel.getPassLossFactor() * 1000.0));
+            settings.addElement("propagationlambda").addValue((int) (PropagationModel.getWaveLength()*1000));
+            settings.addElement("propagationpropmodell").addValue(PropagationModel.getGlobalPropagationModel());
+            
+            settings.addElement("localisationallowederror").addValue(PositioningHelper.getAllowedError());
+            settings.addElement("localisationrsutrilateration").addValue(PositioningHelper.isPositionVerificationRSU_Trilateration());
+            settings.addElement("localisationrsupredict").addValue(PositioningHelper.isPositionVerificationRSU_PredictMovement());
+            settings.addElement("localisationverifybyrsu").addValue(PositioningHelper.isPositionVerificationByRSUEnabled());
+            settings.addElement("localisationverifybyvehicle").addValue(PositioningHelper.isPositionVerificationByVehicleEnabled());
+            settings.addElement("localisationvehiclesendtorsu").addValue(PositioningHelper.isPositionVerificationVehilceSendRssiToRsu());
+            settings.addElement("localisationrsusendtorsu").addValue(PositioningHelper.isPositionVerificationRsuSendRssiToRsu());
+            settings.addElement("localisationvehiclesendtovehicle").addValue(PositioningHelper.isPositionVerificationVehilceSendRssiToVehicle());
 			
 			String activatedRules = "";
 			if(IDSProcessor.getActiveRules_() != null) {
@@ -1026,6 +1189,8 @@ public final class Scenario{
 						level1.addElement("Color").addValue(vehicle.getColor().getRGB()); //$NON-NLS-1$
 						level1.addElement("isFakingMessages").addValue(vehicle.isFakingMessages());
 						level1.addElement("fakingMessageType").addCharacters(vehicle.getFakeMessageType());
+						level1.addElement("isSybilVehicle").addValue(vehicle.isSybilVehicle());
+						
 						if(Renderer.getInstance().getAttackerVehicle() == vehicle) level1.addElement("isAttacker").addValue(true); //$NON-NLS-1$
 						else level1.addElement("isAttacker").addValue(false);
 						if(Renderer.getInstance().getAttackedVehicle() == vehicle) level1.addElement("isAttacked").addValue(true); //$NON-NLS-1$
@@ -1045,7 +1210,6 @@ public final class Scenario{
 							level3.addElement("y").addValue(wayPoint.getY());	//$NON-NLS-1$
 							level3.addElement("wait").addValue(wayPoint.getWaittime());	//$NON-NLS-1$
 						}
-
 					}
 				}
 			}
@@ -1087,6 +1251,8 @@ public final class Scenario{
 					}
 				}
 			}
+			
+			
 			
 			//save arsus
 			SMOutputElement arsus = root.addElement("ARSUs");			 //$NON-NLS-1$			

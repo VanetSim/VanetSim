@@ -2,27 +2,44 @@ package vanetsim.scenario.positionverification;
 
 public class PositioningHelper {
 
-    // TODO: add GUI setting
-    private static boolean positionVerificationByRSUEnabled = true;
-    private static boolean positionVerificationRSU_Triangulation = true;
+    private static boolean positionVerificationByRSUEnabled = false;
+
+    private static boolean positionVerificationRSU_Trilateration = false;
+    private static boolean positionVerificationRSU_PredictMovement = false;
 
     private static boolean positionVerificationByVehicleEnabled = false;
 
     private static boolean positionVerificationVehilceSendRssiToRsu = false;
-    private static boolean positionVerificationRsuSendRssiToRsu = true;
+    private static boolean positionVerificationRsuSendRssiToRsu = false;
     private static boolean positionVerificationVehilceSendRssiToVehicle = false;
 
-    public static final int POSITIONVERIFICATION_TRIANGULATION = 1;
+    private static int allowedError = 60;// [mm]
+
+    public static int getAllowedError() {
+        return allowedError;
+    }
+
+    public static void setAllowedError(int allowedError) {
+        PositioningHelper.allowedError = allowedError;
+    }
 
     public PositioningHelper() {
     }
 
-    public static boolean isPositionVerificationRSU_Triangulation() {
-        return positionVerificationRSU_Triangulation;
+    public static boolean isPositionVerificationRSU_Trilateration() {
+        return positionVerificationRSU_Trilateration;
     }
 
-    public static void setPositionVerificationRSU_Triangulation(boolean positionVerificationRSU_Triangulation) {
-        PositioningHelper.positionVerificationRSU_Triangulation = positionVerificationRSU_Triangulation;
+    public static void setPositionVerificationRSU_Trilateration(boolean state) {
+        PositioningHelper.positionVerificationRSU_Trilateration = state;
+    }
+
+    public static void setPositionVerificationByRSUEnabled(boolean positionVerificationByRSUEnabled) {
+        PositioningHelper.positionVerificationByRSUEnabled = positionVerificationByRSUEnabled;
+    }
+
+    public static void setPositionVerificationByVehicleEnabled(boolean positionVerificationByVehicleEnabled) {
+        PositioningHelper.positionVerificationByVehicleEnabled = positionVerificationByVehicleEnabled;
     }
 
     public static boolean isPositionVerificationVehilceSendRssiToVehicle() {
@@ -33,11 +50,11 @@ public class PositioningHelper {
         positionVerificationVehilceSendRssiToVehicle = state;
     }
 
-    public static boolean getPositionVerificationByRSUEnabled() {
+    public static boolean isPositionVerificationByRSUEnabled() {
         return positionVerificationByRSUEnabled;
     }
 
-    public static boolean getPositionVerificationByVehicleEnabled() {
+    public static boolean isPositionVerificationByVehicleEnabled() {
         return positionVerificationByVehicleEnabled;
     }
 
@@ -55,5 +72,13 @@ public class PositioningHelper {
 
     public static void setPositionVerificationRsuSendRssiToRsu(boolean state) {
         positionVerificationRsuSendRssiToRsu = state;
+    }
+
+    public static boolean isPositionVerificationRSU_PredictMovement() {
+        return positionVerificationRSU_PredictMovement;
+    }
+
+    public static void setPositionVerificationRSU_PredictMovement(boolean state) {
+        positionVerificationRSU_PredictMovement = state;
     }
 }

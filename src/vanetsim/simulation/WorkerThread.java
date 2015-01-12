@@ -141,8 +141,8 @@ public final class WorkerThread extends Thread {
 		boolean idsEnabled = Vehicle.isIdsActivated();
 
 		// variables controlling the Position verification
-		boolean positionVerificationByRSUEnabled = PositioningHelper.getPositionVerificationByRSUEnabled();
-		boolean positionVerificationByVehicleEnabled  = PositioningHelper.getPositionVerificationByVehicleEnabled();
+		boolean positionVerificationByRSUEnabled = PositioningHelper.isPositionVerificationByRSUEnabled();
+		boolean positionVerificationByVehicleEnabled  = PositioningHelper.isPositionVerificationByVehicleEnabled();
 		
 		// Vehicle share received information
 		boolean positionVerificationVehilceSendRssiToRsu = PositioningHelper.isPositionVerificationVehilceSendRssiToRsu();
@@ -324,7 +324,6 @@ public final class WorkerThread extends Thread {
 							}
 						}
 						
-						// ----------------------------------------------------------------------------------------------------
                         // vehicles/rsus exchange beacon information for future position verification
                         if (Vehicle.isSendRssiEnabled() && (positionVerificationVehilceSendRssiToRsu || positionVerificationVehilceSendRssiToVehicle)) {
                             // vehicles: exchange received RSS values
@@ -365,6 +364,7 @@ public final class WorkerThread extends Thread {
                         // If Position is false mark Vehicle as fake
                         
                       //vehicles: do verification
+                        //TODO: check this!
                         if (positionVerificationByVehicleEnabled && false) {
                             for (i = 0; i < ourRegionsLength; ++i) {
                                 vehicleSubarray = vehicles[i];
@@ -373,7 +373,6 @@ public final class WorkerThread extends Thread {
                                     vehicle = vehicleSubarray[j];
                                     if (vehicle.isActive() && vehicle.isWiFiEnabled() && false) {
                                     }
-
                                 }
                             }
                         }
@@ -389,10 +388,6 @@ public final class WorkerThread extends Thread {
                                 }
                             }
                         }
-                        
-                        
-                        
-                     // ----------------------------------------------------------------------------------------------------
 						
 						//rsu: send beacons
 						for(i = 0; i < ourRegionsLength; ++i){

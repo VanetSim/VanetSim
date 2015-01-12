@@ -179,8 +179,10 @@ public class Vehicle extends LaneObject{
 	
 	/** If attacker logging is enabled */
 	private static boolean privacyDataLogged_ = false;	
+	
 	//TODO: remove
 	int count=0;
+	
 	/** ID of the attacked vehicle */
 	private static long attackedVehicleID_ = 0;
 	
@@ -227,13 +229,9 @@ public class Vehicle extends LaneObject{
 	/** How many simulation steps we wait until we send the RHCN message */
 	private static int WAIT_TO_SEND_RHCN_ = 4;
 	
-
-	
     /** is sending RSSI Values globally enabled */
-	//TODO: this must be set by GUI, default must be false
-	private static boolean sendRssiEnabled_ = true;
+	private static boolean sendRssiEnabled_ = false;
 	
-	//TODO: need to be cleared after position verification is done
     private ArrayList<PositionEntity> receivedFromRSUVehiclelists = new ArrayList<PositionEntity>();
     private ArrayList<PositionEntity> receivedFromVehicleVehiclelists = new ArrayList<PositionEntity>();	
     
@@ -247,6 +245,11 @@ public class Vehicle extends LaneObject{
 	
 	// object variables begin here
 
+	private AttackRSU minDistARSU_ = null;
+	
+	/** if this Vehicle is a fake Sybil Vehicle**/
+	private boolean sybilVehicle_ = false;
+	
 	/** The destinations this vehicle wants to visit. */
 	public ArrayDeque<WayPoint> originalDestinations_;
 	
@@ -598,9 +601,10 @@ public class Vehicle extends LaneObject{
 	 * @param color				the color of the vehicle, if empty the default (color.black) is used
 	 * @param timeDistance		the time distance
 	 * @param politeness		the politeness
+	 * @param sybilVehicle     <code>true</code> if this vehicle is a Sybil-Vehicle, else <code>false</code>
 	 * @throws ParseException an Exception indicating that you did not supply a valid destination list.
 	 */
-	public Vehicle(ArrayDeque<WayPoint> destinations, int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType) throws ParseException {
+	public Vehicle(ArrayDeque<WayPoint> destinations, int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType,boolean sybilVehicle) throws ParseException {
 		if(destinations != null && destinations.size()>1){
 			originalDestinations_ = destinations; 
 			destinations_ = originalDestinations_.clone();			
@@ -617,6 +621,7 @@ public class Vehicle extends LaneObject{
 			maxBrakingDistance_ = maxSpeed_ + maxSpeed_ * maxSpeed_ / (2 * brakingRate_);	// see http://de.wikipedia.org/wiki/Bremsweg
 			startingWayPoint_ = destinations_.pollFirst();		// take the first element and remove it from the destinations!
 			wiFiEnabled_ = wiFiEnabled;
+			sybilVehicle_= sybilVehicle;
 			speedDeviation_ = speedDeviation;
 			ownRandom_ = new Random(RANDOM.nextLong());
 			curX_ = startingWayPoint_.getX();
@@ -2935,7 +2940,45 @@ public class Vehicle extends LaneObject{
 	 * </ul>
 	 */
 	public void sendBeacons(){
-		beaconCountdown_ += beaconInterval_;
+	    beaconCountdown_ += beaconInterval_;
+	    
+        int arsuX = -1, arsuCommRange = -1, arsuY = -1;
+        
+        if (sybilVehicle_) {
+            AttackRSU[] tempARSUList = Vehicle.getArsuList();
+            long adx, ady;
+            long minDist = Long.MAX_VALUE;
+            boolean inRange = false;
+
+            if (tempARSUList.length > 0) {
+                for (int l = 0; l < tempARSUList.length; l++) {
+                    int tmpX = tempARSUList[l].getX();
+                    int tmpY = tempARSUList[l].getY();
+                    adx = tmpX - curX_;
+                    ady = tmpY - curY_;
+                    long squaredDistance = adx * adx + ady * ady;
+                    int tmpCommRange = tempARSUList[l].getWifiRadius();
+
+                    // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
+                    if ((squaredDistance) <= (tmpCommRange * tmpCommRange)) {
+                        if (squaredDistance < minDist) {
+                            // current ARSU is nearer than any before -> use this one
+                            minDist = squaredDistance;
+                            minDistARSU_ = tempARSUList[l];
+                        }
+                        inRange = true;
+                    }
+                }
+                if (!inRange) {
+
+                    return; // stop sendingBeacons because we are not in range of any ARSU
+                }
+            }
+            arsuX = minDistARSU_.getX();
+            arsuCommRange = minDistARSU_.getWifiRadius();
+            arsuY = minDistARSU_.getY();
+        }
+	    
 		
 			
 		if(isInSlow && !changedPseudonymInSlow && Renderer.getInstance().getTimePassed() >= (slowTimestamp + TIME_TO_PSEUDONYM_CHANGE - (2*beaconInterval_))){
@@ -3030,7 +3073,7 @@ public class Vehicle extends LaneObject{
 			RegionMaxX = tmpregion.getX();
 			RegionMaxY = tmpregion.getY();
 			long maxCommDistanceSquared = (long)maxCommDistance_ * maxCommDistance_;
-			long dx, dy;
+			long dx, dy,dArsuX=-1,dArsuY=-1;
             double currentRssi = Double.NaN;
 
 
@@ -3047,14 +3090,23 @@ public class Vehicle extends LaneObject{
 						if(vehicle.isWiFiEnabled() && vehicle.isActive() && vehicle != this && vehicle.getX() >= MapMinX && vehicle.getX() <= MapMaxX && vehicle.getY() >= MapMinY && vehicle.getY() <= MapMaxY){
 							dx = vehicle.getX() - curX_;
 							dy = vehicle.getY() - curY_;
+                            if (sybilVehicle_) {
+                                dArsuX = vehicle.getX() - arsuX;
+                                dArsuY = vehicle.getY() - arsuY;
+                            }
 							if((dx * dx + dy * dy) <= maxCommDistanceSquared){	// Pythagorean theorem: a^2 + b^2 = c^2 but without the needed Math.sqrt to save a little bit performance
-                                
-							    // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
+							    // if ( NOT(sybilVehicle) OR WITHIN(arsuCommRange) )
+							    if ((!sybilVehicle_) || ((dArsuX * dArsuX + dArsuY * dArsuY) <= (long) (arsuCommRange * arsuCommRange))) {
+                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
                                 if (sendRssiEnabled_) {
                                     if (propagationModel_ == null) {
                                         propagationModel_ = PropagationModel.getInstance();
                                     }
-                                    currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                    if (sybilVehicle_) {
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dArsuX, dArsuY);
+                                    } else {
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                    }
                                 }
 
 								if(emergencyBeacons > 0){
@@ -3115,35 +3167,67 @@ public class Vehicle extends LaneObject{
 									
 									fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 								}
-                                vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false, false, currentRssi);
-                                vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                if (sybilVehicle_) {
+                                    // TODO: maybe need to change to arsu speed
+                                    vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), true, false,
+                                            currentRssi);
+                                    vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                } else {
+                                    vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false, false,
+                                            currentRssi);
+                                    vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                }
 							}
+						}
 						}
 					}
 					
                     // send beacons to RSUs
                     rsus = regions_[i][j].getRSUs();
                     size = rsus.length;
-                    currentRssi = 0;
+                    currentRssi = Double.NaN;
+                    
                     //TODO: remove system out
                     count++;
                     System.out.println("vehicle->RSU B counter: " + count);
+                    
                     for (int index = 0; index < size; ++index) {
                         rsu = rsus[index];
                         if (rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
                             dx = rsu.getX() - curX_;
                             dy = rsu.getY() - curY_;
+                            if (sybilVehicle_) {
+                                dArsuX = rsu.getX() - arsuX;
+                                dArsuY = rsu.getY() - arsuY;
+                            }
                            if ((dx * dx + dy * dy) <= maxCommDistanceSquared) { // Pythagorean theorem: a^2 + b^2 = c^2 but without the needed
                                                                                  // Math.sqrt to save a little bit performance
+                               // if ( NOT(sybilVehicle) OR WITHIN(arsuCommRange) ) 
+                               if ((!sybilVehicle_) || ((dArsuX * dArsuX + dArsuY * dArsuY) <= (long) (arsuCommRange * arsuCommRange))) {
+                               
                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
                                 if (sendRssiEnabled_) {
                                     if (propagationModel_ == null) {
                                         propagationModel_ = PropagationModel.getInstance();
                                     }
-                                    currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                    
+                                    if (sybilVehicle_) {
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dArsuX, dArsuY);
+                                    } else {
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                    }
                                 }
-                                rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
-                                        currentRssi);
+
+                                if (sybilVehicle_) {
+                                    //TODO: change to arsu speed?
+                                    rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), true, false,
+                                            currentRssi);
+
+                                } else {
+                                    rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
+                                            currentRssi);
+                                }
+                                
                                 //TODO: remove system.out
                                 System.out.println(
                                         "vehicleID: "+ID_ +
@@ -3155,7 +3239,9 @@ public class Vehicle extends LaneObject{
                                         " rY: "+rsu.getY()+
                                         " distance: "+propagationModel_.calculateDistance(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, currentRssi)
                                         );
+                                
                             }
+                        }
                         }
                     }
                 }
@@ -3932,6 +4018,9 @@ public class Vehicle extends LaneObject{
 		return maxCommDistance_;
 	}
 
+	
+	
+	
 	/**
 	 * Returns if this vehicle is currently active.
 	 * 
@@ -5281,7 +5370,6 @@ public class Vehicle extends LaneObject{
         }
     }
 
-
     public static boolean isSendRssiEnabled() {
         return sendRssiEnabled_;
     }
@@ -5289,6 +5377,21 @@ public class Vehicle extends LaneObject{
 
     public static void setSendRssiEnabled(boolean sendRssiEnabled) {
         Vehicle.sendRssiEnabled_ = sendRssiEnabled;
+    }
+
+
+    public boolean isSybilVehicle() {
+        return sybilVehicle_;
+    }
+
+
+    public void setSybilVehicle(boolean state) {
+        sybilVehicle_ = state;
+    }
+
+
+    public AttackRSU getCurrentARSU_() {
+        return minDistARSU_;
     }
     
 }

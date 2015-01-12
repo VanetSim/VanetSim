@@ -66,6 +66,9 @@ public class KnownVehicle{
 	/** Array to save the n last speed for the IDS */
 	private double[] savedSpeed_;
 	
+	/** Array to save the n last RSSI  */
+    private double[] savedRssi_;
+	
 	/** Array to save the n last lastUpdate for the IDS */
 	private int[] savedLastUpdate_;
 	
@@ -105,7 +108,8 @@ public class KnownVehicle{
 			savedSpeed_ = new double[amountOfSavedBeacons_];
 			for(int i = 0; i < amountOfSavedBeacons_;i++) savedSpeed_[i] = -1;
 			savedLastUpdate_ = new int[amountOfSavedBeacons_];
-			//TODO: save rssi here?
+			savedRssi_ = new double[amountOfSavedBeacons_];
+			for(int i = 0; i < amountOfSavedBeacons_;i++) savedRssi_[i] = -1;
 		}
 		
 	}
@@ -391,6 +395,13 @@ public class KnownVehicle{
 		this.savedSpeed_ = savedSpeed_;
 	}
 
+    public double[] getSavedRssi() {
+        return savedRssi_;
+    }
+
+    public void setSavedRssi(double[] savedRssi) {
+        this.savedRssi_ = savedRssi;
+    }
 
 	/**
 	 * @return the savedLastUpdate_
@@ -464,4 +475,6 @@ public class KnownVehicle{
     public double getRssi() {
         return rssi_;
     }
+
+    
 }

@@ -979,8 +979,8 @@ public final class RSU {
             groupByID(receivedFromRSUVehiclelists);
         }
 
-        // RSU Triangulation
-        if (PositioningHelper.isPositionVerificationRSU_Triangulation()) {
+        // RSU Trilateration
+        if (PositioningHelper.isPositionVerificationRSU_Trilateration()) {
             // für jedes Fahrzeug das dieser RSU bekannt ist die verifizierung durchführen
             // nur wenn für das Fahrzeug auch meldungen der anderen RSUs vorhanden sind kann eine aussage getroffen werden
             for (PositionEntity entry : ownPositionEntryList) {
@@ -1010,6 +1010,7 @@ public final class RSU {
                 double distanceRSU1_RSU2 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[1], rsusY[1]));
                 double distanceRSU1_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[2], rsusY[2]));
                 double distanceRSU2_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[1], rsusY[1], rsusX[2], rsusY[2]));
+                
                 System.out.println("This RSU is: " + this.getRSUID() + " distance Vehicle to RSU1 ID1: " + this.getRSUID() + " dist: " + dist[0]
                         + " distance Vehicle to RSU2 ID2: " + entryList.get(0).getReceiverID() + " dist: " + dist[1]
                         + " distance Vehicle to RSU3 ID3: " + entryList.get(1).getReceiverID() + " dist: " + dist[2] + " distance RSU1-RSU2: "
@@ -1029,14 +1030,9 @@ public final class RSU {
                 
                 // all clear, this RSU may do Verification now
                 System.out.println("RSU: " + this.getRSUID() + " do verification");
-                // TODO: add GUI setting
-                int allowedError = 60;// [mm]
-                // boolean b1 = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY) <= ((dist[0] + allowedError) * (dist[0] +
-                // allowedError));
-                double d = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY);
-                double d2 = ((dist[0] + allowedError) * (dist[0] + allowedError));
+                int allowedError = PositioningHelper.getAllowedError();
 
-                boolean b1 = d <= d2;
+                boolean b1 = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY) <= ((dist[0] + allowedError) * (dist[0] + allowedError));
                 boolean b2 = calculateSquaredDistance(rsusX[1], rsusY[1], vehicleX, vehicleY) <= ((dist[1] + allowedError) * (dist[1] + allowedError));
                 boolean b3 = calculateSquaredDistance(rsusX[2], rsusY[2], vehicleX, vehicleY) <= ((dist[2] + allowedError) * (dist[2] + allowedError));
 
@@ -1047,6 +1043,60 @@ public final class RSU {
                     System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is suspect"
                             + " real Position X: " + entry.getKnownVehicle().getVehicle().getX() + " real Position Y: "
                             + entry.getKnownVehicle().getVehicle().getY());
+                }
+            }
+        }
+        if (PositioningHelper.isPositionVerificationRSU_PredictMovement()) {
+            ownPositionEntryList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
+            for (PositionEntity posEntry : ownPositionEntryList) {
+                long vehicleID = posEntry.getSenderID();
+                int vehicleX = posEntry.getSenderX();
+                int vehicleY = posEntry.getSenderY();
+                KnownVehicle tmpnKownVehicle = posEntry.getKnownVehicle();
+
+                if (posEntry.getKnownVehicle().getArrayCounter() < 0) {
+                    continue;
+                }
+                
+                //TODO: maybe iterate through the entries to reach a delta T
+                int lastIndex = tmpnKownVehicle.getArrayCounter();
+                
+                // get the Time of the first Beacon
+                int t0 = tmpnKownVehicle.getSavedLastUpdate_()[lastIndex];// [ms]
+                // get the Time of the current Beacon
+                int t1 = tmpnKownVehicle.getLastUpdate();// [ms]
+               
+                boolean foo = tmpnKownVehicle.getVehicle().isSybilVehicle();
+                
+                //TODO: this needs to be changed to support a Vehicle sending Sybil-Data 
+                // currently only ARSUs may create Sybil Vehicles
+                double v0;
+                if (tmpnKownVehicle.getVehicle().isSybilVehicle()) {
+                    v0 = 0;
+                } else {
+                    v0 = tmpnKownVehicle.getSavedSpeed_()[lastIndex];// [cm/s]
+                }
+                
+                double travelDistance = (t1 - t0) * v0 * (1.0d / 100.0d);// [mm]
+                double currentRssi = tmpnKownVehicle.getRssi();// [dBm]
+
+                double d0 = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        tmpnKownVehicle.getSavedRssi()[lastIndex]);// [cm]
+
+                double rssi_max = PropagationModel.getInstance().calculateRSSI(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        d0 + travelDistance);
+                double rssi_min = PropagationModel.getInstance().calculateRSSI(PropagationModel.getInstance().getGlobalPropagationModel(),
+                        d0 - travelDistance);
+
+                boolean b1 = (currentRssi <= rssi_min);
+                boolean b2 = (currentRssi >= rssi_max);
+                if (b1 && b2) {
+                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
+                            + " Position is plausible");
+                } else {
+                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
+                            + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
+                            + tmpnKownVehicle.getVehicle().getY());
                 }
             }
         }

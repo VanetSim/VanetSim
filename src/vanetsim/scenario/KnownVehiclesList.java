@@ -93,7 +93,7 @@ public class KnownVehiclesList{
 					next.getSavedY_()[counter] = next.getY();
 					next.getSavedSpeed_()[counter] = next.getSpeed();
 					next.getSavedLastUpdate_()[counter] = next.getLastUpdate();
-					//TODO: add rssi 
+					next.getSavedRssi()[counter] = next.getRssi();
 				}
 				
 				next.setX(x);
@@ -112,7 +112,9 @@ public class KnownVehiclesList{
 		}					
 		
 		if(!found){
-			next = new KnownVehicle(vehicle, ID, x, y, timePassed_ + VALID_TIME, speed, isEncrypted, timePassed_,rssi);
+		    //TODO: check this! original version (below) doesn't look corect
+		    next = new KnownVehicle(vehicle, ID, x, y, timePassed_, speed, isEncrypted, timePassed_,rssi);
+//		    next = new KnownVehicle(vehicle, ID, x, y, timePassed_ + VALID_TIME, speed, isEncrypted, timePassed_,rssi);
 			next.setNext(head_[hash]);
 			next.setPrevious(null);
 			if(head_[hash] != null) head_[hash].setPrevious(next);
