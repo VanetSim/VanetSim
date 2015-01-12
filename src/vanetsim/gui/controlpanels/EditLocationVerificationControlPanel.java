@@ -23,52 +23,47 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 import javax.swing.JPanel;
-
 
 /**
  * This class represents the control panel for the different location verification modes
  */
-public class EditLocationVerificationControlPanel extends JPanel implements  ActionListener{
+public class EditLocationVerificationControlPanel extends JPanel implements ActionListener {
 
+    private static final long serialVersionUID = -7972081942481709909L;
 
-	/**
-	 * Constructor, creating GUI items.
-	 */
-	public EditLocationVerificationControlPanel() {
-		setLayout(new GridBagLayout());
-		
-		// global layout settings
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.PAGE_START;
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridheight = 1;
-		
-		c.gridwidth = 1;
+    /**
+     * Constructor, creating GUI items.
+     */
+    public EditLocationVerificationControlPanel() {
+        setLayout(new GridBagLayout());
 
-		c.insets = new Insets(5,5,5,5);
-		
-		c.gridx = 0;
-		
-		
-		
-		//to consume the rest of the space
-		c.weighty = 1.0;
-		++c.gridy;
-		JPanel space = new JPanel();
-		space.setOpaque(false);
-		add(space, c);
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+        // global layout settings
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.PAGE_START;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridheight = 1;
 
-			
-	}
+        c.gridwidth = 1;
+
+        c.insets = new Insets(5, 5, 5, 5);
+
+        c.gridx = 0;
+
+        // to consume the rest of the space
+        c.weighty = 1.0;
+        ++c.gridy;
+        JPanel space = new JPanel();
+        space.setOpaque(false);
+        add(space, c);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+
+    }
 
 }

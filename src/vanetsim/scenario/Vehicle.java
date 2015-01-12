@@ -5267,7 +5267,6 @@ public class Vehicle extends LaneObject{
 		this.beaconString_ = beaconString_;
 	}
 
-    // TODO: comment
     public void sendReceivedRssToRSUs() {
         // we don't need to exchange anything if didn't receive anything new yet.
         if (!knownVehiclesList_.isNewBeaconToExchange()) {
@@ -5323,7 +5322,6 @@ public class Vehicle extends LaneObject{
     }
 
 
-    //TODO: comment
     public void sendReceivedRssToVehicles() {
         // we don't need to exchange anything if didn't receive anything new yet.
         if (!knownVehiclesList_.isNewBeaconToExchange()) {
@@ -5361,7 +5359,6 @@ public class Vehicle extends LaneObject{
         }
     }
     
-    //TODO: comment
     public void receiveKnownVehicles(boolean sourceIsRSU, ArrayList<PositionEntity> positionEntityArray) {
         if (sourceIsRSU) {
             receivedFromRSUVehiclelists.addAll(positionEntityArray);

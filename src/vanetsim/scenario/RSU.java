@@ -859,7 +859,6 @@ public final class RSU {
         knownVehiclesList_.setNewBeaconToEchange(false);
        
         if (knownVehiclesList_.getSize() == 0) {
-            //TODO: check if this can occur
             return;
         }
 
@@ -994,18 +993,17 @@ public final class RSU {
 
                 // calculate the distances from the RSU to the Vehicle based on the RSSI Measurements
                 double[] dist = new double[3];
-                dist[0] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                dist[0] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
                         entry.getRSSI());
-                dist[1] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                dist[1] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
                         entryList.get(0).getRSSI());
                 ;
-                dist[2] = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                dist[2] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
                         entryList.get(1).getRSSI());
 
                 int[] rsusX = { this.getX(), entryList.get(0).getReceiverX(), entryList.get(1).getReceiverX() };
                 int[] rsusY = { this.getY(), entryList.get(0).getReceiverY(), entryList.get(1).getReceiverY() };
 
-                // TODO: wurzel entfernen
                 double distanceRSU1_RSU2 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[1], rsusY[1]));
                 double distanceRSU1_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[2], rsusY[2]));
                 double distanceRSU2_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[1], rsusY[1], rsusX[2], rsusY[2]));
@@ -1018,8 +1016,6 @@ public final class RSU {
                         + entryList.get(0).getReceiverY() + " R3-X: " + entryList.get(1).getReceiverX() + " R3-Y: " + entryList.get(1).getReceiverY()
                         + " Vehicle X: " + entry.getSenderX() + " Y: " + entry.getSenderY());
 
-                // check, so existieren garantiert schnittpunkte der Kreise mit <= kann es auch nur ein Schnittpunkt sein
-                // TODO: wurzel entfernen s.o.
                 boolean c1 = (dist[0] + dist[1] < distanceRSU1_RSU2);
                 boolean c2 = (dist[0] + dist[2] < distanceRSU1_RSU3);
                 boolean c3 = (dist[1] + dist[2] < distanceRSU2_RSU3);
@@ -1096,6 +1092,7 @@ public final class RSU {
                     System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
                             + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
                             + tmpnKownVehicle.getVehicle().getY());
+                  //TODO: add Vehilce mark
                 }
             }
         }
