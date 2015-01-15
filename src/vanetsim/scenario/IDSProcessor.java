@@ -64,10 +64,10 @@ public class IDSProcessor{
 	private int[] lane_;
 	private int[] x_;
 	private int [] y_;
-	//private int sourceX_;
-	//private int sourceY_;
+	private int sourceX_;
+	private int sourceY_;
 	private double[] speed_;
-	private int AMOUNT_OF_BEACONS_LOGGED = 8;
+	private int AMOUNT_OF_BEACONS_LOGGED = 16;
 	private boolean isFake_;
 	//private boolean debug = false;
 	//private boolean emergencyVehicle_;
@@ -91,7 +91,7 @@ public class IDSProcessor{
 	private static double EVABeaconFactor_ = 3;
 
 	/** flag to activate the advanced IDS attack rules*/
-	private static boolean advancedIDSRules_ = false;
+	private static boolean advancedIDSRules_ = true;
 	
 	private boolean ready_ = false;
 	
@@ -152,6 +152,8 @@ public class IDSProcessor{
 		lane_ = new int[AMOUNT_OF_BEACONS_LOGGED];
 		x_ = new int[AMOUNT_OF_BEACONS_LOGGED];
 		y_ = new int[AMOUNT_OF_BEACONS_LOGGED];
+		sourceX_ = x;
+		sourceY_ = y;
 		speed_ = new double[AMOUNT_OF_BEACONS_LOGGED];
 		//createBlocking_ = createBlocking;
 		penaltySourceVehicle_ = penaltySourceVehicle;
@@ -264,7 +266,9 @@ public class IDSProcessor{
 				//we do not need the last one
 				for(int i = 0; i < AMOUNT_OF_BEACONS_LOGGED-1; i++) if(speed_[i] == 0) beaconsWithZeroSpeed++;
 				int[] timeStanding = vehicle_.getKnownVehiclesList().hasBeenSeenWaitingFor(monitoredVehicleID_);
+				//if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && 100 < distance)){
 				if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && PCNDistance_ < distance)){
+
 					if(loggingType_ > 0){
 						LocationInformationLogWriter.log("Type:HUANG_PCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
 						writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
@@ -717,7 +721,7 @@ public class IDSProcessor{
 						else if(!isFake_) falsePositiv[4]++;
 						try{
 							if(loggingType_ > 0){
-								LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+								LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ sourceX_ + ":" + sourceY_ + ":Attack:" + true + ":Correct:" + (isFake_==true));
 								writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + true + ":Correct:" + (isFake_==true));
 							}
 						}
@@ -728,7 +732,7 @@ public class IDSProcessor{
 					}
 					else{
 						if(loggingType_ > 0){
-							LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+							LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ sourceX_ + ":" + sourceY_ + ":Attack:" + false + ":Correct:" + (isFake_==false));
 							writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + false + ":Correct:" + (isFake_==false));
 						}
 						if(!isFake_) trueNegativ[4]++;

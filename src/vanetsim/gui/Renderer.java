@@ -860,7 +860,10 @@ public final class Renderer{
 			panCountY_ = 0;
 
 			// fill background
-			g2d.setColor(new Color(230,230,230));
+			//FIXME
+			//g2d.setColor(new Color(230,230,230));
+			g2d.setColor(Color.white);
+			
 			g2d.fillRect(0,0,drawWidth_,drawHeight_);	
 
 			//Check if we're near enough to use antialiasing (quite costly if there are too many streets)
@@ -877,7 +880,8 @@ public final class Renderer{
 			// paint outline of map
 			if(!antialias) g2d.setPaint(Color.gray);
 			else g2d.setPaint(Color.black);
-			g2d.drawRect(0, 0, map_.getMapWidth(), map_.getMapHeight());
+			//fixme
+			//g2d.drawRect(0, 0, map_.getMapWidth(), map_.getMapHeight());
 
 			
 			// prepare variables
@@ -929,15 +933,15 @@ public final class Renderer{
 					data = location.split(":");
 					if(MDSMode_){
 						// TP
-						if(data[8].equals("true") && data[10].equals("true"))g2d.setPaint(Color.GREEN);
+						if(data[8].equals("true") && data[10].equals("true"))g2d.setPaint(Color.LIGHT_GRAY);
 						//FN
-						else if(data[8].equals("false") && data[10].equals("false"))g2d.setPaint(Color.RED);
+						else if(data[8].equals("false") && data[10].equals("false"))g2d.setPaint(Color.BLACK);
 					}
 					else{
 						// TN
-						if(data[8].equals("false") && data[10].equals("true"))g2d.setPaint(Color.GREEN);
+						if(data[8].equals("false") && data[10].equals("true"))g2d.setPaint(Color.LIGHT_GRAY);
 						//FP
-						else if(data[8].equals("true") && data[10].equals("false"))g2d.setPaint(Color.RED);
+						else if(data[8].equals("true") && data[10].equals("false"))g2d.setPaint(Color.BLACK);
 					}
 					g2d.drawOval(Integer.parseInt(data[5])-2500, Integer.parseInt(data[6])-2500,5000,5000);
 				}
@@ -986,13 +990,16 @@ public final class Renderer{
 				}
 				Iterator<Integer> iterator = layers.keySet().iterator();
 				int key;
+				//FIXME
 				g2d.setPaint(Color.black);
+				//g2d.setPaint(Color.white);
 				g2d.setStroke(lineBackground_);
 				//iterate through all layers and draw them
 				while(iterator.hasNext()){
 					key = iterator.next();
 					if(key == 2) g2d.setStroke(lineBackground_);
 					else g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*key+90,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
+					//fixme
 					g2d.draw(layers.get(key));
 				}
 			}
@@ -1013,6 +1020,7 @@ public final class Renderer{
 								startNode = street.getStartNode();		//saves some function calls
 								endNode = street.getEndNode();
 								if(antialias){
+									//fixme
 									if(street.isOneway()) totalLanes = street.getDisplayColor().getRGB()*100 - street.getLanesCount();
 									else totalLanes = street.getDisplayColor().getRGB()*100 - (2*street.getLanesCount());
 								} else totalLanes = street.getDisplayColor().getRGB();							
@@ -1039,7 +1047,9 @@ public final class Renderer{
 			while(coloriterator.hasNext()){
 				key = coloriterator.next();
 				if(antialias){
+					//Fixme
 					drawColor = new Color(key/100);
+					//drawColor = Color.white;
 					lanes = -key+(key/100*100);
 					if(lanes == 2) g2d.setStroke(lineMain_);
 					else g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*lanes,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
@@ -1047,7 +1057,10 @@ public final class Renderer{
 					g2d.setStroke(lineMain_);
 					drawColor = new Color(Math.max((int)(((key >> 16) & 0xFF) *0.8), 0), Math.max((int)(((key >> 8) & 0xFF)*0.8), 0), Math.max((int)(((key >> 0) & 0xFF)*0.8), 0));	//simulate colors like if they were with antialias (darker)!
 				}
-				g2d.setPaint(drawColor);				
+				//FIXME
+				drawColor = Color.black;
+				g2d.setPaint(drawColor);	
+				//FIXME
 				g2d.draw(layers.get(key));
 			}
 			// If the zoom is near enough, do a correction to display bridges more accurately (though not perfect as intersection calculation
@@ -1082,10 +1095,14 @@ public final class Renderer{
 										MapHelper.calculateResizedLine(start, end, correction, correctStart, correctEnd);
 										//paint the now shorter line completely
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes+90,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER));
+										//FIXME
 										g2d.setColor(Color.black);
+										//g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
-										g2d.setColor(street.getDisplayColor());
+										//fixme
+										//g2d.setColor(street.getDisplayColor());
+										g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
 									}									
 								}
@@ -1103,8 +1120,10 @@ public final class Renderer{
 							if(streetRegion==regions[i][j] || streetRegion.getX()<savedRegionMinX || streetRegion.getX()>savedRegionMaxX || streetRegion.getY()<savedRegionMinY || streetRegion.getY()>savedRegionMaxY){	// only paint it if necessary (to prevent painting it multiple times)
 								//Step 2.1: Paint intersections which consist of 4 intersection points
 								paintArrayList = street.getBridgePaintPolygons();
-								if(paintArrayList != null){									
-									g2d.setColor(street.getDisplayColor());
+								if(paintArrayList != null){		
+									//fixme
+									g2d.setColor(Color.white);
+									//g2d.setColor(street.getDisplayColor());
 									for(l = 3; l < paintArrayList.size(); l= l+4){
 										int[] xPoints = new int[4];
 										int[] yPoints = new int[4];
@@ -1137,7 +1156,9 @@ public final class Renderer{
 										g2d.fillPolygon(xPoints, yPoints, 4);			
 									}
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
+									//fixme
 									g2d.setColor(Color.black);
+									//g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){
 										int x1=(int)Math.round(paintArrayList.get(l-1).x);
 										int y1=(int)Math.round(paintArrayList.get(l-1).y);
@@ -1150,7 +1171,9 @@ public final class Renderer{
 								paintArrayList = street.getBridgePaintLines();
 								if(paintArrayList != null){									
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
+									//FIXME
 									g2d.setColor(Color.black);
+									//g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){
 										int x1=(int)Math.round(paintArrayList.get(l-1).x);
 										int y1=(int)Math.round(paintArrayList.get(l-1).y);
@@ -2008,6 +2031,22 @@ public final class Renderer{
 
 	public void setLocationInformationMDS_(ArrayList<String> locationInformationMDS_) {
 		this.locationInformationMDS_ = locationInformationMDS_;
+	}
+
+	public int getDrawWidth_() {
+		return drawWidth_;
+	}
+
+	public void setDrawWidth_(int drawWidth_) {
+		this.drawWidth_ = drawWidth_;
+	}
+
+	public int getDrawHeight_() {
+		return drawHeight_;
+	}
+
+	public void setDrawHeight_(int drawHeight_) {
+		this.drawHeight_ = drawHeight_;
 	}
 
 

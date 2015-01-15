@@ -60,6 +60,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.gui.Renderer;
+import vanetsim.gui.helpers.VectorCanvas;
 import vanetsim.localization.Messages;
 import vanetsim.scenario.IDSProcessor;
 import vanetsim.scenario.KnownEventSource;
@@ -136,6 +137,8 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 	/** The input field for the spam threshold based on message amount */
 	private final JFormattedTextField spamTimeThreshold_;
 	
+	/** button to switch location information mode (TN, TP, FN, FP) */
+	JButton locationInformationMode_;
 	/** file filter */
 	FileFilter logFileFilter_;
 	
@@ -488,11 +491,11 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 		//switch locationInformation mode
 		++c.gridy;
 		c.gridx = 0;
-		JButton locationInformationMode = new JButton("Switch Mode");
-		locationInformationMode.setActionCommand("locationdatamode");
-		locationInformationMode.setPreferredSize(new Dimension(200,20));
-		locationInformationMode.addActionListener(this);
-		add(locationInformationMode,c);		
+		locationInformationMode_ = new JButton("Switch to TN/FP");
+		locationInformationMode_.setActionCommand("locationdatamode");
+		locationInformationMode_.setPreferredSize(new Dimension(200,20));
+		locationInformationMode_.addActionListener(this);
+		add(locationInformationMode_,c);		
 		
 		//switch locationInformation mode
 		++c.gridy;
@@ -501,7 +504,16 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 		reset.setActionCommand("reset");
 		reset.setPreferredSize(new Dimension(200,20));
 		reset.addActionListener(this);
-		add(reset,c);		
+		add(reset,c);	
+		
+		//save to file
+		++c.gridy;
+		c.gridx = 0;
+		JButton save = new JButton("Save to file");
+		save.setActionCommand("save");
+		save.setPreferredSize(new Dimension(200,20));
+		save.addActionListener(this);
+		add(save,c);
 		
 		//define FileFilter for fileChooser
 		logFileFilter_ = new FileFilter(){
@@ -617,12 +629,19 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 			showAdvancedLocationInformation();
 		}
 		else if("locationdatamode".equals(command)){
+			if(Renderer.getInstance().getMDSMode_())locationInformationMode_.setText("Switch to TP/FN");
+			else locationInformationMode_.setText("Switch to TN/FP");
 			Renderer.getInstance().setMDSMode_(!Renderer.getInstance().getMDSMode_());
 			Renderer.getInstance().ReRender(true, true);
 		}
 		else if("reset".equals(command)){
 			Renderer.getInstance().setLocationInformationMDS_(null);
 			Renderer.getInstance().ReRender(true, true);
+		}
+		else if("save".equals(command)){
+			if(Renderer.getInstance().getLocationInformationMDS_() != null){
+				VectorCanvas.saveCanvas(Renderer.getInstance().getLocationInformationMDS_(), Renderer.getInstance().getMDSMode_(), Renderer.getInstance().getDrawWidth_(), Renderer.getInstance().getDrawHeight_());
+			}
 		}
 		
 	}
