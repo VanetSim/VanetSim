@@ -26,6 +26,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -33,9 +38,13 @@ import java.util.ArrayList;
 
 
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -48,7 +57,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 
+import vanetsim.gui.Renderer;
+import vanetsim.gui.helpers.VectorCanvas;
 import vanetsim.localization.Messages;
 import vanetsim.scenario.IDSProcessor;
 import vanetsim.scenario.KnownEventSource;
@@ -125,6 +137,10 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 	/** The input field for the spam threshold based on message amount */
 	private final JFormattedTextField spamTimeThreshold_;
 	
+	/** button to switch location information mode (TN, TP, FN, FP) */
+	JButton locationInformationMode_;
+	/** file filter */
+	FileFilter logFileFilter_;
 	
 	/**
 	 * Constructor.
@@ -458,7 +474,57 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 		buttonList_.add(button);
 		add(button,c);
 		
-
+		++c.gridy;
+		c.gridwidth = 2;
+		c.gridx = 0;	
+		add(new JSeparator(SwingConstants.HORIZONTAL),c);
+		
+		//locationInformation
+		++c.gridy;
+		c.gridx = 0;
+		JButton locationInformation = new JButton("Load location data");
+		locationInformation.setActionCommand("locationdata");
+		locationInformation.setPreferredSize(new Dimension(200,20));
+		locationInformation.addActionListener(this);
+		add(locationInformation,c);		
+		
+		//switch locationInformation mode
+		++c.gridy;
+		c.gridx = 0;
+		locationInformationMode_ = new JButton("Switch to TN/FP");
+		locationInformationMode_.setActionCommand("locationdatamode");
+		locationInformationMode_.setPreferredSize(new Dimension(200,20));
+		locationInformationMode_.addActionListener(this);
+		add(locationInformationMode_,c);		
+		
+		//switch locationInformation mode
+		++c.gridy;
+		c.gridx = 0;
+		JButton reset = new JButton("Reset");
+		reset.setActionCommand("reset");
+		reset.setPreferredSize(new Dimension(200,20));
+		reset.addActionListener(this);
+		add(reset,c);	
+		
+		//save to file
+		++c.gridy;
+		c.gridx = 0;
+		JButton save = new JButton("Save to file");
+		save.setActionCommand("save");
+		save.setPreferredSize(new Dimension(200,20));
+		save.addActionListener(this);
+		add(save,c);
+		
+		//define FileFilter for fileChooser
+		logFileFilter_ = new FileFilter(){
+			public boolean accept(File f) {
+				if (f.isDirectory()) return true;
+				return f.getName().toLowerCase().endsWith(".log"); //$NON-NLS-1$
+			}
+			public String getDescription () { 
+				return Messages.getString("EditLogControlPanel.logFiles") + " (*.log)"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		};
 		
 		//Provide minimum sizes for the two components in the split pane
 		//Dimension minimumSize = new Dimension(100, 50);
@@ -559,9 +625,24 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 				KnownEventSource.setSpamCheck_(false);
 			}
 		}
-
-		
-		
+		else if("locationdata".equals(command)){
+			showAdvancedLocationInformation();
+		}
+		else if("locationdatamode".equals(command)){
+			if(Renderer.getInstance().getMDSMode_())locationInformationMode_.setText("Switch to TP/FN");
+			else locationInformationMode_.setText("Switch to TN/FP");
+			Renderer.getInstance().setMDSMode_(!Renderer.getInstance().getMDSMode_());
+			Renderer.getInstance().ReRender(true, true);
+		}
+		else if("reset".equals(command)){
+			Renderer.getInstance().setLocationInformationMDS_(null);
+			Renderer.getInstance().ReRender(true, true);
+		}
+		else if("save".equals(command)){
+			if(Renderer.getInstance().getLocationInformationMDS_() != null){
+				VectorCanvas.saveCanvas(Renderer.getInstance().getLocationInformationMDS_(), Renderer.getInstance().getMDSMode_(), Renderer.getInstance().getDrawWidth_(), Renderer.getInstance().getDrawHeight_());
+			}
+		}
 		
 	}
 	
@@ -631,6 +712,53 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 	}
 
 
+	/**
+	 * Show the attack results on the map
+	 */
+	public void showAdvancedLocationInformation(){
+		//begin with selection of file
+			JFileChooser fc = new JFileChooser();
+			//set directory and ".log" filter
+			fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.setFileFilter(logFileFilter_);
+			
+			int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+			
+        	ArrayList<String> locationInformation = new ArrayList<String>();
+        	
+			String logType = "";
+			
+			if(status == JFileChooser.APPROVE_OPTION){
+					File file = fc.getSelectedFile().getAbsoluteFile();
+			        BufferedReader reader;
+			        
+			        try{
+			            reader = new BufferedReader(new FileReader(file));
+			            String line = reader.readLine();
+			            			            
+			            String data[];
+		            
+			            //check if the log is a silent-period or a mix-zone log
+			            while(line != null){
+				        	locationInformation.add(line);
+		            		
+			            	line = reader.readLine();
+			            }
+					} catch (FileNotFoundException e) {
+					    System.err.println("FileNotFoundException: " + e.getMessage());
+					} catch (IOException e) {
+					    System.err.println("Caught IOException: " + e.getMessage());
+					}
+			        
+					Renderer.getInstance().setLocationInformationMDS_(locationInformation);
+					Renderer.getInstance().ReRender(true, true);
+					
+			}
+	}
+	
+	
+	
 	/**
 	 * @return the beaconsLogged_
 	 */

@@ -20,6 +20,7 @@ package vanetsim.scenario;
 
 
 import vanetsim.gui.helpers.IDSLogWriter;
+import vanetsim.gui.helpers.LocationInformationLogWriter;
 import vanetsim.map.Street;
 
 /**
@@ -63,10 +64,10 @@ public class IDSProcessor{
 	private int[] lane_;
 	private int[] x_;
 	private int [] y_;
-	//private int sourceX_;
-	//private int sourceY_;
+	private int sourceX_;
+	private int sourceY_;
 	private double[] speed_;
-	private int AMOUNT_OF_BEACONS_LOGGED = 8;
+	private int AMOUNT_OF_BEACONS_LOGGED = 16;
 	private boolean isFake_;
 	//private boolean debug = false;
 	//private boolean emergencyVehicle_;
@@ -90,7 +91,7 @@ public class IDSProcessor{
 	private static double EVABeaconFactor_ = 3;
 
 	/** flag to activate the advanced IDS attack rules*/
-	private static boolean advancedIDSRules_ = false;
+	private static boolean advancedIDSRules_ = true;
 	
 	private boolean ready_ = false;
 	
@@ -151,6 +152,8 @@ public class IDSProcessor{
 		lane_ = new int[AMOUNT_OF_BEACONS_LOGGED];
 		x_ = new int[AMOUNT_OF_BEACONS_LOGGED];
 		y_ = new int[AMOUNT_OF_BEACONS_LOGGED];
+		sourceX_ = x;
+		sourceY_ = y;
 		speed_ = new double[AMOUNT_OF_BEACONS_LOGGED];
 		//createBlocking_ = createBlocking;
 		penaltySourceVehicle_ = penaltySourceVehicle;
@@ -263,8 +266,13 @@ public class IDSProcessor{
 				//we do not need the last one
 				for(int i = 0; i < AMOUNT_OF_BEACONS_LOGGED-1; i++) if(speed_[i] == 0) beaconsWithZeroSpeed++;
 				int[] timeStanding = vehicle_.getKnownVehiclesList().hasBeenSeenWaitingFor(monitoredVehicleID_);
+				//if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && 100 < distance)){
 				if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && PCNDistance_ < distance)){
-					if(loggingType_ > 0)writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_PCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					}
 			
 					if(isFake_) truePositiv[0]++;
 					else falsePositiv[0]++;
@@ -273,7 +281,10 @@ public class IDSProcessor{
 					return rule_;
 				}
 				else{
-					if(loggingType_ > 0)writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1]  + ":" + beaconsWithZeroSpeed);
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_PCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1]  + ":" + beaconsWithZeroSpeed);
+					}
 					
 					if(!isFake_) trueNegativ[0]++;
 					else  falseNegativ[0]++;
@@ -324,7 +335,10 @@ public class IDSProcessor{
 				if((PCNDistance_ < distance)){
 
 
-					if(loggingType_ > 0)writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_PCN:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					}
 			
 					if(isFake_) truePositiv[0]++;
 					else falsePositiv[0]++;
@@ -333,7 +347,10 @@ public class IDSProcessor{
 					return rule_;
 				}
 				else{
-					if(loggingType_ > 0)writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_PCN:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_PCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNDistance_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));
+					}
 					
 					if(!isFake_) trueNegativ[0]++;
 					else  falseNegativ[0]++;
@@ -394,7 +411,9 @@ public class IDSProcessor{
 			if(speed_[0] != 0) ratio = (speed_[lastLoggedBeacon-1]/speed_[0]);
 			
 			if(ratio > PCNFORWARDThreshold_){
-				if(loggingType_ > 0)writeLog("Type:PCN_FOWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNFORWARDThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
+				if(loggingType_ > 0){
+					writeLog("Type:PCN_FOWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + PCNFORWARDThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
+				}
 				
 				if(isFake_) truePositiv[1]++;
 				else falsePositiv[1]++;
@@ -466,7 +485,10 @@ public class IDSProcessor{
 				//if(speed_[lastLoggedBeacon-1] == 0) editLastValue = 1;
 				//if(((timeStanding[0] - beaconsWithZeroSpeed + editLastValue) > 0) || (ratio > RHCNThreshold_)){
 				if(speed_[0] == 0 || (speed_[0] > 400 && ratio > RHCNThreshold_)){
-					if(loggingType_ > 0)writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_RHCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					}
 					
 					if(isFake_) truePositiv[2]++;
 					else falsePositiv[2]++;
@@ -475,7 +497,10 @@ public class IDSProcessor{
 					return rule_;
 				}
 				else{
-					if(loggingType_ > 0)writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + ratio + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_RHCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + ratio + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					}
 					
 					if(!isFake_) trueNegativ[2]++;
 					else falseNegativ[2]++;
@@ -499,7 +524,10 @@ public class IDSProcessor{
 				
 				distance = Math.sqrt(dx * dx + dy * dy);
 				if(distance > RHCNThreshold_){
-					if(loggingType_ > 0)writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_RHCN:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					}
 					
 					if(isFake_) truePositiv[2]++;
 					else falsePositiv[2]++;
@@ -508,7 +536,10 @@ public class IDSProcessor{
 					return rule_;
 				}
 				else{
-					if(loggingType_ > 0)writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_RHCN:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_RHCN:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + RHCNThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false)  + timeStanding[0] + ":" + timeStanding[1] + ":" + beaconsWithZeroSpeed);
+					}
 					
 					if(!isFake_) trueNegativ[2]++;
 					else falseNegativ[2]++;
@@ -598,7 +629,10 @@ public class IDSProcessor{
 				
 				distance = Math.sqrt(dx * dx + dy * dy);
 				if(distance > EVAFORWARDThreshold_){	
-					if(loggingType_ > 0)writeLog("Type:HUANG_EVA_FORWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EVAFORWARDThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EVA_FORWARD:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_EVA_FORWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EVAFORWARDThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					}
 					if(isFake_) truePositiv[3]++;
 					else falsePositiv[3]++;
 				//	sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
@@ -607,7 +641,11 @@ public class IDSProcessor{
 					if(!sourceVehicle_.isDrivingOnTheSide_() && sourceVehicle_.getKnownPenalties().hasToMoveOutOfTheWay(penaltySourceVehicle_))sourceVehicle_.setMoveOutOfTheWay_(true);
 					if(!isFake_) trueNegativ[3]++;
 					else falseNegativ[3]++;
-					if(loggingType_ > 0)writeLog("Type:HUANG_EVA_FORWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EVAFORWARDThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EVA_FORWARD:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+
+						writeLog("Type:HUANG_EVA_FORWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EVAFORWARDThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));
+					}
 				
 					if(!sourceVehicle_.isDrivingOnTheSide_() && hasToMoveOutOfTheWay(penaltySourceVehicle_)){
 						sourceVehicle_.setMoveOutOfTheWay_(true);
@@ -682,7 +720,10 @@ public class IDSProcessor{
 						if(isFake_) truePositiv[4]++;
 						else if(!isFake_) falsePositiv[4]++;
 						try{
-							if(loggingType_ > 0)writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+							if(loggingType_ > 0){
+								LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ sourceX_ + ":" + sourceY_ + ":Attack:" + true + ":Correct:" + (isFake_==true));
+								writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+							}
 						}
 						catch(Exception e){
 							e.printStackTrace();
@@ -690,7 +731,10 @@ public class IDSProcessor{
 						//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 					}
 					else{
-						if(loggingType_ > 0)writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						if(loggingType_ > 0){
+							LocationInformationLogWriter.log("Type:EVA_EMERGENCY_ID:Source:" + "MDS:RESTNET:"+ sourceX_ + ":" + sourceY_ + ":Attack:" + false + ":Correct:" + (isFake_==false));
+							writeLog("Type:EVA_EMERGENCY_ID:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Beacon-Threshold:" + thresholdBeacon + ":Beaconvalue:" +  response[1] + ":Time-Threshold:" + thresholdTime + ":Timevalue:" +  response[0]  + "Neighbours:" + response[2] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						}
 						if(!isFake_) trueNegativ[4]++;
 						else if(isFake_) falseNegativ[4]++;
 						
@@ -729,7 +773,10 @@ public class IDSProcessor{
 				
 				
 				if(useRule && advancedSpeedData[0] == 0 || ratio > EEBLThreshold_){
-					if(loggingType_ > 0)writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EEBL:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					}
 					if(isFake_) truePositiv[5]++;
 					else if(!isFake_) falsePositiv[5]++;
 					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
@@ -738,7 +785,10 @@ public class IDSProcessor{
 				
 				}
 				else {
-					if(loggingType_ > 0)writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + ratio + ":Attack:" + false + ":Correct:" + (isFake_==false));	
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EEBL:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + ratio + ":Attack:" + false + ":Correct:" + (isFake_==false));	
+					}
 					
 					if(!isFake_) trueNegativ[5]++;
 					else if(isFake_) falseNegativ[5]++;
@@ -776,7 +826,10 @@ public class IDSProcessor{
 				
 				distance = Math.sqrt(dx * dx + dy * dy);
 				if(distance > EEBLThreshold_){
-					if(loggingType_ > 0)writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EEBL:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
+						writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + distance + ":Attack:" + true + ":Correct:" + (isFake_==true));
+					}
 					if(isFake_) truePositiv[5]++;
 					else if(!isFake_) falsePositiv[5]++;
 					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
@@ -785,7 +838,10 @@ public class IDSProcessor{
 				
 				}
 				else {
-					if(loggingType_ > 0)writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));	
+					if(loggingType_ > 0){
+						LocationInformationLogWriter.log("Type:HUANG_EEBL:Source:" + "MDS:RUJ:"+ x_[0] + ":" + y_[0] + ":Attack:" + false + ":Correct:" + (isFake_==false));
+						writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + distance + ":Attack:" + false + ":Correct:" + (isFake_==false));	
+					}
 					
 					if(!isFake_) trueNegativ[5]++;
 					else if(isFake_) falseNegativ[5]++;

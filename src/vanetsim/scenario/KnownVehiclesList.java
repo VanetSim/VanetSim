@@ -142,7 +142,7 @@ public class KnownVehiclesList{
 			next = head_[i];
 			while(next != null){
 				if(next.getLastUpdate() < timeout){ // remove!
-					if(logKnownTime)GeneralLogWriter.log(String.valueOf(next.getLastUpdate() - next.getFirstContact_()));
+					//if(logKnownTime)GeneralLogWriter.log(String.valueOf(next.getLastUpdate() - next.getFirstContact_()));
 
 					if(next.getNext() != null) next.getNext().setPrevious(next.getPrevious());
 					if(next.getPrevious() != null) next.getPrevious().setNext(next.getNext());

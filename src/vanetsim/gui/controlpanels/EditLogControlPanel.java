@@ -34,7 +34,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
-
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
@@ -42,6 +41,7 @@ import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.AttackLogWriter;
 import vanetsim.gui.helpers.EventLogWriter;
 import vanetsim.gui.helpers.IDSLogWriter;
+import vanetsim.gui.helpers.LocationInformationLogWriter;
 import vanetsim.gui.helpers.PrivacyLogWriter;
 import vanetsim.gui.helpers.TextAreaLabel;
 import vanetsim.localization.Messages;
@@ -374,6 +374,7 @@ public class EditLogControlPanel extends JPanel implements  FocusListener, Actio
 		else if("logIDSData".equals(command)){
 			IDSProcessor.setLogIDS_(logIDSCheckBox_.isSelected());
 			IDSLogWriter.setLogPath(logIDSPath_.getValue().toString());
+			LocationInformationLogWriter.setLogPath(logIDSPath_.getValue().toString());
 		}
 		else if("logEventData".equals(command)){
 			EventLogWriter.setLogPath(logEventPath_.getValue().toString());

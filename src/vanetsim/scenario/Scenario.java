@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import java.util.ArrayDeque;
 
 import javax.xml.stream.XMLInputFactory;
@@ -50,6 +49,7 @@ import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.AttackLogWriter;
 import vanetsim.gui.helpers.EventLogWriter;
 import vanetsim.gui.helpers.IDSLogWriter;
+import vanetsim.gui.helpers.LocationInformationLogWriter;
 import vanetsim.gui.helpers.MouseClickManager;
 import vanetsim.gui.helpers.PrivacyLogWriter;
 import vanetsim.localization.Messages;
@@ -305,7 +305,10 @@ public final class Scenario{
 							} else if(settingsCrsr.getLocalName().toLowerCase().equals("idslog")){ //$NON-NLS-1$
 								try{
 									String tmp = settingsCrsr.collectDescendantText(false);
-									if(IDSProcessor.isLogIDS_()) IDSLogWriter.setLogPath(tmp);
+									if(IDSProcessor.isLogIDS_()) {
+										IDSLogWriter.setLogPath(tmp);
+										LocationInformationLogWriter.setLogPath(tmp);
+									}
 									if(!Renderer.getInstance().isConsoleStart()  && !tmp.equals(""))VanetSimStart.getMainControlPanel().getEditPanel().getEditLogControlPanel_().getLogIDSPath_().setValue(tmp);
 								} catch (Exception e) {}	
 							} else if(settingsCrsr.getLocalName().toLowerCase().equals("idsloggingenabled")){ //$NON-NLS-1$

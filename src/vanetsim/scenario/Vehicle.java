@@ -3123,7 +3123,7 @@ public class Vehicle extends LaneObject{
 				}
 			}
 				
-			//GeneralLogWriter.log(ID_ + ":" + curX_ + ":" +  curY_ + ":" +  curSpeed_); 
+			GeneralLogWriter.log("time:" + Renderer.getInstance().getTimePassed() + ":id:" + ID_ + ":x:" + curX_ + ":y:" +  curY_ + ":v:" +  curSpeed_); 
 			
 			
 			if(logBeaconsAfterEvent_){
