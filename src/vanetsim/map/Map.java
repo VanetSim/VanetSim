@@ -1112,4 +1112,16 @@ public final class Map{
 	}
 	
 	
+	/**
+	 * displays amount of vehicles per region
+	 */
+	public void printVehiclesPerRegion(){
+		for(int i = 0; i < regionCountY_; ++i){
+			for(int j = 0; j < regionCountX_; ++j){
+				System.out.print(regions_[j][i].getVehicleArrayList().size() + ",");
+			}
+			System.out.println();
+		}
+	}
+	
 }
