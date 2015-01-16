@@ -38,6 +38,12 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
     /** JLabel to describe propagationModelChoice JComboBox */
     private final JLabel propagationModelChoiceLabel_;
 
+    /** JCombobox to select choice */
+    private final JComboBox<String> reversepropagationModelChoice_;
+
+    /** JLabel to describe reversepropagationModelChoice JComboBox */
+    private final JLabel reversepropagationModelChoiceLabel_;
+
     /** The input field for Sigma, used in Gauss Distributions */
     private final JFormattedTextField gaussSigma_;
 
@@ -96,6 +102,9 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
     private static final String[] PRESET_TYPES = { Messages.getString("PropagationModelPanel.freeSpace"),
             Messages.getString("PropagationModelPanel.shadowing"), Messages.getString("PropagationModelPanel.nakagami") };
 
+    private static final String[] REVERSE_PRESET_TYPES = { Messages.getString("PropagationModelPanel.freeSpace"),
+            Messages.getString("PropagationModelPanel.shadowing") };
+
     /**
      * Constructor, creating GUI items.
      */
@@ -137,6 +146,23 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         propagationModelChoice_ = new JComboBox<String>(PRESET_TYPES);
         propagationModelChoice_.setSelectedIndex(0);
         add(propagationModelChoice_, c);
+
+        // ComboBox Model Choice
+        c.gridwidth = 1;
+        c.gridx = 0;
+        reversepropagationModelChoiceLabel_ = new JLabel(Messages.getString("PropagationModelPanel.reversepropagationModelChoice")); //$NON-NLS-1$
+        ++c.gridy;
+        add(reversepropagationModelChoiceLabel_, c);
+        c.gridx = 1;
+        reversepropagationModelChoice_ = new JComboBox<String>(REVERSE_PRESET_TYPES);
+        reversepropagationModelChoice_.setSelectedIndex(0);
+        add(reversepropagationModelChoice_, c);
+
+        // /** JCombobox to select choice */
+        // private final JComboBox<String> reversepropagationModelChoice_;
+        //
+        // /** JLabel to describe reversepropagationModelChoice JComboBox */
+        // private final JLabel reversepropagationModelChoiceLabel_;
 
         // Sigma entry
         c.gridx = 0;
@@ -315,19 +341,24 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
 
         PropagationModel.setReceivingGain(((Number) gainReceive_.getValue()).doubleValue());
 
-        PropagationModel.setPassLossFactor( ((Number) pathLossFactor_.getValue()).doubleValue());
+        PropagationModel.setPassLossFactor(((Number) pathLossFactor_.getValue()).doubleValue());
 
         PropagationModel.setWaveLength_(((Number) lambda_.getValue()).doubleValue());
 
         String tmpSelected = propagationModelChoice_.getSelectedItem().toString();
         if (tmpSelected.equals(Messages.getString("PropagationModelPanel.freeSpace"))) {
-            PropagationModel.setGlobalPropagationModel(PropagationModel.PROPAGATION_MODEL_FREE_SPACE);
+            PropagationModel.setGlobalDistanceToRSSPropagationModel(PropagationModel.PROPAGATION_MODEL_FREE_SPACE);
         } else if (tmpSelected.equals(Messages.getString("PropagationModelPanel.shadowing"))) {
-            PropagationModel.setGlobalPropagationModel(PropagationModel.PROPAGATION_MODEL_SHADOWING);
+            PropagationModel.setGlobalDistanceToRSSPropagationModel(PropagationModel.PROPAGATION_MODEL_SHADOWING);
         } else if (tmpSelected.equals(Messages.getString("PropagationModelPanel.nakagami"))) {
-            PropagationModel.setGlobalPropagationModel(PropagationModel.PROPAGATION_MODEL_NAKAGAMI);
+            PropagationModel.setGlobalDistanceToRSSPropagationModel(PropagationModel.PROPAGATION_MODEL_NAKAGAMI);
         }
-
+        String tmpSelected2 = reversepropagationModelChoice_.getSelectedItem().toString();
+        if (tmpSelected2.equals(Messages.getString("PropagationModelPanel.freeSpace"))) {
+            PropagationModel.setGlobalRssToDistancePropagationModel(PropagationModel.PROPAGATION_MODEL_FREE_SPACE);
+        } else if (tmpSelected2.equals(Messages.getString("PropagationModelPanel.shadowing"))) {
+            PropagationModel.setGlobalRssToDistancePropagationModel(PropagationModel.PROPAGATION_MODEL_SHADOWING);
+        }
     }
 
     public void loadAttributes() {

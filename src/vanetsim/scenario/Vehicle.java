@@ -3103,9 +3103,9 @@ public class Vehicle extends LaneObject{
                                         propagationModel_ = PropagationModel.getInstance();
                                     }
                                     if (sybilVehicle_) {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dArsuX, dArsuY);
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dArsuX, dArsuY);
                                     } else {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dx, dy);
                                     }
                                 }
 
@@ -3212,9 +3212,9 @@ public class Vehicle extends LaneObject{
                                     }
                                     
                                     if (sybilVehicle_) {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dArsuX, dArsuY);
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dArsuX, dArsuY);
                                     } else {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dx, dy);
                                     }
                                 }
 

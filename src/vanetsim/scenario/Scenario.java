@@ -159,9 +159,6 @@ public final class Scenario{
 			Node tmpNode;
 			SMInputCursor childCrsr, vehicleCrsr, vehiclesCrsr, mixNodeCrsr, mixNodesCrsr, settingsCrsr, eventCrsr, eventsCrsr, eventSpotCrsr, eventSpotsCrsr, destinationsCrsr, waypointCrsr, rsuCrsr, rsusCrsr, aRsuCrsr, aRsusCrsr;
 			XMLInputFactory factory = XMLInputFactory.newInstance();
-
-			
-			
 			
 			ErrorLog.log(Messages.getString("Scenario.loadingScenario") + file.getName(), 3, getClass().getName(), "load", null);  //$NON-NLS-1$//$NON-NLS-2$
 			// configure some factory options...
@@ -203,9 +200,15 @@ public final class Scenario{
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpropmodell")) { //$NON-NLS-1$
                                 try{
                                 tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
-                                PropagationModel.setGlobalPropagationModel(tmpInt);
+                                PropagationModel.setGlobalDistanceToRSSPropagationModel(tmpInt);
                                 } catch (Exception e) {}
                             }	
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("reversepropagationpropmodell")) { //$NON-NLS-1$
+                                try{
+                                tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
+                                PropagationModel.setGlobalRssToDistancePropagationModel(tmpInt);
+                                } catch (Exception e) {}
+                            }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationallowederror")) { //$NON-NLS-1$
                                 try{
                                 tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
@@ -1148,7 +1151,8 @@ public final class Scenario{
             settings.addElement("propagationreceivgain").addValue((int) (PropagationModel.getReceivingGain()*1000));
             settings.addElement("propagationpathloss").addValue((int) (PropagationModel.getPassLossFactor() * 1000.0));
             settings.addElement("propagationlambda").addValue((int) (PropagationModel.getWaveLength()*1000));
-            settings.addElement("propagationpropmodell").addValue(PropagationModel.getGlobalPropagationModel());
+            settings.addElement("propagationpropmodell").addValue(PropagationModel.getGlobalDistanceToRSSPropagationModel());
+            settings.addElement("reversepropagationpropmodell").addValue(PropagationModel.getGlobalRSSToDistancePropagationModel());
             
             settings.addElement("localisationallowederror").addValue(PositioningHelper.getAllowedError());
             settings.addElement("localisationrsutrilateration").addValue(PositioningHelper.isPositionVerificationRSU_Trilateration());

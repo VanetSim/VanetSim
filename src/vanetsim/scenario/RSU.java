@@ -315,7 +315,7 @@ public final class RSU {
                                 if (propagationModel_ == null) {
                                     propagationModel_ = PropagationModel.getInstance();
                                 }
-                                currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalPropagationModel(), dx, dy);
+                                currentRssi = propagationModel_.calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(), dx, dy);
                             }
 						    
 							vehicle.getKnownRSUsList().updateRSU(this, rsuID_, x_, y_, isEncrypted_,currentRssi);
@@ -993,12 +993,12 @@ public final class RSU {
 
                 // calculate the distances from the RSU to the Vehicle based on the RSSI Measurements
                 double[] dist = new double[3];
-                dist[0] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
+                dist[0] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalRSSToDistancePropagationModel(),
                         entry.getRSSI());
-                dist[1] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
+                dist[1] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalRSSToDistancePropagationModel(),
                         entryList.get(0).getRSSI());
                 ;
-                dist[2] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalPropagationModel(),
+                dist[2] = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalRSSToDistancePropagationModel(),
                         entryList.get(1).getRSSI());
 
                 int[] rsusX = { this.getX(), entryList.get(0).getReceiverX(), entryList.get(1).getReceiverX() };
@@ -1075,12 +1075,12 @@ public final class RSU {
                 double travelDistance = (t1 - t0) * v0 * (1.0d / 100.0d);// [mm]
                 double currentRssi = tmpnKownVehicle.getRssi();// [dBm]
 
-                double d0 = PropagationModel.getInstance().calculateDistance(PropagationModel.getInstance().getGlobalPropagationModel(),
+                double d0 = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalRSSToDistancePropagationModel(),
                         tmpnKownVehicle.getSavedRssi()[lastIndex]);// [cm]
 
-                double rssi_max = PropagationModel.getInstance().calculateRSSI(PropagationModel.getInstance().getGlobalPropagationModel(),
+                double rssi_max = PropagationModel.getInstance().calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                         d0 + travelDistance);
-                double rssi_min = PropagationModel.getInstance().calculateRSSI(PropagationModel.getInstance().getGlobalPropagationModel(),
+                double rssi_min = PropagationModel.getInstance().calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                         d0 - travelDistance);
 
                 boolean b1 = (currentRssi <= rssi_min);
