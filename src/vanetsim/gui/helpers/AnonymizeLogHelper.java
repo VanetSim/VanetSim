@@ -188,7 +188,8 @@ public class AnonymizeLogHelper {
                     		timeBetweenBeacons = Integer.parseInt(data2[timestampId]) - Integer.parseInt(data[timestampId]);
                     				
                     		//calculate expected way
-                            expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]));
+                            expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]))*1.1;
+                         //   expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]));
 
                             
                             //coords
@@ -261,7 +262,7 @@ public class AnonymizeLogHelper {
             	counter++;
             	//if(counter%1000 == 0)System.out.println(counter + ":" + successCount + ":" + failCount);
             }
-        	System.out.println(successCount + ":" + failCount + " :BTI:" + beaconIntervalTime + " Name:" + inputFile);
+        	System.out.println(successCount + ":" + failCount + ":x:BTI:" + beaconIntervalTime + " Name:" + inputFile);
         	
         	 FileWriter fstream;
              fstream = new FileWriter("attackResult.log", true);

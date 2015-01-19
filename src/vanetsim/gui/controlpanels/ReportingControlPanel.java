@@ -326,7 +326,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		makejobs.setActionCommand("makejobs");
 		makejobs.setPreferredSize(new Dimension(200,20));
 		makejobs.addActionListener(this);
-		//add(makejobs,c);		
+		add(makejobs,c);		
 		
 		//createscenarios
 		++c.gridy;
@@ -655,7 +655,8 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		else if("makejobs".equals(command)){
 			//accumulateVehicleFluctuation();
 			//accumulateSpammerFiles();
-			accumulateVehicleIDSResults();
+			//accumulateVehicleIDSResults();
+			perturbationLog();
 			//makejobs();
 			//accumulateKnownVehiclesTimeFiles();
 			//ResearchSeriesDialog.getInstance().setVisible(true);
@@ -2118,6 +2119,92 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 			}
 			
 		}
-	}					
+	}	
+	
+	public void perturbationLog(){
+		
+		//begin with selection of file
+		JFileChooser fc = new JFileChooser();
+		//set directory and ".log" filter
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileFilter(logFileFilter_);
+		
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+		
+
+		int lineCounter = 0;
+		int amountOfFiles = 10;
+		int counter = 0;
+		int counterTotal = 0;
+		
+		float x = 0;
+		float y = 0;
+		
+		float[][] resultsX = new float[5][5];
+		float[][] resultsY = new float[5][5];
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+				File file = fc.getSelectedFile().getAbsoluteFile();
+		        BufferedReader reader;
+		        
+		        try{
+		        	reader = new BufferedReader(new FileReader(file));
+		            String line = reader.readLine();
+		           
+		            String data[];
+		           
+		            //check if the log is a silent-period or a mix-zone log
+		            while(line != null){
+		            	
+		            	if(counterTotal%(amountOfFiles)==0 && counterTotal > 0){
+		            		System.out.println(counter + ":" + lineCounter);
+
+		            		resultsX[counter][lineCounter] = x/amountOfFiles;
+		            		resultsY[counter][lineCounter] = y/amountOfFiles;
+		            		
+		            		System.out.println(resultsX[counter][lineCounter] + ":" + resultsY[counter][lineCounter]);
+		            		
+		            		x = 0;
+		            		y = 0;
+		            		
+		            		lineCounter++;
+		            		
+		            		if(lineCounter == 5){
+		            			lineCounter = 0;
+		            			counter++;
+		            		}
+		            	}
+		            		
+		            	data = line.split(":");
+	            		
+	            		System.out.println(Float.parseFloat(data[0]) + ":" + Float.parseFloat(data[1]) + ":" + data[4] + ":" + data[6]);
+
+	            		
+		            	x += Float.parseFloat(data[0]);
+		            	y += Float.parseFloat(data[1]);			        		
+
+		            	counterTotal++;
+		            	
+		            	line = reader.readLine();
+		            }
+				} catch (FileNotFoundException e) {
+				    System.err.println("FileNotFoundException: " + e.getMessage());
+				} catch (IOException e) {
+				    System.err.println("Caught IOException: " + e.getMessage());
+				}
+		    
+		        resultsX[counter][lineCounter] = x/amountOfFiles;
+        		resultsY[counter][lineCounter] = y/amountOfFiles;
+        		
+		        for(int i = 0; i < resultsX.length; i++){
+		        	for(int j = 0; j < resultsX[i].length; j++){
+		        		System.out.print(resultsX[j][i] + " " + resultsY[j][i] + " ");
+		        	}
+		        	System.out.println();
+		        }
+		}
+		        
+	}
 	
 }
