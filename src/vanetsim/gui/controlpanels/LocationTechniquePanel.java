@@ -266,7 +266,7 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             vehicleExchange2RSULabel_.setVisible(false);
             PositioningHelper.setPositionVerificationVehilceSendRssiToRsu(vehicleExchange2RSU_.isSelected());
 
-            vehicleExchange2Vehicle_.setSelected(false);
+            vehicleExchange2Vehicle_.setSelected(true);
             vehicleExchange2Vehicle_.setVisible(false);
             vehicleExchange2VehicleLabel_.setVisible(false);
             PositioningHelper.setPositionVerificationVehilceSendRssiToVehicle(vehicleExchange2Vehicle_.isSelected());
@@ -299,4 +299,31 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
 
     }
 
+    public void setLocationRSUTrilateration(boolean state) {
+        useRSUTrilateration.setSelected(state);
+    }
+
+    public void setLocationRSUPredictMovement(boolean state) {
+        useRSUPredictMovement.setSelected(state);
+    }
+
+    public void setLocationVehicleTraceNeighbours(boolean state) {
+        useVehicleTraceNeighbours.setSelected(state);
+    }
+
+    public void setLocationVerifyByVehicle(boolean tmpBoolean) {
+        // TODO Auto-generated method stub
+    }
+
+    public void setLocationVehicleSendToRSU(boolean tmpBoolean) {
+        vehicleExchange2RSU_.setSelected(tmpBoolean);
+    }
+
+    public void setLocationRSUSendToRSU(boolean tmpBoolean) {
+        rsuExchange2RSU_.setSelected(tmpBoolean);
+    }
+
+    public void setLocationVehicleSendToVehicle(boolean tmpBoolean) {
+        vehicleExchange2Vehicle_.setSelected(tmpBoolean);
+    }
 }
