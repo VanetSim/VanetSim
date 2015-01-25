@@ -12,14 +12,38 @@ public class PositionEntity {
     private int senderY_;
     private double rssi_;
     private KnownVehicle knownVehicle_ = null;
+    private boolean sourceIsRSU_ = false;
+    private int firstContactTime_ = -1;
+
+    public int getFirstContactTime() {
+        return firstContactTime_;
+    }
+
+    public void setFirstContactTime(int Time) {
+        this.firstContactTime_ = Time;
+    }
 
     public KnownVehicle getKnownVehicle() {
         return knownVehicle_;
     }
 
+    public void setSenderID(long ID) {
+        this.senderID_ = ID;
+    }
+
     private double calculatedDistance_ = Double.NaN;
 
-    public PositionEntity(long receiverID, int receiverX, int receiverY, KnownVehicle knownVehicle) {
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PositionEntity) {
+            PositionEntity tmp = (PositionEntity) obj;
+            if (tmp.getSenderID() == senderID_)
+                return true;
+        }
+        return false;
+    }
+
+    public PositionEntity(long receiverID, int receiverX, int receiverY, KnownVehicle knownVehicle, boolean sourceIsRSU) {
         receiverID_ = receiverID;
         receiverX_ = receiverX;
         receiverY_ = receiverY;
@@ -28,6 +52,7 @@ public class PositionEntity {
         senderY_ = knownVehicle.getY();
         rssi_ = knownVehicle.getRssi();
         knownVehicle_ = knownVehicle;
+        sourceIsRSU_ = sourceIsRSU;
     }
 
     public double getCalculatedDistance() {
@@ -65,4 +90,13 @@ public class PositionEntity {
     public long getSenderID() {
         return senderID_;
     }
+
+    public boolean isSourceIsRSU_() {
+        return sourceIsRSU_;
+    }
+
+    public void setSourceIsRSU_(boolean sourceIsRSU) {
+        this.sourceIsRSU_ = sourceIsRSU;
+    }
+
 }

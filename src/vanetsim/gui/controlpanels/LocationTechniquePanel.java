@@ -283,7 +283,7 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             PositioningHelper.setPositionVerificationRSU_PredictMovement(false);
             PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(true);
         } else if ("techManualMode".equals(command)) {
-            // TODO:
+            // TODO: add all settings here
         }
 
     }
@@ -312,7 +312,8 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
     }
 
     public void setLocationVerifyByVehicle(boolean tmpBoolean) {
-        // TODO Auto-generated method stub
+        // TODO: maybe add a GUi Setting for the different verification Possibilities
+        
     }
 
     public void setLocationVehicleSendToRSU(boolean tmpBoolean) {

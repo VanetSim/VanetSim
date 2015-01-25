@@ -8,19 +8,29 @@ public class PositioningHelper {
     private static boolean positionVerificationRSU_PredictMovement = false;
 
     private static boolean positionVerificationByVehicleEnabled = false;
+    private static boolean positionVerificationVehicle_TraceNeighbours = false;
 
     private static boolean positionVerificationVehilceSendRssiToRsu = false;
     private static boolean positionVerificationRsuSendRssiToRsu = false;
     private static boolean positionVerificationVehilceSendRssiToVehicle = false;
 
-    private static int allowedError = 60;// [mm]
+    private static int allowedError = 60; // [mm]
+    private static int threshold = 80000; // [ms]
 
     public static int getAllowedError() {
         return allowedError;
     }
 
+    public static int getThreshold() {
+        return threshold;
+    }
+
     public static void setAllowedError(int allowedError) {
         PositioningHelper.allowedError = allowedError;
+    }
+
+    public static void setThreshold(int usedTheshold) {
+        threshold = usedTheshold;
     }
 
     public PositioningHelper() {
@@ -32,6 +42,14 @@ public class PositioningHelper {
 
     public static void setPositionVerificationRSU_Trilateration(boolean state) {
         PositioningHelper.positionVerificationRSU_Trilateration = state;
+    }
+
+    public static boolean isPositionVerificationVehicle_TraceNeighbours() {
+        return positionVerificationVehicle_TraceNeighbours;
+    }
+
+    public static void setPositionVerificationVehicle_TraceNeighbours(boolean state) {
+        positionVerificationVehicle_TraceNeighbours = state;
     }
 
     public static void setPositionVerificationByRSUEnabled(boolean positionVerificationByRSUEnabled) {

@@ -355,6 +355,8 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
         add(label,c);       
         sybilVehicle_ = new JCheckBox();
         c.gridx = 1;
+        sybilVehicle_.setActionCommand("sybilVehicle"); //$NON-NLS-1$
+        sybilVehicle_.addActionListener(this);
         add(sybilVehicle_,c);
         
 		//add vehicle types comboBox
@@ -603,7 +605,11 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 			actionPerformed(new ActionEvent(chooseVehicleType_,0,"comboBoxChanged"));
 			Renderer.getInstance().ReRender(false, false);
 		}
-		//action when the edit RadioButton is selected
+        // action when the a Sybil-Vehicle is created
+        if ("sybilVehicle".equals(command)) {
+            colorPreview_.setBackground(Color.GREEN);
+        }
+        // action when the edit RadioButton is selected
 		if("edit".equals(command)){	
 			Renderer.getInstance().setMarkedVehicle(null);
 			setGuiElements("save");
@@ -658,6 +664,7 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 				tmpVehicle.setSybilVehicle(sybilVehicle_.isSelected());
 				if(sybilVehicle_.isSelected()){
 				    tmpVehicle.setColor(Color.GREEN);
+				    colorPreview_.setBackground(Color.GREEN);
 				}
 				tmpVehicle.setFakeMessageType(fakeMessagesTypes_.getSelectedItem().toString());
 

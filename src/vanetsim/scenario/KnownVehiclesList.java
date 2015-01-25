@@ -98,8 +98,11 @@ public class KnownVehiclesList{
 				
 				next.setX(x);
 				next.setY(y);
+				
+				 //TODO: check this! original version (below) doesn't look corect, why is VALID_TIME added??
 				//next.setLastUpdate(timePassed_+VALID_TIME);
 				next.setLastUpdate(timePassed_);
+				
 				next.setSpeed(speed);
 				next.setEncrypted_(isEncrypted);
 				next.setRssi(rssi);
@@ -112,7 +115,7 @@ public class KnownVehiclesList{
 		}					
 		
 		if(!found){
-		    //TODO: check this! original version (below) doesn't look corect
+		    //TODO: check this! original version (below) doesn't look corect, why is VALID_TIME added??
 		    next = new KnownVehicle(vehicle, ID, x, y, timePassed_, speed, isEncrypted, timePassed_,rssi);
 //		    next = new KnownVehicle(vehicle, ID, x, y, timePassed_ + VALID_TIME, speed, isEncrypted, timePassed_,rssi);
 			next.setNext(head_[hash]);

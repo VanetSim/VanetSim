@@ -190,29 +190,43 @@ public final class Scenario{
 								Vehicle.setCommunicationEnabled(tmpBoolean);
 								RSU.setCommunicationEnabled(tmpBoolean);
 								}
-                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationenablerssi")) { //$NON-NLS-1$
+							else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationenablerssi")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
                                 else {
                                     tmpBoolean = false;
                                 }
                                 Vehicle.setSendRssiEnabled(tmpBoolean);
-                            }
-                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpropmodell")) { //$NON-NLS-1$
-                                try{
-                                tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
-                                PropagationModel.setGlobalDistanceToRSSPropagationModel(tmpInt);
+                                if (!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationPropagationModellPanel_()
+                                            .setEnableSendingRSSI(tmpBoolean);
+                            } else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationpropmodell")) { //$NON-NLS-1$
+                                try {
+                                    tmpInt = Integer.parseInt(settingsCrsr.collectDescendantText(false));
+                                    PropagationModel.setGlobalDistanceToRSSPropagationModel(tmpInt);
+                                    if (!Renderer.getInstance().isConsoleStart())
+                                        VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationPropagationModellPanel_()
+                                                .setPropagationModel(tmpInt);
                                 } catch (Exception e) {}
                             }	
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("reversepropagationpropmodell")) { //$NON-NLS-1$
                                 try{
                                 tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
                                 PropagationModel.setGlobalRssToDistancePropagationModel(tmpInt);
+                                if (!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationPropagationModellPanel_()
+                                            .setReversePropagationModel(tmpInt);
                                 } catch (Exception e) {}
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationallowederror")) { //$NON-NLS-1$
                                 try{
                                 tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
                                 PositioningHelper.setAllowedError(tmpInt);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationthreshold")) { //$NON-NLS-1$
+                                try{
+                                tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
+                                PositioningHelper.setThreshold(tmpInt);
                                 } catch (Exception e) {}
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationsigma")) { //$NON-NLS-1$
@@ -285,6 +299,8 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationRSU_Trilateration(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationRSUTrilateration(tmpBoolean);
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationrsupredict")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
@@ -292,6 +308,17 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationRSU_PredictMovement(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationRSUPredictMovement(tmpBoolean);
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationvehicletraceneighbours")) { //$NON-NLS-1$
+                                if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
+                                else {
+                                    tmpBoolean = false;
+                                }
+                                PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationVehicleTraceNeighbours(tmpBoolean);
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationverifybyrsu")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
@@ -306,6 +333,8 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationByVehicleEnabled(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationVerifyByVehicle(tmpBoolean);
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationvehiclesendtorsu")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
@@ -313,6 +342,8 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationVehilceSendRssiToRsu(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationVehicleSendToRSU(tmpBoolean);
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationrsusendtorsu")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
@@ -320,6 +351,8 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationRsuSendRssiToRsu(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationRSUSendToRSU(tmpBoolean);
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationvehiclesendtovehicle")) { //$NON-NLS-1$
                                 if (settingsCrsr.collectDescendantText(false).equals("true"))tmpBoolean = true; //$NON-NLS-1$
@@ -327,6 +360,8 @@ public final class Scenario{
                                     tmpBoolean = false;
                                 }
                                 PositioningHelper.setPositionVerificationVehilceSendRssiToVehicle(tmpBoolean);
+                                if(!Renderer.getInstance().isConsoleStart())
+                                    VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().setLocationVehicleSendToVehicle(tmpBoolean);
                             }
 							 else if(settingsCrsr.getLocalName().toLowerCase().equals("beaconsenabled")){ //$NON-NLS-1$
 								if(settingsCrsr.collectDescendantText(false).equals("true")) tmpBoolean = true;	//$NON-NLS-1$
@@ -698,7 +733,7 @@ public final class Scenario{
 										try{
 											wifi = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
 										} catch (Exception e) {}
-									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("isSybilVehicle")){ //$NON-NLS-1$
+									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("issybilvehicle")){ //$NON-NLS-1$
                                         try{
                                             sybilVehicle = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
                                         } catch (Exception e) {}
@@ -1155,8 +1190,11 @@ public final class Scenario{
             settings.addElement("reversepropagationpropmodell").addValue(PropagationModel.getGlobalRSSToDistancePropagationModel());
             
             settings.addElement("localisationallowederror").addValue(PositioningHelper.getAllowedError());
+            settings.addElement("localisationthreshold").addValue(PositioningHelper.getThreshold());
             settings.addElement("localisationrsutrilateration").addValue(PositioningHelper.isPositionVerificationRSU_Trilateration());
             settings.addElement("localisationrsupredict").addValue(PositioningHelper.isPositionVerificationRSU_PredictMovement());
+            settings.addElement("localisationvehicletraceneighbours").addValue(PositioningHelper.isPositionVerificationVehicle_TraceNeighbours());
+            
             settings.addElement("localisationverifybyrsu").addValue(PositioningHelper.isPositionVerificationByRSUEnabled());
             settings.addElement("localisationverifybyvehicle").addValue(PositioningHelper.isPositionVerificationByVehicleEnabled());
             settings.addElement("localisationvehiclesendtorsu").addValue(PositioningHelper.isPositionVerificationVehilceSendRssiToRsu());

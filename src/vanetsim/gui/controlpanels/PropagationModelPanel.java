@@ -104,7 +104,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
 
     private static final String[] REVERSE_PRESET_TYPES = { Messages.getString("PropagationModelPanel.freeSpace"),
             Messages.getString("PropagationModelPanel.shadowing") };
-    
+
     /**
      * Constructor, creating GUI items.
      */
@@ -388,12 +388,12 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
     }
 
     public void setPropagationModel(int tmpInt) {
-        propagationModelChoice_.setSelectedIndex(tmpInt-1);
+        propagationModelChoice_.setSelectedIndex(tmpInt - 1);
     }
 
     public void setReversePropagationModel(int tmpInt) {
-        //Hack!
-        reversepropagationModelChoice_.setSelectedIndex(tmpInt-1);
+        // Hack!
+        reversepropagationModelChoice_.setSelectedIndex(tmpInt - 1);
     }
 
 }

@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
+import vanetsim.gui.helpers.GeneralLogWriter;
 import vanetsim.map.Node;
 import vanetsim.map.Region;
 import vanetsim.map.Street;
@@ -868,7 +869,7 @@ public final class RSU {
         RSU rsu = null;
         long dx, dy;
 
-        // TODO: check which radius should be used... communications could be wired...
+        // TODO: change to somekind of exchange radius? or just keep comDisntance because data is send like everything else?
         int rssExchangeRadius = wifiRadius_;
         long maxCommDistanceSquared = (long) rssExchangeRadius * rssExchangeRadius;
 
@@ -949,7 +950,7 @@ public final class RSU {
             tmpKnownVehicle = knownVehicleArray[i];
             while (tmpKnownVehicle != null) {
 
-                result.add(new PositionEntity(this.getRSUID(), this.getX(), this.getY(),tmpKnownVehicle));
+                result.add(new PositionEntity(this.getRSUID(), this.getX(), this.getY(),tmpKnownVehicle,true));
                 tmpKnownVehicle = tmpKnownVehicle.getNext();
             }
         }
@@ -1033,11 +1034,25 @@ public final class RSU {
 
                 if (b1 && b2 && b3) {
                     System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is plausible");
-                    //TODO: add Vehilce mark
                 } else {
                     System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is suspect"
                             + " real Position X: " + entry.getKnownVehicle().getVehicle().getX() + " real Position Y: "
                             + entry.getKnownVehicle().getVehicle().getY());
+
+
+                    
+                    // TODO: add Vehilce mark
+                    GeneralLogWriter.log(
+                            "1"+","+ // Source 1=RSU 0=Vehicle
+                            this.rsuID_+","+ // Source ID
+                            entry.getKnownVehicle().getVehicle().getID() +","+ // Vehicle ID
+                            Renderer.getInstance().getTimePassed() +","+// Time Elapsed
+                            entry.getKnownVehicle().getVehicle().isSybilVehicle() // is Sybil Vehicle?
+                            );
+                    
+                    // mark Vehicle in GUI
+                    entry.getKnownVehicle().getVehicle().setColor(Color.RED);
+
                 }
             }
         }
@@ -1053,11 +1068,12 @@ public final class RSU {
                     continue;
                 }
                 
-                //TODO: maybe iterate through the entries to reach a delta T
+                //TODO: maybe iterate through the entries to reach a delta T?
                 int lastIndex = tmpnKownVehicle.getArrayCounter();
                 
                 // get the Time of the first Beacon
                 int t0 = tmpnKownVehicle.getSavedLastUpdate_()[lastIndex];// [ms]
+               
                 // get the Time of the current Beacon
                 int t1 = tmpnKownVehicle.getLastUpdate();// [ms]
                
@@ -1065,6 +1081,7 @@ public final class RSU {
                 
                 //TODO: this needs to be changed to support a Vehicle sending Sybil-Data 
                 // currently only ARSUs may create Sybil Vehicles
+                // es mus shie runterschieden werden zwischen einem sybil vehilce, das über arsu erstellt wird und einem das von einem anderen Vahrzeug kommt
                 double v0;
                 if (tmpnKownVehicle.getVehicle().isSybilVehicle()) {
                     v0 = 0;
@@ -1092,7 +1109,18 @@ public final class RSU {
                     System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
                             + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
                             + tmpnKownVehicle.getVehicle().getY());
-                  //TODO: add Vehilce mark
+                  
+                    //TODO: add Vehilce mark
+                    GeneralLogWriter.log(
+                            "1"+","+ // Source 1=RSU 0=Vehicle
+                            this.rsuID_+","+ // Source ID
+                            tmpnKownVehicle.getVehicle().getID() +","+ // Vehicle ID
+                            Renderer.getInstance().getTimePassed() +","+// Time Elapsed
+                            tmpnKownVehicle.getVehicle().isSybilVehicle() // is Sybil Vehicle?
+                            );
+                    
+                    // mark Vehicle in GUi
+                    tmpnKownVehicle.getVehicle().setColor(Color.RED);
                 }
             }
         }

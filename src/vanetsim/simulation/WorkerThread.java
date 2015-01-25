@@ -140,15 +140,7 @@ public final class WorkerThread extends Thread {
 		boolean recyclingEnabled = Vehicle.getRecyclingEnabled();
 		boolean idsEnabled = Vehicle.isIdsActivated();
 
-		// variables controlling the Position verification
-		boolean positionVerificationByRSUEnabled = PositioningHelper.isPositionVerificationByRSUEnabled();
-		boolean positionVerificationByVehicleEnabled  = PositioningHelper.isPositionVerificationByVehicleEnabled();
 		
-		// Vehicle share received information
-		boolean positionVerificationVehilceSendRssiToRsu = PositioningHelper.isPositionVerificationVehilceSendRssiToRsu();
-		boolean positionVerificationVehilceSendRssiToVehicle = PositioningHelper.isPositionVerificationVehilceSendRssiToVehicle();
-		// RSUs share received information
-		boolean positionVerificationRsuSendRssiToRsu = PositioningHelper.isPositionVerificationRsuSendRssiToRsu();
 		
 		
 		//sleep if no barriers have been set yet
@@ -325,7 +317,7 @@ public final class WorkerThread extends Thread {
 						}
 						
                         // vehicles/rsus exchange beacon information for future position verification
-                        if (Vehicle.isSendRssiEnabled() && (positionVerificationVehilceSendRssiToRsu || positionVerificationVehilceSendRssiToVehicle)) {
+                        if ((PositioningHelper.isPositionVerificationVehilceSendRssiToRsu() || PositioningHelper.isPositionVerificationVehilceSendRssiToVehicle())) {
                             // vehicles: exchange received RSS values
                             for (i = 0; i < ourRegionsLength; ++i) {
                                 vehicleSubarray = vehicles[i];
@@ -333,11 +325,11 @@ public final class WorkerThread extends Thread {
                                 for (j = 0; j < length; ++j) {
                                     vehicle = vehicleSubarray[j];
 
-                                    if (positionVerificationVehilceSendRssiToRsu) {
+                                    if (PositioningHelper.isPositionVerificationVehilceSendRssiToRsu()) {
                                         // vehicles must send their received rssi values to all of their neighbor RSUs}
                                         vehicle.sendReceivedRssToRSUs();
                                     }
-                                    if (positionVerificationVehilceSendRssiToVehicle) {
+                                    if (PositioningHelper.isPositionVerificationVehilceSendRssiToVehicle()) {
                                         // vehicles must send their received rssi values to all of their neighbor vehicles}
                                         vehicle.sendReceivedRssToVehicles();
                                     }
@@ -345,40 +337,37 @@ public final class WorkerThread extends Thread {
                             }
                         }
                            
-                        if (Vehicle.isSendRssiEnabled() && positionVerificationRsuSendRssiToRsu) {
+                        if (PositioningHelper.isPositionVerificationRsuSendRssiToRsu()) {
                             // rsu: exchange received RSS values
                             for (i = 0; i < ourRegionsLength; ++i) {
                                 rsuSubarray = rsus[i];
                                 length = rsuSubarray.length;
                                 for (j = 0; j < length; ++j) {
                                     rsu = rsuSubarray[j];
-                                    // TODO: maybe remove this check. depends on further development
-                                    if (positionVerificationRsuSendRssiToRsu) {
-                                        rsu.sendKnownVehiclesToRSUs();
-                                    }
+                                    rsu.sendKnownVehiclesToRSUs();
                                 }
                             }
                         }
 
-                        // verifiers calculate the real position and compare them to the advertised position. 
-                        // If Position is false mark Vehicle as fake
+                        // verifiers try to verify the claimed Position
+                        // If Position is fake mark Vehicle as attacker
                         
-                      //vehicles: do verification
-                        //TODO: check this!
-                        if (positionVerificationByVehicleEnabled && false) {
+                        // vehicles: do verification
+                        if (PositioningHelper.isPositionVerificationByVehicleEnabled() && true) {
                             for (i = 0; i < ourRegionsLength; ++i) {
                                 vehicleSubarray = vehicles[i];
                                 length = vehicleSubarray.length;
                                 for (j = 0; j < length; ++j) {
                                     vehicle = vehicleSubarray[j];
-                                    if (vehicle.isActive() && vehicle.isWiFiEnabled() && false) {
+                                    if (vehicle.isActive() && vehicle.isWiFiEnabled()) {
+                                        vehicle.doPositionVerification();
                                     }
                                 }
                             }
                         }
                         
                         // RSUS: do verification
-                        if (positionVerificationByRSUEnabled && true) {
+                        if (PositioningHelper.isPositionVerificationByRSUEnabled() && true) {
                             for (i = 0; i < ourRegionsLength; ++i) {
                                 rsuSubarray = rsus[i];
                                 length = rsuSubarray.length;
@@ -389,16 +378,18 @@ public final class WorkerThread extends Thread {
                             }
                         }
 						
-						//rsu: send beacons
-						for(i = 0; i < ourRegionsLength; ++i){
-							rsuSubarray = rsus[i];
-							length = rsuSubarray.length;
-							for(j = 0; j < length; ++j){
-								rsu = rsuSubarray[j];
-								if(rsu.getBeaconCountdown() < 1 && !rsu.isEncrypted_()) rsu.sendBeacons();
-								if(rsu.getBeaconCountdown() < 1 && rsu.isEncrypted_()) rsu.sendEncryptedBeacons();
-							}
-						}
+                        // rsu: send beacons
+                        for (i = 0; i < ourRegionsLength; ++i) {
+                            rsuSubarray = rsus[i];
+                            length = rsuSubarray.length;
+                            for (j = 0; j < length; ++j) {
+                                rsu = rsuSubarray[j];
+                                if (rsu.getBeaconCountdown() < 1 && !rsu.isEncrypted_())
+                                    rsu.sendBeacons();
+                                if (rsu.getBeaconCountdown() < 1 && rsu.isEncrypted_())
+                                    rsu.sendEncryptedBeacons();
+                            }
+                        }
 						
 						// Wait for all concurrent threads to synchronize
 						
