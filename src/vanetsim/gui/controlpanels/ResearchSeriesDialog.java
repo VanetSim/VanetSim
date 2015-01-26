@@ -679,7 +679,7 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 												if(getRandomRange(0, 99, random) < vehiclesFaking) fakingEnabled = true;
 												else fakingEnabled = false;
 												//TODO: check if we want to add sybil vehicle creation here for random vehicles
-												tmpVehicle = new Vehicle(destinations, vehicleLength, getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  vehicleSet.getColor_(), fakingEnabled, vehicleSet.getFakeMessagesTypes_(),false);
+												tmpVehicle = new Vehicle(destinations, vehicleLength, getRandomRange(minSpeedValue, maxSpeedValue, random), getRandomRange(minCommDistValue, maxCommDistValue, random), wiFiEnabled, emergencyEnabled, getRandomRange(minBrakingValue, maxBrakingValue, random), getRandomRange(minAccelerationValue, maxAccelerationValue, random), getRandomRange(minTimeDistance, maxTimeDistance, random), getRandomRange(minPoliteness, maxPoliteness, random), (int)Math.round(speedDeviation * 100000.0/3600),  vehicleSet.getColor_(), fakingEnabled, vehicleSet.getFakeMessagesTypes_(),false,false,0);
 												Map.getInstance().addVehicle(tmpVehicle);
 												++i;
 											} catch (Exception e) {}				

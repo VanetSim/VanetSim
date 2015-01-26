@@ -1009,13 +1009,13 @@ public final class RSU {
                 double distanceRSU1_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[0], rsusY[0], rsusX[2], rsusY[2]));
                 double distanceRSU2_RSU3 = Math.sqrt(calculateSquaredDistance(rsusX[1], rsusY[1], rsusX[2], rsusY[2]));
                 
-                System.out.println("This RSU is: " + this.getRSUID() + " distance Vehicle to RSU1 ID1: " + this.getRSUID() + " dist: " + dist[0]
-                        + " distance Vehicle to RSU2 ID2: " + entryList.get(0).getReceiverID() + " dist: " + dist[1]
-                        + " distance Vehicle to RSU3 ID3: " + entryList.get(1).getReceiverID() + " dist: " + dist[2] + " distance RSU1-RSU2: "
-                        + distanceRSU1_RSU2 + " distance RSU1-RSU3: " + distanceRSU1_RSU3 + " distance RSU2-RSU3: " + distanceRSU2_RSU3 + " R1-X: "
-                        + this.getX() + " R1-Y: " + this.getY() + " R2-X: " + entryList.get(0).getReceiverX() + " R2-Y: "
-                        + entryList.get(0).getReceiverY() + " R3-X: " + entryList.get(1).getReceiverX() + " R3-Y: " + entryList.get(1).getReceiverY()
-                        + " Vehicle X: " + entry.getSenderX() + " Y: " + entry.getSenderY());
+//                System.out.println("This RSU is: " + this.getRSUID() + " distance Vehicle to RSU1 ID1: " + this.getRSUID() + " dist: " + dist[0]
+//                        + " distance Vehicle to RSU2 ID2: " + entryList.get(0).getReceiverID() + " dist: " + dist[1]
+//                        + " distance Vehicle to RSU3 ID3: " + entryList.get(1).getReceiverID() + " dist: " + dist[2] + " distance RSU1-RSU2: "
+//                        + distanceRSU1_RSU2 + " distance RSU1-RSU3: " + distanceRSU1_RSU3 + " distance RSU2-RSU3: " + distanceRSU2_RSU3 + " R1-X: "
+//                        + this.getX() + " R1-Y: " + this.getY() + " R2-X: " + entryList.get(0).getReceiverX() + " R2-Y: "
+//                        + entryList.get(0).getReceiverY() + " R3-X: " + entryList.get(1).getReceiverX() + " R3-Y: " + entryList.get(1).getReceiverY()
+//                        + " Vehicle X: " + entry.getSenderX() + " Y: " + entry.getSenderY());
 
                 boolean c1 = (dist[0] + dist[1] < distanceRSU1_RSU2);
                 boolean c2 = (dist[0] + dist[2] < distanceRSU1_RSU3);
@@ -1025,7 +1025,7 @@ public final class RSU {
                 }
                 
                 // all clear, this RSU may do Verification now
-                System.out.println("RSU: " + this.getRSUID() + " do verification");
+//                System.out.println("RSU: " + this.getRSUID() + " do verification");
                 int allowedError = PositioningHelper.getAllowedError();
 
                 boolean b1 = calculateSquaredDistance(rsusX[0], rsusY[0], vehicleX, vehicleY) <= ((dist[0] + allowedError) * (dist[0] + allowedError));
@@ -1033,11 +1033,11 @@ public final class RSU {
                 boolean b3 = calculateSquaredDistance(rsusX[2], rsusY[2], vehicleX, vehicleY) <= ((dist[2] + allowedError) * (dist[2] + allowedError));
 
                 if (b1 && b2 && b3) {
-                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is plausible");
+//                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is plausible");
                 } else {
-                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is suspect"
-                            + " real Position X: " + entry.getKnownVehicle().getVehicle().getX() + " real Position Y: "
-                            + entry.getKnownVehicle().getVehicle().getY());
+//                    System.out.println("RSU: " + this.getRSUID() + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY + " Position is suspect"
+//                            + " real Position X: " + entry.getKnownVehicle().getVehicle().getX() + " real Position Y: "
+//                            + entry.getKnownVehicle().getVehicle().getY());
 
 
                     
@@ -1047,7 +1047,7 @@ public final class RSU {
                             this.rsuID_+","+ // Source ID
                             entry.getKnownVehicle().getVehicle().getID() +","+ // Vehicle ID
                             Renderer.getInstance().getTimePassed() +","+// Time Elapsed
-                            entry.getKnownVehicle().getVehicle().isSybilVehicle() // is Sybil Vehicle?
+                            (entry.getKnownVehicle().getVehicle().isSybilVehicle() || entry.getKnownVehicle().getVehicle().isCreatingSybilVehicles())// is Sybil Vehicle?
                             );
                     
                     // mark Vehicle in GUI
@@ -1103,12 +1103,12 @@ public final class RSU {
                 boolean b1 = (currentRssi <= rssi_min);
                 boolean b2 = (currentRssi >= rssi_max);
                 if (b1 && b2) {
-                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
-                            + " Position is plausible");
+//                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
+//                            + " Position is plausible");
                 } else {
-                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
-                            + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
-                            + tmpnKownVehicle.getVehicle().getY());
+//                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
+//                            + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
+//                            + tmpnKownVehicle.getVehicle().getY());
                   
                     //TODO: add Vehilce mark
                     GeneralLogWriter.log(
@@ -1116,7 +1116,7 @@ public final class RSU {
                             this.rsuID_+","+ // Source ID
                             tmpnKownVehicle.getVehicle().getID() +","+ // Vehicle ID
                             Renderer.getInstance().getTimePassed() +","+// Time Elapsed
-                            tmpnKownVehicle.getVehicle().isSybilVehicle() // is Sybil Vehicle?
+                            (tmpnKownVehicle.getVehicle().isSybilVehicle() ||tmpnKownVehicle.getVehicle().isCreatingSybilVehicles())// is Sybil Vehicle?
                             );
                     
                     // mark Vehicle in GUi

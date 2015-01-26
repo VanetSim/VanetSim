@@ -125,6 +125,12 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 	/** The checkbox to activate and deactivate if a vehicle is a Sybil Vehilce */
 	private final JCheckBox sybilVehicle_;
 	
+	/** The checkbox to activate and deactivate if a vehicle is creating Sybil Vehilces */
+    private final JCheckBox creatingSybilVehicles_;
+    
+    /** The input field for the Number of Sybil Vehicles to create */
+    private final JFormattedTextField numSybilVehicles_;
+    
 	/** A JComboBox to switch between fake messages types. */
 	private JComboBox<String> fakeMessagesTypes_;
 	
@@ -359,6 +365,26 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
         sybilVehicle_.addActionListener(this);
         add(sybilVehicle_,c);
         
+        c.gridx = 0;
+        label = new JLabel(Messages.getString("EditOneVehicleControlPanel.VehicleCreatessybilVehicle")); //$NON-NLS-1$
+        ++c.gridy;
+        add(label,c);       
+        creatingSybilVehicles_ = new JCheckBox();
+        c.gridx = 1;
+        creatingSybilVehicles_.setActionCommand("createssybilVehicle"); //$NON-NLS-1$
+        creatingSybilVehicles_.addActionListener(this);
+        add(creatingSybilVehicles_,c);
+        
+        c.gridx = 0;
+        label = new JLabel(Messages.getString("EditOneVehicleControlPanel.VehicleSybilVehiclesToCreate")); //$NON-NLS-1$
+        ++c.gridy;
+        add(label,c);       
+        numSybilVehicles_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
+        numSybilVehicles_.setValue(0);
+        numSybilVehicles_.setPreferredSize(new Dimension(60,20));
+        c.gridx = 1;
+        add(numSybilVehicles_,c);
+        
 		//add vehicle types comboBox
 		c.gridx = 0;
 		label = new JLabel(Messages.getString("EditOneVehicleControlPanel.selectFakeMessageType")); //$NON-NLS-1$
@@ -508,6 +534,8 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 								emergencyVehicle_.setSelected(vehicle.isEmergencyVehicle());
 								fakingVehicle_.setSelected(vehicle.isFakingMessages());
 								sybilVehicle_.setSelected(vehicle.isSybilVehicle());
+								creatingSybilVehicles_.setSelected(vehicle.isCreatingSybilVehicles());
+								numSybilVehicles_.setValue(vehicle.getNumberOfSybilVehiclesToCreate());
 								fakeMessagesTypes_.setSelectedItem(vehicle.getFakeMessageType());
 								colorPreview_.setBackground(vehicle.getColor());
 								brakingRate_.setValue(vehicle.getBrakingRate());
@@ -571,7 +599,7 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 			try {
 				for(int i = 0; i < ((Number)vehicleAmount_.getValue()).intValue() ;i++){
 					destinations.peekFirst().setWaittime(i*timeBetween * 1000 + ((Number)wait_.getValue()).intValue());
-					tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), (int)Math.round(((Number)speed_.getValue()).intValue() * 100000.0/3600), ((Number)commDist_.getValue()).intValue()*100, wifi_.isSelected(), emergencyVehicle_.isSelected(), ((Number) brakingRate_.getValue()).intValue(), ((Number)accelerationRate_.getValue()).intValue(), ((Number)timeDistance_.getValue()).intValue(), ((Number)politeness_.getValue()).intValue(), (int)Math.round(((Number)deviationFromSpeedLimit_.getValue()).intValue() * 100000.0/3600), getColorPreview().getBackground(), fakingVehicle_.isSelected(), fakeMessagesTypes_.getSelectedItem().toString(),sybilVehicle_.isSelected());
+					tmpVehicle = new Vehicle(destinations, ((Number)vehicleLength_.getValue()).intValue(), (int)Math.round(((Number)speed_.getValue()).intValue() * 100000.0/3600), ((Number)commDist_.getValue()).intValue()*100, wifi_.isSelected(), emergencyVehicle_.isSelected(), ((Number) brakingRate_.getValue()).intValue(), ((Number)accelerationRate_.getValue()).intValue(), ((Number)timeDistance_.getValue()).intValue(), ((Number)politeness_.getValue()).intValue(), (int)Math.round(((Number)deviationFromSpeedLimit_.getValue()).intValue() * 100000.0/3600), getColorPreview().getBackground(), fakingVehicle_.isSelected(), fakeMessagesTypes_.getSelectedItem().toString(),sybilVehicle_.isSelected(),creatingSybilVehicles_.isSelected(),((Number) numSybilVehicles_.getValue()).intValue());
 					Map.getInstance().addVehicle(tmpVehicle);
 					Renderer.getInstance().setMarkedVehicle(tmpVehicle);
 				}
@@ -666,6 +694,12 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 				    tmpVehicle.setColor(Color.GREEN);
 				    colorPreview_.setBackground(Color.GREEN);
 				}
+				tmpVehicle.setCreatingSybilVehicles(creatingSybilVehicles_.isSelected());
+				if(creatingSybilVehicles_.isSelected()){
+                    tmpVehicle.setColor(Color.GREEN);
+                    colorPreview_.setBackground(Color.GREEN);
+                }
+				tmpVehicle.setNumberOfSybilVehiclesToCreate(((Number) numSybilVehicles_.getValue()).intValue());
 				tmpVehicle.setFakeMessageType(fakeMessagesTypes_.getSelectedItem().toString());
 
 				JOptionPane.showMessageDialog(null, Messages.getString("EditOneVehicleControlPanel.MsgBoxSavedText"), "Information", JOptionPane.INFORMATION_MESSAGE);

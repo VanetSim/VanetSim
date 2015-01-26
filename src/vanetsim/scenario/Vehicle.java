@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.ArrayDeque;
 
-import sun.nio.cs.HistoricallyNamedCharset;
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -54,6 +53,8 @@ public class Vehicle extends LaneObject{
 	
 	/** A reference to the reporting control panel so that we don't need to call this over and over again. */
 	private static final ReportingControlPanel REPORT_PANEL = getReportingPanel();
+	
+	private static ArrayList<Long> REPORTED_SYBIL_VEHICLES = new ArrayList<Long>();
 	
 	/** When known vehicles are rechecked for outdated entries. Measured in milliseconds. */
 	private static final int KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL = 5000;
@@ -254,6 +255,13 @@ public class Vehicle extends LaneObject{
 	
 	/** if this Vehicle is a fake Sybil Vehicle**/
 	private boolean sybilVehicle_ = false;
+	
+	/** if this Vehicle is creating fake Sybil Vehicles **/
+	private boolean creatingSybilVehicles_ = false;
+	
+	private int numberOfSybilVehiclesToCreate_ = 0;
+	
+	private long[] sybilVehicleArray;
 	
 	/** The destinations this vehicle wants to visit. */
 	public ArrayDeque<WayPoint> originalDestinations_;
@@ -607,9 +615,11 @@ public class Vehicle extends LaneObject{
 	 * @param timeDistance		the time distance
 	 * @param politeness		the politeness
 	 * @param sybilVehicle     <code>true</code> if this vehicle is a Sybil-Vehicle, else <code>false</code>
+	 * @param creatingSybilVehicles <code>true</code> if this Vehicle is creating additional Sybil-Vehicles with random IDs
+	 * @param numOfSybilVehiclesToCreate   the Number of Sybil-Vehilces this Vehilce will create
 	 * @throws ParseException an Exception indicating that you did not supply a valid destination list.
 	 */
-	public Vehicle(ArrayDeque<WayPoint> destinations, int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType,boolean sybilVehicle) throws ParseException {
+	public Vehicle(ArrayDeque<WayPoint> destinations, int vehicleLength, int maxSpeed, int maxCommDist, boolean wiFiEnabled, boolean emergencyVehicle, int brakingRate, int accelerationRate, int timeDistance, int politeness, int speedDeviation, Color color, boolean fakingMessages, String fakeMessageType,boolean sybilVehicle,boolean creatingSybilVehicles, int numOfSybilVehiclesToCreate) throws ParseException {
 		if(destinations != null && destinations.size()>1){
 			originalDestinations_ = destinations; 
 			destinations_ = originalDestinations_.clone();			
@@ -627,6 +637,12 @@ public class Vehicle extends LaneObject{
 			startingWayPoint_ = destinations_.pollFirst();		// take the first element and remove it from the destinations!
 			wiFiEnabled_ = wiFiEnabled;
 			sybilVehicle_= sybilVehicle;
+			creatingSybilVehicles_= creatingSybilVehicles;
+			numberOfSybilVehiclesToCreate_=numOfSybilVehiclesToCreate;
+			sybilVehicleArray = new long[numberOfSybilVehiclesToCreate_];
+			for (int i = 0; i < sybilVehicleArray.length; i++) {
+			    sybilVehicleArray[i] = RANDOM.nextLong();
+            }
 			speedDeviation_ = speedDeviation;
 			ownRandom_ = new Random(RANDOM.nextLong());
 			curX_ = startingWayPoint_.getX();
@@ -2983,8 +2999,6 @@ public class Vehicle extends LaneObject{
             arsuCommRange = minDistARSU_.getWifiRadius();
             arsuY = minDistARSU_.getY();
         }
-	    
-		
 			
 		if(isInSlow && !changedPseudonymInSlow && Renderer.getInstance().getTimePassed() >= (slowTimestamp + TIME_TO_PSEUDONYM_CHANGE - (2*beaconInterval_))){
 			changedPseudonymInSlow = true;
@@ -3172,18 +3186,32 @@ public class Vehicle extends LaneObject{
 									
 									fakeMessageCounter_ = fakeMessageCounter_%fakeMessageTypesCount;
 								}
-                                
-								if (sybilVehicle_) {
-                                    // TODO: maybe need to change to arsu speed
-                                    // however this is the speed indicated in the Beacon, so a attacer can transmitt any value
-                                    vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), true, false,
-                                            currentRssi);
-                                    vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
-                                } else {
-                                    vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false, false,
-                                            currentRssi);
-                                    vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
-                                }
+                                    if (sybilVehicle_) {
+                                        // TODO: maybe need to change to arsu speed
+                                        // however this is the speed indicated in the Beacon, so a attacer can transmitt any value
+                                        vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), true,
+                                                false, currentRssi);
+                                        vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                    } else if (creatingSybilVehicles_) {
+                                        // send "real" own Beacon
+                                        vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), true,
+                                                false, currentRssi);
+                                        vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                        
+                                        // send fake Sybil-Beacons
+                                        for (int m = 0; m < numberOfSybilVehiclesToCreate_; m++) {
+                                            // TODO: TOPA maybe change Position Data here
+                                            vehicle.getKnownVehiclesList().updateVehicle(this, sybilVehicleArray[m], curX_, curY_, curSpeed_, vehicle.getID(),
+                                                    true, false, currentRssi);
+                                            vehicle.getIdsProcessorList_().updateProcessor(sybilVehicleArray[m], curX_, curY_, curSpeed_, curLane_);
+                                        }
+                                    }
+
+                                    else {
+                                        vehicle.getKnownVehiclesList().updateVehicle(this, ID_, curX_, curY_, curSpeed_, vehicle.getID(), false,
+                                                false, currentRssi);
+                                        vehicle.getIdsProcessorList_().updateProcessor(ID_, curX_, curY_, curSpeed_, curLane_);
+                                    }
 							}
 						}
 						}
@@ -3195,8 +3223,8 @@ public class Vehicle extends LaneObject{
                     currentRssi = Double.NaN;
                     
                     //TODO: remove system out
-                    count++;
-                    System.out.println("vehicle->RSU B counter: " + count);
+//                    count++;
+//                    System.out.println("vehicle->RSU B counter: " + count);
                     // --------------------------------------------------
                     
                     for (int index = 0; index < size; ++index) {
@@ -3214,41 +3242,46 @@ public class Vehicle extends LaneObject{
                                if ((!sybilVehicle_) || ((dArsuX * dArsuX + dArsuY * dArsuY) <= (long) (arsuCommRange * arsuCommRange))) {
                                
                                // if sending RSSI Values is globaly enabled we need to calculate the RSSI here
-                                if (sendRssiEnabled_) {
-                                    if (propagationModel_ == null) {
-                                        propagationModel_ = PropagationModel.getInstance();
+                                    if (sendRssiEnabled_) {
+                                        if (propagationModel_ == null) {
+                                            propagationModel_ = PropagationModel.getInstance();
+                                        }
+
+                                        if (sybilVehicle_) {
+                                            currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(),
+                                                    dArsuX, dArsuY);
+                                        } else {
+                                            currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(),
+                                                    dx, dy);
+                                        }
                                     }
-                                    
+
                                     if (sybilVehicle_) {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dArsuX, dArsuY);
+                                        rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), true, false,
+                                                currentRssi);
+
+                                    } else if (creatingSybilVehicles_) {
+                                        // send own "real" Beacon
+                                        rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), true, false,
+                                                currentRssi);
+                                        // send fake Sybil-Beacons
+                                        for (int m = 0; m < numberOfSybilVehiclesToCreate_; m++) {
+                                            // TODO: TOPA maybe change Position Data here
+                                            rsu.getKnownVehiclesList_().updateVehicle(this, sybilVehicleArray[m], curX_, curY_, curSpeed_, vehicle.getID(),
+                                                    true, false, currentRssi);
+                                        }
                                     } else {
-                                        currentRssi = propagationModel_.calculateRSSI(propagationModel_.getGlobalDistanceToRSSPropagationModel(), dx, dy);
+                                        rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
+                                                currentRssi);
                                     }
-                                }
 
-                                if (sybilVehicle_) {
-                                    rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), true, false,
-                                            currentRssi);
+                                    // TODO: remove system.out
+//                                    System.out.println("vehicleID: " + ID_ + " vX: " + curX_ + " vY: " + curY_ + " RSSI: " + currentRssi
+//                                            + " RSU_ID: " + rsu.getRSUID() + " rX: " + rsu.getX() + " rY: " + rsu.getY() + " distance: "
+//                                            + propagationModel_.calculateDistance(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, currentRssi));
+                                    // --------------------------------------------------
 
-                                } else {
-                                    rsu.getKnownVehiclesList_().updateVehicle(this, ID_, curX_, curY_, curSpeed_, rsu.getRSUID(), false, false,
-                                            currentRssi);
                                 }
-                                
-                                //TODO: remove system.out
-                                System.out.println(
-                                        "vehicleID: "+ID_ +
-                                        " vX: "+curX_+
-                                        " vY: "+curY_+
-                                        " RSSI: "+currentRssi+
-                                        " RSU_ID: "+rsu.getRSUID()+
-                                        " rX: "+rsu.getX()+
-                                        " rY: "+rsu.getY()+
-                                        " distance: "+propagationModel_.calculateDistance(PropagationModel.PROPAGATION_MODEL_FREE_SPACE, currentRssi)
-                                        );
-                                // --------------------------------------------------
-                                
-                            }
                         }
                         }
                     }
@@ -5370,40 +5403,85 @@ public class Vehicle extends LaneObject{
     }
     
     public void doPositionVerification() {
-        // Vehicle monitor Neighbours
         if (PositioningHelper.isPositionVerificationVehicle_TraceNeighbours()) {
+            ownPositionEntryList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
+            ArrayList<PositionEntity> commonVehicles_ = new ArrayList<PositionEntity>();
+
             int currentTime = Renderer.getInstance().getTimePassed();
 
-            //TODO: remove system out
-            System.out.println("This is Vehicle: " + this.ID_ + " TimePassed: " + Renderer.getInstance().getTimePassed() + " Threshold: "
-                    + PositioningHelper.getThreshold());
-            // --------------------------------------------------
-            
+            for (PositionEntity entry : ownPositionEntryList) {
+                // Vehicle is own and partner Neighbour
+                if (receivedFromVehicleVehiclelists.contains(entry)) {
+                    entry.setFirstContactTime(currentTime);
+                    commonVehicles_.add(entry);
+                }
+                // Vehicle is the Partner himselfe
+                else if (entry.getSenderID() == entry.getReceiverID()) {
+                    entry.setFirstContactTime(currentTime);
+                    commonVehicles_.add(entry);
+                }
+                // Vehicle is only own Neighbour, maybe Partner is an Attacker!
+                else{
+                    //TODO: currenty all Own Neighbours are added because this prevents an Attacker from sending fewer Information and thereby removing sybil vehicles
+                    entry.setFirstContactTime(currentTime);
+                    commonVehicles_.add(entry);
+                }
+            }
+
+            ArrayList<PositionEntity> tmp = new ArrayList<PositionEntity>();
+
+            if (historyCommonVehicles_.size() == 0) {
+                historyCommonVehicles_.addAll(commonVehicles_);
+            } else {
+                for (PositionEntity entry : commonVehicles_) {
+                    if (historyCommonVehicles_.contains(entry)) {
+                        // if Vehicle is allready in History keep it
+                        int index = historyCommonVehicles_.indexOf(entry);
+                        tmp.add(historyCommonVehicles_.get(index));
+                        // else add id to history
+                    } else {
+                        tmp.add(entry);
+                    }
+                }
+                historyCommonVehicles_.clear();
+                historyCommonVehicles_.addAll(tmp);
+            }
+        }
+        
+        // Vehicle monitor Neighbours
+        if (PositioningHelper.isPositionVerificationVehicle_TraceNeighbours()) {
+            if (isSybilVehicle() || isCreatingSybilVehicles()) {
+                return;
+            }
+            int currentTime = Renderer.getInstance().getTimePassed();
+
             for (PositionEntity item : historyCommonVehicles_) {
                 long itemID = item.getSenderID();
                 int itemFirstContact = item.getFirstContactTime();
-                System.out.println("Item: " + itemID + " FirstTime: " + itemFirstContact + " DiffTime "
-                        + (Renderer.getInstance().getTimePassed() - itemFirstContact));
+
                 if ((currentTime - itemFirstContact) >= PositioningHelper.getThreshold()) {
-                   //TODO: remove this!
-                    System.out.println("This is: " + this.ID_ + " Sybil Vehicle: " + itemID);
+                    // TODO: remove this!
+                    // System.out.println("This is: " + this.ID_ + " Sybil Vehicle: " + itemID);
                     // --------------------------------------------------
+
+                    // TODO: add Vehilce mark
+                    if (!REPORTED_SYBIL_VEHICLES.contains(itemID))
+                    {
+                        REPORTED_SYBIL_VEHICLES.add(itemID);
                     
-                     //TODO: add Vehilce mark
-                    GeneralLogWriter.log(
-                            "0"+","+ // Source 1=RSU 0=Vehicle
-                            this.ID_+","+ // Source ID
-                            itemID +","+ // Vehicle ID
-                            Renderer.getInstance().getTimePassed() +","+// Time Elapsed
-                            item.getKnownVehicle().getVehicle().isSybilVehicle() // is Sybil Vehicle?
-                            );
-                    
+                        GeneralLogWriter.log("0" + "," + // Source 1=RSU 0=Vehicle
+                                this.ID_ + "," + // Source ID
+                                itemID + "," + // Vehicle ID
+                                Renderer.getInstance().getTimePassed() + "," + // Time Elapsed
+                                (item.getKnownVehicle().getVehicle().isSybilVehicle() || item.getKnownVehicle().getVehicle().isCreatingSybilVehicles())// is Sybil Vehicle?
+                                );
+                    }
                     // mark Vehicle in GUI
                     item.getKnownVehicle().getVehicle().setColor(Color.RED);
-                    
                 }
             }
         }
+        receivedFromVehicleVehiclelists.clear();
     }
     
     public void receiveKnownVehicles(boolean sourceIsRSU, long sourceID, ArrayList<PositionEntity> positionEntityArray) {
@@ -5412,41 +5490,49 @@ public class Vehicle extends LaneObject{
         } else {
             receivedFromVehicleVehiclelists.addAll(positionEntityArray);
 
-            if (PositioningHelper.isPositionVerificationVehicle_TraceNeighbours()) {
-                ArrayList<PositionEntity> commonVehicles_ = new ArrayList<PositionEntity>();
-
-                int currentTime = Renderer.getInstance().getTimePassed();
-
-                for (PositionEntity entry : ownPositionEntryList) {
-                    if (positionEntityArray.contains(entry)) {
-                        entry.setFirstContactTime(currentTime);
-                        commonVehicles_.add(entry);
-                    }
-                    else if (entry.getSenderID() == sourceID) {
-                        entry.setFirstContactTime(currentTime);
-                        commonVehicles_.add(entry);
-                    }
-                }
-
-                ArrayList<PositionEntity> tmp = new ArrayList<PositionEntity>();
-
-                if (historyCommonVehicles_.size() == 0) {
-                    historyCommonVehicles_.addAll(commonVehicles_);
-                } else {
-                    for (PositionEntity entry : commonVehicles_) {
-                        if (historyCommonVehicles_.contains(entry)) {
-                            // if Vehicle is allready in History keep it
-                            int index = historyCommonVehicles_.indexOf(entry);
-                            tmp.add(historyCommonVehicles_.get(index));
-                            // else add id to history
-                        } else {
-                            tmp.add(entry);
-                        }
-                    }
-                    historyCommonVehicles_.clear();
-                    historyCommonVehicles_.addAll(tmp);
-                }
-            }
+//            if (PositioningHelper.isPositionVerificationVehicle_TraceNeighbours()) {
+//                ArrayList<PositionEntity> commonVehicles_ = new ArrayList<PositionEntity>();
+//
+//                int currentTime = Renderer.getInstance().getTimePassed();
+//
+//                for (PositionEntity entry : ownPositionEntryList) {
+//                    // Vehicle is own and partner Neighbour
+//                    if (positionEntityArray.contains(entry)) {
+//                        entry.setFirstContactTime(currentTime);
+//                        commonVehicles_.add(entry);
+//                    }
+//                    // Vehicle is the Partner himselfe
+//                    else if (entry.getSenderID() == sourceID) {
+//                        entry.setFirstContactTime(currentTime);
+//                        commonVehicles_.add(entry);
+//                    }
+//                    // Vehicle is only own Neighbour, maybe Partner is an Attacker!
+//                    else{
+//                        //TODO: currenty all Own Neighbours are added because this prevents an Attacker from sending fewer Information and thereby removing sybil vehicles
+//                        entry.setFirstContactTime(currentTime);
+//                        commonVehicles_.add(entry);
+//                    }
+//                }
+//
+//                ArrayList<PositionEntity> tmp = new ArrayList<PositionEntity>();
+//
+//                if (historyCommonVehicles_.size() == 0) {
+//                    historyCommonVehicles_.addAll(commonVehicles_);
+//                } else {
+//                    for (PositionEntity entry : commonVehicles_) {
+//                        if (historyCommonVehicles_.contains(entry)) {
+//                            // if Vehicle is allready in History keep it
+//                            int index = historyCommonVehicles_.indexOf(entry);
+//                            tmp.add(historyCommonVehicles_.get(index));
+//                            // else add id to history
+//                        } else {
+//                            tmp.add(entry);
+//                        }
+//                    }
+//                    historyCommonVehicles_.clear();
+//                    historyCommonVehicles_.addAll(tmp);
+//                }
+//            }
         }
     }
 
@@ -5454,24 +5540,36 @@ public class Vehicle extends LaneObject{
         return sendRssiEnabled_;
     }
 
-
     public static void setSendRssiEnabled(boolean sendRssiEnabled) {
         Vehicle.sendRssiEnabled_ = sendRssiEnabled;
     }
-
 
     public boolean isSybilVehicle() {
         return sybilVehicle_;
     }
 
-
     public void setSybilVehicle(boolean state) {
         sybilVehicle_ = state;
     }
 
-
     public AttackRSU getCurrentARSU_() {
         return minDistARSU_;
     }
-    
+
+    public boolean isCreatingSybilVehicles() {
+        return creatingSybilVehicles_;
+    }
+
+    public void setCreatingSybilVehicles(boolean state) {
+        creatingSybilVehicles_ = state;
+    }
+
+    public int getNumberOfSybilVehiclesToCreate() {
+        return numberOfSybilVehiclesToCreate_;
+    }
+
+    public void setNumberOfSybilVehiclesToCreate(int number) {
+        this.numberOfSybilVehiclesToCreate_ = number;
+    }
+
 }

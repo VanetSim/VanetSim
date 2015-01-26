@@ -148,8 +148,8 @@ public final class Scenario{
 			if(!Renderer.getInstance().isConsoleStart())VanetSimStart.setProgressBar(true);
 			initNewScenario();
 			String type, penaltyType, fakeMessageType, eventSpotType;
-			int tmpInt,x, y, frequency, radius, time, maxSpeed, vehicleLength, maxCommDistance, direction, lanes, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, color, mixX, mixY, mixRadius, wifiX, wifiY, wifiRadius;
-			boolean tmpBoolean, wifi,sybilVehicle, emergencyVehicle, tmpAttacker, tmpAttacked, isEncrypted, mixHasRSU, isFake, fakingMessages;
+			int tmpInt,x, y, frequency, radius, time, maxSpeed, vehicleLength, numSybilsToCreate,maxCommDistance, direction, lanes, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, color, mixX, mixY, mixRadius, wifiX, wifiY, wifiRadius;
+			boolean tmpBoolean, wifi,sybilVehicle,creatingSybilVehicles, emergencyVehicle, tmpAttacker, tmpAttacked, isEncrypted, mixHasRSU, isFake, fakingMessages;
 			long seed;
 			double tmpDouble;
 			ArrayDeque<WayPoint> destinations;
@@ -701,8 +701,10 @@ public final class Scenario{
 								maxCommDistance = 10000;
 								vehicleLength = 2500;
 								maxSpeed = 10000;
+								numSybilsToCreate=0;
 								wifi = true;
 								sybilVehicle = false;
+								creatingSybilVehicles = false;
 								emergencyVehicle = false;
 								braking_rate = 100;
 								acceleration_rate = 200;
@@ -727,17 +729,28 @@ public final class Scenario{
 										} catch (Exception e) {}
 									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("maxcommdist")){ //$NON-NLS-1$
 										try{
-											maxCommDistance = Integer.parseInt(vehicleCrsr.collectDescendantText(false));
-										} catch (Exception e) {}
-									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("wifi")){ //$NON-NLS-1$
-										try{
-											wifi = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
+                                            maxCommDistance = Integer.parseInt(vehicleCrsr.collectDescendantText(false));
+                                        } catch (Exception e) {
+                                        }
+                                    } else if (vehicleCrsr.getLocalName().toLowerCase().equals("numberofsybilvehiclestocreate")) { //$NON-NLS-1$
+                                        try {
+                                            numSybilsToCreate = Integer.parseInt(vehicleCrsr.collectDescendantText(false));
+                                        } catch (Exception e) {
+                                        }
+                                    } else if (vehicleCrsr.getLocalName().toLowerCase().equals("wifi")) { //$NON-NLS-1$
+                                        try {
+                                            wifi = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
 										} catch (Exception e) {}
 									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("issybilvehicle")){ //$NON-NLS-1$
                                         try{
                                             sybilVehicle = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
                                         } catch (Exception e) {}
-									} else if(vehicleCrsr.getLocalName().toLowerCase().equals("emergencyvehicle")){ //$NON-NLS-1$
+                                    } else if (vehicleCrsr.getLocalName().toLowerCase().equals("iscreatingsybilvehicle")) { //$NON-NLS-1$
+                                        try {
+                                            creatingSybilVehicles = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
+                                        } catch (Exception e) {
+                                        }
+                                    } else if(vehicleCrsr.getLocalName().toLowerCase().equals("emergencyvehicle")){ //$NON-NLS-1$
 										try{
 											emergencyVehicle = Boolean.parseBoolean(vehicleCrsr.collectDescendantText(false));
 										} catch (Exception e) {}
@@ -816,7 +829,7 @@ public final class Scenario{
 								}
 								if(maxCommDistance != -1 && maxSpeed != -1 && destinations.size() > 1){
 									try{
-										tmpVehicle = new Vehicle(destinations, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType,sybilVehicle);
+										tmpVehicle = new Vehicle(destinations, vehicleLength, maxSpeed, maxCommDistance, wifi, emergencyVehicle, braking_rate, acceleration_rate, timeDistance, politeness, speedDeviation, new Color(color), fakingMessages, fakeMessageType,sybilVehicle,creatingSybilVehicles,numSybilsToCreate);
 										Map.getInstance().addVehicle(tmpVehicle);
 										if(tmpAttacker) Renderer.getInstance().setAttackerVehicle(tmpVehicle);
 										if(tmpAttacked) {
@@ -1232,7 +1245,8 @@ public final class Scenario{
 						level1.addElement("isFakingMessages").addValue(vehicle.isFakingMessages());
 						level1.addElement("fakingMessageType").addCharacters(vehicle.getFakeMessageType());
 						level1.addElement("isSybilVehicle").addValue(vehicle.isSybilVehicle());
-						
+						level1.addElement("isCreatingSybilVehicle").addValue(vehicle.isCreatingSybilVehicles());
+						level1.addElement("numberOfSybilVehiclesToCreate").addValue(vehicle.getNumberOfSybilVehiclesToCreate());
 						if(Renderer.getInstance().getAttackerVehicle() == vehicle) level1.addElement("isAttacker").addValue(true); //$NON-NLS-1$
 						else level1.addElement("isAttacker").addValue(false);
 						if(Renderer.getInstance().getAttackedVehicle() == vehicle) level1.addElement("isAttacked").addValue(true); //$NON-NLS-1$
