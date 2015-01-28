@@ -360,7 +360,8 @@ public final class SimulateControlPanel extends JPanel implements ActionListener
 			Renderer.getInstance().pan('d');
 			ReRenderManager.getInstance().doReRender();
 			
-			Map.getInstance().printVehiclesPerRegion();
+			//Map.getInstance().printVehiclesPerRegion();
+			//Map.getInstance().saveVehicles();
 		} else if ("left".equals(command)){ //$NON-NLS-1$
 			Renderer.getInstance().pan('l');
 			ReRenderManager.getInstance().doReRender();
