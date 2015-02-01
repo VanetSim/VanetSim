@@ -90,9 +90,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 	/** The control panel to edit mix zones. */
 	private final MixZonePanel editMixZonePanel_ = new MixZonePanel();
 	
-	/** The control panel to edit location verification settings. */
-	private final EditLocationVerificationControlPanel editLocationVerificationPanel_ = new EditLocationVerificationControlPanel();
-	
 	/** The control panel to edit silent periods. */
 	private final SilentPeriodPanel editSilentPeriodPanel_ = new SilentPeriodPanel();
 	

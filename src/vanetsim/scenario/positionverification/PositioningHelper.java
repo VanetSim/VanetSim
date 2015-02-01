@@ -16,6 +16,7 @@ public class PositioningHelper {
 
     private static int allowedError = 60; // [mm]
     private static int threshold = 80000; // [ms]
+    private static double allowedRssError = 0.35; 
 
     public static int getAllowedError() {
         return allowedError;
@@ -33,6 +34,13 @@ public class PositioningHelper {
         threshold = usedTheshold;
     }
 
+    public static double getAllowedRssError() {
+        return allowedRssError;
+    }
+
+    public static void setAllowedRSSIError(double error) {
+        allowedRssError = error;
+    }
     public PositioningHelper() {
     }
 

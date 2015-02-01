@@ -77,15 +77,6 @@ public class PropagationModel {
         sigma_ = sigma;
     }
 
-    /** calculates a reference Signalstrength at a <code> referenceDistance_ </code>. Used for Shadowing **/
-    private void calculateReferenceSignalStrength() {
-        if (Pr_0 != Double.NaN) {
-            return;
-        }
-        // calculate the reference received strength at a reference distance
-        Pr_0 = sendingPower_ + sendingGain_ + receivingGain_ - (passLossFactor_ * 10 * Math.log10(4 * Math.PI * referenceDistance_ / waveLength_));
-    }
-
     /** returns the global used Propagationmodel **/
     public static int getGlobalDistanceToRSSPropagationModel() {
         return globalPropagationModel;
@@ -172,6 +163,14 @@ public class PropagationModel {
         Pr_0 = pr_0;
     }
 
+    public static double getSHAPE() {
+        return SHAPE;
+    }
+
+    public static void setSHAPE(double shape) {
+        SHAPE = shape;
+    }
+
     /** returns an instance of the Propagationmodel **/
     public static PropagationModel getInstance() {
         return INSTANCE;
@@ -199,6 +198,15 @@ public class PropagationModel {
         double result = calculateRSSI(propagationModel, d);
         return result;
 
+    }
+
+    /** calculates a reference Signalstrength at a <code> referenceDistance_ </code>. Used for Shadowing **/
+    private void calculateReferenceSignalStrength() {
+        if (Pr_0 != Double.NaN) {
+            return;
+        }
+        // calculate the reference received strength at a reference distance
+        Pr_0 = sendingPower_ + sendingGain_ + receivingGain_ - (passLossFactor_ * 10 * Math.log10(4 * Math.PI * referenceDistance_ / waveLength_));
     }
 
     /**
@@ -272,13 +280,12 @@ public class PropagationModel {
                 break;
 
             case PROPAGATION_MODEL_SHADOWING:
-                // TODO: these parameters maybe should be changeable through the GUI so verifiers can try to increase precision
-                double tmp_sigma = 4;
-                double tmp_mean = 0;
+                double sigma_ = 4;
+                double mean_ = 0;
 
                 // get a random gaussian value
                 // maybe this doesn't need to be used at all, further experiments will show if this actually impacts results
-                double X = rand_.nextGaussian() * tmp_sigma + tmp_mean;
+                double X = rand_.nextGaussian() * sigma_ + mean_;
 
                 // calculate a distance from the rssi value
                 result = referenceDistance_ * Math.pow(10, (Pr_0 + X - rssi) / (10 * passLossFactor_));
@@ -290,5 +297,4 @@ public class PropagationModel {
         }
         return result * 100;
     }
-
 }

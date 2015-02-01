@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.swing.ButtonGroup;
@@ -23,7 +24,7 @@ import vanetsim.scenario.positionverification.PositioningHelper;
 public class LocationTechniquePanel extends JPanel implements ActionListener {
 
     /** The necessary constant for serializing. */
-    private static final long serialVersionUID = 1294546530654701135L;
+    private static final long serialVersionUID = -8668788010484644736L;
 
     /** RadioButton to select RSU Trilateration */
     JRadioButton useRSUTrilateration;
@@ -57,10 +58,27 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
     /** JLabel to describe allowedError_ JFormattedTextField */
     private final JLabel allowedErrorLabel_;
 
+    /** The input field for the allowed RSSI Error */
+    private final JFormattedTextField allowedRSSIError_;
+    /** JLabel to describe allowedRSSIError_ JFormattedTextField */
+    private final JLabel allowedRSSIErrorLabel_;
+
     /** The input field for the Threshold time */
     private final JFormattedTextField threshold_;
     /** JLabel to describe threshold_ JFormattedTextField */
     private final JLabel thresholdLabel_;
+
+    /** Checkbox to enable Trilateration in manual mode */
+    private final JCheckBox rsuTrilateration_;
+    private final JLabel rsuTrilaterationLabel_;
+    
+    /** CheckBox to enable RSU Traffic monitoring */
+    private final JCheckBox rsuPredictMovement_;
+    private final JLabel rsuPredictMovementLabel_;
+    
+    /** CheckBox to enable Vehicle Tracing other Vehicles */
+    private final JCheckBox vehicleTraceNeighbours_;
+    private final JLabel vehicleTraceNeighboursLabel_;
 
     public LocationTechniquePanel() {
         setLayout(new GridBagLayout());
@@ -133,26 +151,28 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
         vehicleExchange2RSULabel_ = new JLabel(Messages.getString("PropagationModelPanel.exchangeVehicle2RSU")); //$NON-NLS-1$
         ++c.gridy;
         add(vehicleExchange2RSULabel_, c);
+        vehicleExchange2RSULabel_.setVisible(false);
         vehicleExchange2RSU_ = new JCheckBox();
         vehicleExchange2RSU_.setSelected(false);
         vehicleExchange2RSU_.setVisible(false);
         vehicleExchange2RSU_.setActionCommand("exchangeVEHICLE2RSU"); //$NON-NLS-1$
         c.gridx = 1;
         add(vehicleExchange2RSU_, c);
-        rsuExchange2RSU_.addActionListener(this);
+        vehicleExchange2RSU_.addActionListener(this);
 
         // CheckBox Vehicle Exchange to Vehicle
         c.gridx = 0;
         vehicleExchange2VehicleLabel_ = new JLabel(Messages.getString("PropagationModelPanel.exchangeVehicle2Vehicle")); //$NON-NLS-1$
         ++c.gridy;
         add(vehicleExchange2VehicleLabel_, c);
+        vehicleExchange2VehicleLabel_.setVisible(false);
         vehicleExchange2Vehicle_ = new JCheckBox();
         vehicleExchange2Vehicle_.setSelected(false);
         vehicleExchange2Vehicle_.setVisible(false);
         vehicleExchange2Vehicle_.setActionCommand("exchangeVEHICLE2VEHICLE"); //$NON-NLS-1$
         c.gridx = 1;
         add(vehicleExchange2Vehicle_, c);
-        rsuExchange2RSU_.addActionListener(this);
+        vehicleExchange2Vehicle_.addActionListener(this);
 
         // allowed Error entry
         c.gridx = 0;
@@ -166,18 +186,75 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
         c.gridx = 1;
         add(allowedError_, c);
 
+        // allowed RSSI Error entry
+        c.gridx = 0;
+        allowedRSSIErrorLabel_ = new JLabel(Messages.getString("LocationTechniquePanel.allowedRSSIError")); //$NON-NLS-1$
+        ++c.gridy;
+        add(allowedRSSIErrorLabel_, c);
+        allowedRSSIError_ = new JFormattedTextField(new DecimalFormat());
+        allowedRSSIError_.setValue(new Double(0.35));
+        allowedRSSIError_.setPreferredSize(new Dimension(60, 20));
+        allowedRSSIError_.setEditable(true);
+        allowedRSSIError_.setVisible(false);
+        allowedRSSIErrorLabel_.setVisible(false);
+        c.gridx = 1;
+        add(allowedRSSIError_, c);
+
         // Threshold entry
         c.gridx = 0;
         thresholdLabel_ = new JLabel(Messages.getString("LocationTechniquePanel.threshold")); //$NON-NLS-1$
         ++c.gridy;
         add(thresholdLabel_, c);
+        thresholdLabel_.setVisible(false);
         threshold_ = new JFormattedTextField(NumberFormat.getIntegerInstance());
-        threshold_.setValue(60);
+        threshold_.setValue(80000);
         threshold_.setPreferredSize(new Dimension(60, 20));
         threshold_.setEditable(true);
         threshold_.setVisible(false);
         c.gridx = 1;
         add(threshold_, c);
+
+        // CheckBox RSU Trilateration
+        c.gridx = 0;
+        rsuTrilaterationLabel_ = new JLabel(Messages.getString("PropagationModelPanel.rsuTrilatCB")); //$NON-NLS-1$
+        ++c.gridy;
+        add(rsuTrilaterationLabel_, c);
+        rsuTrilaterationLabel_.setVisible(false);
+        rsuTrilateration_ = new JCheckBox();
+        rsuTrilateration_.setSelected(false);
+        rsuTrilateration_.setVisible(false);
+        rsuTrilateration_.setActionCommand("activateRSUTrilateration"); //$NON-NLS-1$
+        c.gridx = 1;
+        add(rsuTrilateration_, c);
+        rsuTrilateration_.addActionListener(this);
+
+        // CheckBox RSU Predit Movement
+        c.gridx = 0;
+        rsuPredictMovementLabel_ = new JLabel(Messages.getString("PropagationModelPanel.rsuPredictMovement")); //$NON-NLS-1$
+        ++c.gridy;
+        add(rsuPredictMovementLabel_, c);
+        rsuPredictMovementLabel_.setVisible(false);
+        rsuPredictMovement_ = new JCheckBox();
+        rsuPredictMovement_.setSelected(false);
+        rsuPredictMovement_.setVisible(false);
+        rsuPredictMovement_.setActionCommand("activateRSUPredictMovement"); //$NON-NLS-1$
+        c.gridx = 1;
+        add(rsuPredictMovement_, c);
+        rsuPredictMovement_.addActionListener(this);
+
+        // CheckBox Vehicle Trace Neighbours
+        c.gridx = 0;
+        vehicleTraceNeighboursLabel_ = new JLabel(Messages.getString("PropagationModelPanel.VehicleTrace")); //$NON-NLS-1$
+        ++c.gridy;
+        add(vehicleTraceNeighboursLabel_, c);
+        vehicleTraceNeighboursLabel_.setVisible(false);
+        vehicleTraceNeighbours_ = new JCheckBox();
+        vehicleTraceNeighbours_.setSelected(false);
+        vehicleTraceNeighbours_.setVisible(false);
+        vehicleTraceNeighbours_.setActionCommand("activateVehicleTrace"); //$NON-NLS-1$
+        c.gridx = 1;
+        add(vehicleTraceNeighbours_, c);
+        vehicleTraceNeighbours_.addActionListener(this);
 
         // to consume the rest of the space
         c.weighty = 1.0;
@@ -213,6 +290,14 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             allowedErrorLabel_.setVisible(true);
             threshold_.setVisible(false);
             thresholdLabel_.setVisible(false);
+            allowedRSSIError_.setVisible(false);
+            allowedRSSIErrorLabel_.setVisible(false);
+            rsuTrilateration_.setVisible(false);
+            rsuTrilaterationLabel_.setVisible(false);
+            rsuPredictMovement_.setVisible(false);
+            rsuPredictMovementLabel_.setVisible(false);
+            vehicleTraceNeighbours_.setVisible(false);
+            vehicleTraceNeighboursLabel_.setVisible(false);
 
             PositioningHelper.setPositionVerificationByRSUEnabled(true);
             PositioningHelper.setPositionVerificationByVehicleEnabled(false);
@@ -241,6 +326,14 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             allowedErrorLabel_.setVisible(false);
             threshold_.setVisible(false);
             thresholdLabel_.setVisible(false);
+            allowedRSSIError_.setVisible(true);
+            allowedRSSIErrorLabel_.setVisible(true);
+            rsuTrilateration_.setVisible(false);
+            rsuTrilaterationLabel_.setVisible(false);
+            rsuPredictMovement_.setVisible(false);
+            rsuPredictMovementLabel_.setVisible(false);
+            vehicleTraceNeighbours_.setVisible(false);
+            vehicleTraceNeighboursLabel_.setVisible(false);
 
             PositioningHelper.setPositionVerificationByRSUEnabled(true);
             PositioningHelper.setPositionVerificationByVehicleEnabled(false);
@@ -276,6 +369,14 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             allowedErrorLabel_.setVisible(false);
             threshold_.setVisible(true);
             thresholdLabel_.setVisible(true);
+            allowedRSSIError_.setVisible(false);
+            allowedRSSIErrorLabel_.setVisible(false);
+            rsuTrilateration_.setVisible(false);
+            rsuTrilaterationLabel_.setVisible(false);
+            rsuPredictMovement_.setVisible(false);
+            rsuPredictMovementLabel_.setVisible(false);
+            vehicleTraceNeighbours_.setVisible(false);
+            vehicleTraceNeighboursLabel_.setVisible(false);
 
             PositioningHelper.setPositionVerificationByRSUEnabled(false);
             PositioningHelper.setPositionVerificationByVehicleEnabled(true);
@@ -283,20 +384,65 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             PositioningHelper.setPositionVerificationRSU_PredictMovement(false);
             PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(true);
         } else if ("techManualMode".equals(command)) {
-            // TODO: add all settings here
-        }
+            rsuExchange2RSU_.setVisible(true);
+            rsuExchange2RSU_.setEnabled(true);
+            rsuExchange2RSU_.setSelected(false);
+            rsuExchange2RSULabel_.setVisible(true);
+            vehicleExchange2RSU_.setVisible(true);
+            vehicleExchange2RSULabel_.setVisible(true);
+            vehicleExchange2Vehicle_.setVisible(true);
+            vehicleExchange2VehicleLabel_.setVisible(true);
+            allowedError_.setVisible(true);
+            allowedError_.setEnabled(true);
+            allowedErrorLabel_.setVisible(true);
+            threshold_.setVisible(true);
+            thresholdLabel_.setVisible(true);
+            allowedRSSIError_.setVisible(true);
+            allowedRSSIErrorLabel_.setVisible(true);
+            rsuTrilateration_.setVisible(true);
+            rsuTrilaterationLabel_.setVisible(true);
+            rsuPredictMovement_.setVisible(true);
+            rsuPredictMovementLabel_.setVisible(true);
+            vehicleTraceNeighbours_.setVisible(true);
+            vehicleTraceNeighboursLabel_.setVisible(true);
 
+        } else if ("activateRSUTrilateration".equals(command)) {
+            PositioningHelper.setPositionVerificationByRSUEnabled(true);
+            PositioningHelper.setPositionVerificationByVehicleEnabled(false);
+            PositioningHelper.setPositionVerificationRSU_Trilateration(true);
+            PositioningHelper.setPositionVerificationRSU_PredictMovement(false);
+            PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(false);
+            rsuPredictMovement_.setSelected(false);
+            vehicleTraceNeighbours_.setSelected(false);
+        } else if ("activateRSUPredictMovement".equals(command)) {
+            PositioningHelper.setPositionVerificationByRSUEnabled(true);
+            PositioningHelper.setPositionVerificationByVehicleEnabled(false);
+            PositioningHelper.setPositionVerificationRSU_Trilateration(false);
+            PositioningHelper.setPositionVerificationRSU_PredictMovement(true);
+            PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(false);
+            rsuTrilateration_.setSelected(false);
+            vehicleTraceNeighbours_.setSelected(false);
+        } else if ("activateVehicleTrace".equals(command)) {
+            PositioningHelper.setPositionVerificationByRSUEnabled(false);
+            PositioningHelper.setPositionVerificationByVehicleEnabled(true);
+            PositioningHelper.setPositionVerificationRSU_Trilateration(false);
+            PositioningHelper.setPositionVerificationRSU_PredictMovement(false);
+            PositioningHelper.setPositionVerificationVehicle_TraceNeighbours(true);
+            rsuTrilateration_.setSelected(false);
+            rsuPredictMovement_.setSelected(false);
+        }
     }
 
     public void loadAttributes() {
         allowedError_.setValue(PositioningHelper.getAllowedError());
         threshold_.setValue(PositioningHelper.getThreshold());
+        allowedRSSIError_.setValue(PositioningHelper.getAllowedRssError());
     }
 
     public void saveAttributes() {
         PositioningHelper.setAllowedError(((Number) allowedError_.getValue()).intValue());
         PositioningHelper.setThreshold(((Number) threshold_.getValue()).intValue());
-
+        PositioningHelper.setAllowedRSSIError(((Number) allowedRSSIError_.getValue()).doubleValue());
     }
 
     public void setLocationRSUTrilateration(boolean state) {
@@ -312,8 +458,6 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
     }
 
     public void setLocationVerifyByVehicle(boolean tmpBoolean) {
-        // TODO: maybe add a GUi Setting for the different verification Possibilities
-        
     }
 
     public void setLocationVehicleSendToRSU(boolean tmpBoolean) {

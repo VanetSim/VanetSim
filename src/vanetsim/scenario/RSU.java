@@ -58,6 +58,8 @@ public final class RSU {
     /** is sending RSSI Values globally enabled */
     private static boolean sendRssiEnabled_ = false;
     
+    private static ArrayList<Integer> REPORTED_SYBIL_VEHICLES = new ArrayList<Integer>();
+    
 	/** If beacons are enabled */
 	private static boolean beaconsEnabled_ = Vehicle.getBeaconsEnabled();
 	
@@ -243,7 +245,6 @@ public final class RSU {
 		}
 		if(sendCount > 0) knownMessages_.deleteForwardMessage(i, true);
 	}
-	
 
 	/**
 	 * Find vehicles in neighborhood and send beacons to them. Please check the following conditions before calling this function:
@@ -702,7 +703,7 @@ public final class RSU {
 		return rsuID_;
 	}
 
-	/**
+    /**
 	 * Returns the x coordinate of the RSU
 	 * 
 	 * @return the x coordinate
@@ -942,6 +943,11 @@ public final class RSU {
         }
     }
 
+    /**
+     * creates an ArrayList containing all Vehicles from a KnownVehicle Array in a special Format for Positionverification
+     * @param knownVehicleArray
+     * @return ArrayList containing all Vehicles
+     */
     private ArrayList<PositionEntity> createPositionEntityList(KnownVehicle[] knownVehicleArray) {
         ArrayList<PositionEntity> result = new ArrayList<PositionEntity>();
 
@@ -957,6 +963,11 @@ public final class RSU {
         return result;
     }
 
+    /**
+     * receives the KnownVehicles from an other Vehicle
+     * @param sourceIsRSU if the source of this information is a RSU
+     * @param positionEntityArray the ArrayList to exchange
+     */
     public synchronized void receiveKnownVehicles(boolean sourceIsRSU, ArrayList<PositionEntity> positionEntityArray) {
         if (sourceIsRSU) {
             receivedFromRSUVehiclelists.addAll(positionEntityArray);
@@ -965,7 +976,9 @@ public final class RSU {
         }
     }
 
-    
+    /** 
+     * starts the positionverification Prozess
+     */
     public void doPositionVerification() {
         // clear the map of received information
         positionVerificationEntryMap.clear();
@@ -1017,10 +1030,25 @@ public final class RSU {
 //                        + entryList.get(0).getReceiverY() + " R3-X: " + entryList.get(1).getReceiverX() + " R3-Y: " + entryList.get(1).getReceiverY()
 //                        + " Vehicle X: " + entry.getSenderX() + " Y: " + entry.getSenderY());
 
+                // prüfung ob "Schnittpunkte" existieren
                 boolean c1 = (dist[0] + dist[1] < distanceRSU1_RSU2);
                 boolean c2 = (dist[0] + dist[2] < distanceRSU1_RSU3);
                 boolean c3 = (dist[1] + dist[2] < distanceRSU2_RSU3);
                 if (c1 || c2 || c3) {
+                    continue;
+                }
+                
+                // check if the real sender is located inside the RSU Triangle
+                boolean d1 = dist[0] < distanceRSU1_RSU2;
+                boolean d2 = dist[0] < distanceRSU1_RSU3;
+                
+                boolean d3 = dist[1] < distanceRSU1_RSU2;
+                boolean d4 = dist[1] < distanceRSU2_RSU3;
+                
+                boolean d5 = dist[2] < distanceRSU1_RSU3;
+                boolean d6 = dist[2] < distanceRSU2_RSU3;
+                
+                if(!(d1 && d2 && d3 && d4 && d5 && d6)){
                     continue;
                 }
                 
@@ -1040,16 +1068,21 @@ public final class RSU {
 //                            + entry.getKnownVehicle().getVehicle().getY());
 
 
-                    
-                    // TODO: add Vehilce mark
-                    GeneralLogWriter.log(
-                            "1"+","+ // Source 1=RSU 0=Vehicle
-                            this.rsuID_+","+ // Source ID
-                            entry.getKnownVehicle().getVehicle().getID() +","+ // Vehicle ID
-                            Renderer.getInstance().getTimePassed() +","+// Time Elapsed
-                            (entry.getKnownVehicle().getVehicle().isSybilVehicle() || entry.getKnownVehicle().getVehicle().isCreatingSybilVehicles())// is Sybil Vehicle?
-                            );
-                    
+                    if (!checkLoggedVehicles(entry.getKnownVehicle().getVehicle().steadyID_)) {
+                        addLoggedVehicle(entry.getKnownVehicle().getVehicle().steadyID_);
+                        GeneralLogWriter.log("1" + ","
+                                + // Source 1=RSU 0=Vehicle
+                                this.rsuID_ + ","
+                                + // Source ID
+                                entry.getKnownVehicle().getVehicle().getID() + ","
+                                + // Vehicle ID
+                                Renderer.getInstance().getTimePassed()
+                                + ","
+                                + // Time Elapsed
+                                (entry.getKnownVehicle().getVehicle().isSybilVehicle() || entry.getKnownVehicle().getVehicle()
+                                        .isCreatingSybilVehicles()) + "," + // is Sybil Vehicle?
+                                REPORTED_SYBIL_VEHICLES.size());
+                    }
                     // mark Vehicle in GUI
                     entry.getKnownVehicle().getVehicle().setColor(Color.RED);
 
@@ -1059,9 +1092,9 @@ public final class RSU {
         if (PositioningHelper.isPositionVerificationRSU_PredictMovement()) {
             ownPositionEntryList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
             for (PositionEntity posEntry : ownPositionEntryList) {
-                long vehicleID = posEntry.getSenderID();
-                int vehicleX = posEntry.getSenderX();
-                int vehicleY = posEntry.getSenderY();
+//                long vehicleID = posEntry.getSenderID();
+//                int vehicleX = posEntry.getSenderX();
+//                int vehicleY = posEntry.getSenderY();
                 KnownVehicle tmpnKownVehicle = posEntry.getKnownVehicle();
 
                 if (posEntry.getKnownVehicle().getArrayCounter() < 0) {
@@ -1077,11 +1110,6 @@ public final class RSU {
                 // get the Time of the current Beacon
                 int t1 = tmpnKownVehicle.getLastUpdate();// [ms]
                
-                boolean foo = tmpnKownVehicle.getVehicle().isSybilVehicle();
-                
-                //TODO: this needs to be changed to support a Vehicle sending Sybil-Data 
-                // currently only ARSUs may create Sybil Vehicles
-                // es mus shie runterschieden werden zwischen einem sybil vehilce, das über arsu erstellt wird und einem das von einem anderen Vahrzeug kommt
                 double v0;
                 if (tmpnKownVehicle.getVehicle().isSybilVehicle()) {
                     v0 = 0;
@@ -1089,19 +1117,19 @@ public final class RSU {
                     v0 = tmpnKownVehicle.getSavedSpeed_()[lastIndex];// [cm/s]
                 }
                 
-                double travelDistance = (t1 - t0) * v0 * (1.0d / 100.0d);// [mm]
+                double travelDistance = (t1 - t0) * v0 * (1.0d / 1000.0d);// [mm]
                 double currentRssi = tmpnKownVehicle.getRssi();// [dBm]
-
+                
                 double d0 = PropagationModel.getInstance().calculateDistance(PropagationModel.getGlobalRSSToDistancePropagationModel(),
-                        tmpnKownVehicle.getSavedRssi()[lastIndex]);// [cm]
+                        tmpnKownVehicle.getSavedRssi()[lastIndex]);// [mm]
 
                 double rssi_max = PropagationModel.getInstance().calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                         d0 + travelDistance);
                 double rssi_min = PropagationModel.getInstance().calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                         d0 - travelDistance);
 
-                boolean b1 = (currentRssi <= rssi_min);
-                boolean b2 = (currentRssi >= rssi_max);
+                boolean b1 = (currentRssi <= (rssi_min+PositioningHelper.getAllowedRssError()) );
+                boolean b2 = (currentRssi >= (rssi_max-PositioningHelper.getAllowedRssError()));
                 if (b1 && b2) {
 //                    System.out.println("RSU: " + this.getRSUID() + " VehicleID: " + vehicleID + " Vehicle X: " + vehicleX + " Vehicle Y: " + vehicleY
 //                            + " Position is plausible");
@@ -1110,15 +1138,18 @@ public final class RSU {
 //                            + " Position is suspect" + " real Position X: " + tmpnKownVehicle.getVehicle().getX() + " real Position Y: "
 //                            + tmpnKownVehicle.getVehicle().getY());
                   
-                    //TODO: add Vehilce mark
+                    if (!checkLoggedVehicles(tmpnKownVehicle.getVehicle().steadyID_))
+                    {
+                        addLoggedVehicle(tmpnKownVehicle.getVehicle().steadyID_);
                     GeneralLogWriter.log(
                             "1"+","+ // Source 1=RSU 0=Vehicle
                             this.rsuID_+","+ // Source ID
                             tmpnKownVehicle.getVehicle().getID() +","+ // Vehicle ID
                             Renderer.getInstance().getTimePassed() +","+// Time Elapsed
-                            (tmpnKownVehicle.getVehicle().isSybilVehicle() ||tmpnKownVehicle.getVehicle().isCreatingSybilVehicles())// is Sybil Vehicle?
+                            (tmpnKownVehicle.getVehicle().isSybilVehicle() ||tmpnKownVehicle.getVehicle().isCreatingSybilVehicles())+","+// is Sybil Vehicle?
+                            REPORTED_SYBIL_VEHICLES.size()
                             );
-                    
+                }
                     // mark Vehicle in GUi
                     tmpnKownVehicle.getVehicle().setColor(Color.RED);
                 }
@@ -1129,6 +1160,25 @@ public final class RSU {
         receivedFromRSUVehiclelists.clear();
     }
 
+    /**
+     * check if this Vehicle has already been logged.
+     * @param ID the Vehicle ID
+     * @return 
+     */
+    public static synchronized boolean checkLoggedVehicles(int ID){
+//      System.out.println("Check Log Size: "+REPORTED_SYBIL_VEHICLES.size()+REPORTED_SYBIL_VEHICLES);
+      return REPORTED_SYBIL_VEHICLES.contains(ID);
+  }
+  
+    /**
+     * adds a Vehicle to the List of globally logged Vehicles
+     * @param ID the Vehicle ID
+     */
+  public static synchronized void addLoggedVehicle(int ID){
+      REPORTED_SYBIL_VEHICLES.add(ID);
+//      System.out.println("Add Log Size: "+REPORTED_SYBIL_VEHICLES.size()+REPORTED_SYBIL_VEHICLES);
+  }
+    
     /**
      * @param positionEntityArray
      */

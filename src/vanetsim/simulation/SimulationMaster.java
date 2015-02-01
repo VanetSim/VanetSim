@@ -107,7 +107,7 @@ public final class SimulationMaster extends Thread{
 	/** the header of the general log writer */
 //	private String generalLogWriterHeader_ = "EventType,Attack,x1,y1,v1,x2,y2,v2,x3,y3,v3,x4,y4,v4,x5,y5,v5,x6,y6,v6,x7,y7,v7,x8,y8,v8,x9,y9,v9,x10,y10,v10";
 	//private String generalLogWriterHeader_ = "EventType,Attack,x1,y1,v1,x2,y2,v2,x3,y3,v3,x4,y4,v4,x5,y5,v5,x6,y6,v6,x7,y7,v7,x8,y8,v8,x9,y9,v9,x10,y10,v10";
-	private String generalLogWriterHeader_ = "RSU=1/Vehicle=0,VerifierID,VehicleID,TimeElapsed,isSybilVehicle";
+	private String generalLogWriterHeader_ = "RSU=1/Vehicle=0,VerifierID,VehicleID,TimeElapsed,isSybilVehicle,numLoggedVehicles";
 	
 	/**
 	 * Instantiates a new simulation master.
@@ -692,7 +692,6 @@ public final class SimulationMaster extends Thread{
 			}
 		}
 		
-		
 	//	writeToFile("Fake Messages:" + fakeMessageCounter + ":SpamDectected:" + spamAmount, System.getProperty("user.dir"), Scenario.getInstance().getScenarioName() + "_spammerData.txt");
 		try {
 			writeToFile("Fake Messages:" + fakeMessageCounter + ":SpamDectected:" + spamAmount, System.getProperty("user.dir"), "_spammerData_" + Scenario.getInstance().getScenarioName().substring(0, (Scenario.getInstance().getScenarioName().length() - 4)) + ".txt");
@@ -700,8 +699,6 @@ public final class SimulationMaster extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		
 	}
 	
 

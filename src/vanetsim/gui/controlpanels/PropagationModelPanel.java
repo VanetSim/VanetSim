@@ -24,7 +24,7 @@ import vanetsim.scenario.positionverification.PropagationModel;
 
 public class PropagationModelPanel extends JPanel implements ActionListener {
     /** The necessary constant for serializing. */
-    private static final long serialVersionUID = -2615968824101592112L;
+    private static final long serialVersionUID = 5986360428169042813L;
 
     /** CheckBox to choose . */
     private final JCheckBox activateSendRSSI_;
@@ -49,6 +49,12 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
 
     /** JLabel to describe gaussSigma_ JFormattedTextField */
     private final JLabel gaussSigmaLabel_;
+
+    /** The input field for the Shape Factor */
+    private final JFormattedTextField shape_;
+
+    /** JLabel to describe shape_ JFormattedTextField */
+    private final JLabel shapeLabel_;
 
     /** The input field for Mean, used in Gauss Distributions */
     private final JFormattedTextField gaussMean_;
@@ -186,6 +192,17 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         c.gridx = 1;
         add(gaussMean_, c);
 
+        // Shape Facotr entry
+        c.gridx = 0;
+        shapeLabel_ = new JLabel(Messages.getString("PropagationModelPanel.shape")); //$NON-NLS-1$
+        ++c.gridy;
+        add(shapeLabel_, c);
+        shape_ = new JFormattedTextField(new DecimalFormat());
+        shape_.setValue(new Double(3));
+        shape_.setPreferredSize(new Dimension(60, 20));
+        c.gridx = 1;
+        add(shape_, c);
+
         c.gridwidth = 2;
         c.gridx = 0;
         ++c.gridy;
@@ -282,7 +299,7 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         ++c.gridy;
         add(pathLossFactorLabel_, c);
         pathLossFactor_ = new JFormattedTextField(new DecimalFormat());
-        pathLossFactor_.setValue(new Double(1.2));
+        pathLossFactor_.setValue(new Double(2.2));
         pathLossFactor_.setPreferredSize(new Dimension(60, 20));
         c.gridx = 1;
         add(pathLossFactor_, c);
@@ -330,6 +347,8 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
 
         PropagationModel.setMean(((Number) gaussMean_.getValue()).doubleValue());
 
+        PropagationModel.setSHAPE(((Number) shape_.getValue()).doubleValue());
+
         PropagationModel.setReferenceDistance(((Number) referenceDistnace_.getValue()).doubleValue());
 
         double tmp = ((Number) pr_0_.getValue()).doubleValue();
@@ -366,6 +385,8 @@ public class PropagationModelPanel extends JPanel implements ActionListener {
         gaussSigma_.setValue(PropagationModel.getSigma());
 
         gaussMean_.setValue(PropagationModel.getMean());
+
+        shape_.setValue(PropagationModel.getSHAPE());
 
         referenceDistnace_.setValue(PropagationModel.getReferenceDistance());
 

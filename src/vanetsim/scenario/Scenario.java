@@ -223,6 +223,12 @@ public final class Scenario{
                                 PositioningHelper.setAllowedError(tmpInt);
                                 } catch (Exception e) {}
                             }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationallowedrssierror")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+                                PositioningHelper.setAllowedRSSIError(tmpDouble);
+                                } catch (Exception e) {}
+                            }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("localisationthreshold")) { //$NON-NLS-1$
                                 try{
                                 tmpInt=Integer.parseInt(settingsCrsr.collectDescendantText(false));
@@ -234,6 +240,13 @@ public final class Scenario{
                                 tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
 
                                 PropagationModel.setSigma(tmpDouble);
+                                } catch (Exception e) {}
+                            }
+                            else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationshape")) { //$NON-NLS-1$
+                                try{
+                                tmpDouble=(double) (Integer.parseInt(settingsCrsr.collectDescendantText(false)))/1000.0;
+
+                                PropagationModel.setSHAPE(tmpDouble);
                                 } catch (Exception e) {}
                             }
                             else if (settingsCrsr.getLocalName().toLowerCase().equals("propagationmean")) { //$NON-NLS-1$
@@ -1191,6 +1204,7 @@ public final class Scenario{
 			VanetSimStart.getMainControlPanel().getEditPanel().getEditLocationVerificationTechniquePanel_().saveAttributes();
             settings.addElement("propagationenablerssi").addValue(Vehicle.isSendRssiEnabled());
             settings.addElement("propagationsigma").addValue((int) (PropagationModel.getSigma()*1000));
+            settings.addElement("propagationshape").addValue((int) (PropagationModel.getSHAPE()*1000));
             settings.addElement("propagationmean").addValue((int) (PropagationModel.getMean()*1000));
             settings.addElement("propagationrefdist").addValue((int) (PropagationModel.getReferenceDistance()*1000));
             settings.addElement("propagationpr0").addValue((int) (PropagationModel.getPr_0()*1000));
@@ -1203,6 +1217,7 @@ public final class Scenario{
             settings.addElement("reversepropagationpropmodell").addValue(PropagationModel.getGlobalRSSToDistancePropagationModel());
             
             settings.addElement("localisationallowederror").addValue(PositioningHelper.getAllowedError());
+            settings.addElement("localisationallowedrssierror").addValue((int)(PositioningHelper.getAllowedRssError()*1000));
             settings.addElement("localisationthreshold").addValue(PositioningHelper.getThreshold());
             settings.addElement("localisationrsutrilateration").addValue(PositioningHelper.isPositionVerificationRSU_Trilateration());
             settings.addElement("localisationrsupredict").addValue(PositioningHelper.isPositionVerificationRSU_PredictMovement());
