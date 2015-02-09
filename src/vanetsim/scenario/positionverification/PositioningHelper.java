@@ -6,6 +6,7 @@ public class PositioningHelper {
 
     private static boolean positionVerificationRSU_Trilateration = false;
     private static boolean positionVerificationRSU_PredictMovement = false;
+    private static boolean positionVerificationRSU_RSSIRATIO = false;
 
     private static boolean positionVerificationByVehicleEnabled = false;
     private static boolean positionVerificationVehicle_TraceNeighbours = false;
@@ -106,5 +107,14 @@ public class PositioningHelper {
 
     public static void setPositionVerificationRSU_PredictMovement(boolean state) {
         positionVerificationRSU_PredictMovement = state;
+    }
+
+    public static boolean isPositionVerificationRSU_RSSIRatio() {
+        // TODO Auto-generated method stub
+        return positionVerificationRSU_RSSIRATIO;
+    }
+    
+    public static void setPositionVerificationRSU_RSSIRatio(boolean state) {
+        positionVerificationRSU_RSSIRATIO = state;
     }
 }

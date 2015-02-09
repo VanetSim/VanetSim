@@ -977,7 +977,7 @@ public final class RSU {
     }
 
     /** 
-     * starts the positionverification Prozess
+     * starts the positionverification Process
      */
     public void doPositionVerification() {
         // clear the map of received information
@@ -991,6 +991,34 @@ public final class RSU {
             groupByID(receivedFromRSUVehiclelists);
         }
 
+        
+        // RSU - RSSI Ratio
+        if (PositioningHelper.isPositionVerificationRSU_RSSIRatio()) {
+            ownPositionEntryList = createPositionEntityList(knownVehiclesList_.getFirstKnownVehicle());
+            for (PositionEntity posEntry : ownPositionEntryList) {
+                long knownVehicleID = posEntry.getSenderID();
+
+                // check if at least one other RSU in Range has received a beacon from this Vehicle
+                ArrayList<PositionEntity> entryList = positionVerificationEntryMap.get(knownVehicleID);
+
+                // TODO: add RSSI Ratio Monitoring here...
+
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                // TODO: add GUI mark here
+                // TODO: log attack here
+            }
+        }
+        
+        
+        
         // RSU Trilateration
         if (PositioningHelper.isPositionVerificationRSU_Trilateration()) {
             // für jedes Fahrzeug das dieser RSU bekannt ist die verifizierung durchführen
