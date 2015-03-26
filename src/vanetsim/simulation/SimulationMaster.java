@@ -274,7 +274,7 @@ public final class SimulationMaster extends Thread{
 		KnownVehiclesList.setTimePerStep_(TIME_PER_STEP);
 		if(generalLogWriterActivated_){
 			GeneralLogWriter.setLogPath(System.getProperty("user.dir"));
-			GeneralLogWriter.log(generalLogWriterHeader_);
+			//GeneralLogWriter.log(generalLogWriterHeader_);
 		}
 	
 		while(true){

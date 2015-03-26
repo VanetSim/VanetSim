@@ -35,9 +35,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
@@ -54,6 +56,7 @@ import javax.swing.filechooser.FileFilter;
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.ButtonCreator;
+import vanetsim.gui.helpers.GeneralLogWriter;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
 import vanetsim.map.Node;
@@ -326,7 +329,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		makejobs.setActionCommand("makejobs");
 		makejobs.setPreferredSize(new Dimension(200,20));
 		makejobs.addActionListener(this);
-		//add(makejobs,c);		
+		add(makejobs,c);		
 		
 		//createscenarios
 		++c.gridy;
@@ -655,7 +658,10 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		else if("makejobs".equals(command)){
 			//accumulateVehicleFluctuation();
 			//accumulateSpammerFiles();
-			accumulateVehicleIDSResults();
+			//accumulateVehicleIDSResults();
+			//this.getSybilAttacksOnDandA();
+			//calculateStreetSpeed();
+			calculateStreetLengthWithSpeedUnderTen();
 			//makejobs();
 			//accumulateKnownVehiclesTimeFiles();
 			//ResearchSeriesDialog.getInstance().setVisible(true);
@@ -876,6 +882,68 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		streetLength = streetLength_old.divide(new BigDecimal(100000));
 			
 		JOptionPane.showMessageDialog(null, streetLength.toPlainString() + "km", "Information", JOptionPane.INFORMATION_MESSAGE);
+		
+	}
+	
+	/**
+	 * Sums up the length of all the streets on the loaded map
+	 */
+	public void calculateStreetLengthWithSpeedUnderTen(){
+		BigDecimal streetLength = BigDecimal.ZERO;
+		BigDecimal streetLength_old = BigDecimal.ZERO;
+		
+		Region[][] regions = Map.getInstance().getRegions();
+			
+		//iterate trough all regions and streets
+		for(int i = 0; i < regions.length; i++){
+			for(int j = 0; j < regions[i].length; j++){
+				Street[] tmpStreets = regions[i][j].getStreets();
+				for(int k = 0; k < tmpStreets.length; k++){	
+					if(tmpStreets[k].getSpeed() <= 278){
+						streetLength_old = new BigDecimal(streetLength.toString());
+						streetLength = streetLength_old.add(BigDecimal.valueOf(tmpStreets[k].getLength()));
+					}
+					
+				}
+			}
+		}
+			
+		streetLength_old = new BigDecimal(streetLength.toString());
+		streetLength = streetLength_old.divide(new BigDecimal(100000));
+			
+		JOptionPane.showMessageDialog(null, streetLength.toPlainString() + "km", "Information", JOptionPane.INFORMATION_MESSAGE);
+		
+	}
+	
+	/**
+	 * Sums up the length of all the streets on the loaded map
+	 */
+	public void calculateStreetSpeed(){
+		BigDecimal streetLength = BigDecimal.ZERO;
+		BigDecimal streetLength_old = BigDecimal.ZERO;
+		BigDecimal streetSpeed = BigDecimal.ZERO;
+		BigDecimal streetSpeed_old = BigDecimal.ZERO;
+		
+		Region[][] regions = Map.getInstance().getRegions();
+			
+		//iterate trough all regions and streets
+		for(int i = 0; i < regions.length; i++){
+			for(int j = 0; j < regions[i].length; j++){
+				Street[] tmpStreets = regions[i][j].getStreets();
+				for(int k = 0; k < tmpStreets.length; k++){	
+					streetLength_old = new BigDecimal(streetLength.toString());
+					streetLength = streetLength_old.add(BigDecimal.valueOf(tmpStreets[k].getLength()));
+					
+					streetSpeed_old = new BigDecimal(streetSpeed.toString());
+					streetSpeed = streetSpeed_old.add(BigDecimal.valueOf(tmpStreets[k].getLength()*tmpStreets[k].getSpeed()));
+				}
+			}
+		}
+						
+		streetSpeed_old = new BigDecimal(streetSpeed.toString());
+		streetSpeed = streetSpeed_old.divide(streetLength, 2, RoundingMode.HALF_UP);
+		
+		JOptionPane.showMessageDialog(null, (Double.parseDouble(streetSpeed.toPlainString())*0.036) + "km/h", "Information", JOptionPane.INFORMATION_MESSAGE);
 		
 	}
 	
@@ -2120,4 +2188,134 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		}
 	}					
 	
+	
+	/**
+	 *	Opens RSSI Log File and detects attackers or not :)	
+	 */
+	public void getSybilAttacksOnDandA(){
+		//begin with creation of new file
+		JFileChooser fc = new JFileChooser();
+		
+
+		//set directory and ".log" filter
+		fc.setMultiSelectionEnabled(true);
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+			File[] files = fc.getSelectedFiles();
+			
+			for(File file:files){
+					
+					FileWriter fstream1;
+					try {
+						fstream1 = new FileWriter(file.getName().replace(".txt", ".csv"), false);
+						BufferedWriter out = new BufferedWriter(fstream1);
+						
+						
+						
+					//read file
+			        BufferedReader reader;
+			        String[] data;
+			        HashMap<String, Double> results = new HashMap<String, Double>();
+			        HashMap<String, Integer> amount = new HashMap<String, Integer>();
+
+			        double factor = 0.15;
+			        double distanzRatio = -1;
+			        double RSSIRatio = -1;
+			        double IDSThresholdMin = 0.5;
+			        double IDSThresholdMax = 25;
+			        
+			        double maxBeaconAmount = 25;
+					
+			        //get maximal vehicles count and calculates values of line
+			        try{
+			            reader = new BufferedReader(new FileReader(file));
+			            String line = reader.readLine(); 
+			           
+			            while(line != null){
+			            	if(line.equals("**********************************")) break;
+			            	data = line.split(" ");
+				            
+			            	distanzRatio =  Math.pow((Double.parseDouble(data[2])/Double.parseDouble(data[3])),factor);
+			            	RSSIRatio = Double.parseDouble(data[0])/Double.parseDouble(data[1]);
+			            	//if(Math.abs(RSSIRatio - distanzRatio) > 1)System.out.println("score: " + Math.abs(RSSIRatio - distanzRatio));
+			            	//if(results.containsKey(data[5])) results.put(data[5], (results.get(data[5]) + (RSSIRatio/(RSSIRatio+distanzRatio))));
+			            	//else results.put(data[5], (RSSIRatio/(RSSIRatio+distanzRatio)));
+			            	//if(Math.abs(RSSIRatio - distanzRatio) < 1){
+			            	/*
+			            		if(results.containsKey(data[5])) results.put(data[5], (results.get(data[5]) + Math.abs(RSSIRatio - distanzRatio)));
+				            	else results.put(data[5], Math.abs(RSSIRatio - distanzRatio));
+				            	
+				            	if(amount.containsKey(data[5])) amount.put(data[5], (amount.get(data[5]) + 1));
+				            	else amount.put(data[5], 1);
+				            	*/
+			            	
+			            	if(amount.containsKey(data[5])) {
+			            		amount.put(data[5], (amount.get(data[5]) + 1));
+			            		if(amount.get(data[5]) <= maxBeaconAmount){
+			            			if(results.containsKey(data[5])) results.put(data[5], (results.get(data[5]) + Math.abs(RSSIRatio - distanzRatio)));
+					            	else results.put(data[5], (Math.abs(RSSIRatio - distanzRatio)));
+			            		}
+			            	}
+			            	else {
+			            		amount.put(data[5], 1);
+			            		if(results.containsKey(data[5])) results.put(data[5], (results.get(data[5]) + Math.abs(RSSIRatio - distanzRatio)));
+				            	else results.put(data[5], (Math.abs(RSSIRatio - distanzRatio)));
+			            	}
+			            		
+			            	
+			            	//}
+			            	
+			            		
+			            	line = reader.readLine();
+			            }
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println(file.getAbsolutePath());
+					    System.err.println("FileNotFoundException: " + e.getMessage());
+					}
+			  
+			        	
+						double min = 99999999;
+						double max = -1;
+						
+						int attackCounter = 0;
+						int noAttackCounter = 0;
+						
+						boolean first = true;
+						
+						for(double i = IDSThresholdMin; i <= IDSThresholdMax; i=i+0.5){
+							min = 99999999;
+							max = -1;
+							attackCounter = 0;
+							noAttackCounter = 0;
+							
+							for(String key: results.keySet()){
+								if(results.get(key) < min) min = results.get(key);
+								if(results.get(key) > max) max = results.get(key);
+
+								if(results.get(key) > i) attackCounter++;
+								else noAttackCounter++;
+								//System.out.println((results.get(key)));
+								if(first)out.write(results.get(key) + "\n");
+							}
+							first = false;
+							out.write(attackCounter + ";" + noAttackCounter + "\n");
+							//out.write("#threshold " + i + " attacks " + attackCounter + " normal " + noAttackCounter + " min " + min + " max " + max + "\n");
+						}
+
+						//System.out.println("min: " + min + "; max: " + max + "; attacks: " + attackCounter + "; normal: " + noAttackCounter);
+						out.flush();
+				} catch (Exception e) {
+				    e.printStackTrace();
+				}
+			}
+			
+			
+		}
+	}		
 }

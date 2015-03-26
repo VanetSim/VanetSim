@@ -68,7 +68,9 @@ public final class IDSLogWriter {
 				if (handler != null)
 					logger.removeHandler(handler);
 				String scenName = Scenario.getInstance().getScenarioName();
-				if(scenName != null && !scenName.equals("")) handler = new FileHandler(dir + scenName.substring(0, scenName.length()-4) + "_" + df.format(dt) + "." + format, true);//$NON-NLS-1$ //$NON-NLS-2$
+				//if(scenName != null && !scenName.equals("")) handler = new FileHandler(dir + scenName.substring(0, scenName.length()-4) + "_" + df.format(dt) + "." + format, true);//$NON-NLS-1$ //$NON-NLS-2$
+				if(scenName != null && !scenName.equals("")) handler = new FileHandler(dir + scenName.substring(0, scenName.length()-4) + ".txt", false);//$NON-NLS-1$ //$NON-NLS-2$
+
 				else handler = new FileHandler(dir + "IDSLog_" + df.format(dt) + "." + format, true);//$NON-NLS-1$ //$NON-NLS-2$
 				logOldPath = dir;
 				logger.setUseParentHandlers(false); // don't log to console

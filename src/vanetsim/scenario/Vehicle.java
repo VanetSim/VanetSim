@@ -28,6 +28,7 @@ import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
 import vanetsim.gui.helpers.GeneralLogWriter;
+import vanetsim.gui.helpers.IDSLogWriter;
 import vanetsim.gui.helpers.PrivacyLogWriter;
 import vanetsim.localization.Messages;
 import vanetsim.map.Map;
@@ -590,6 +591,10 @@ public class Vehicle extends LaneObject{
 	private int amountOfLoggedBeacons_ = 0;
 	private boolean logJunctionFrequency_ = false;
 	
+	private int sybilDetected_ = 0;
+	private int normalDetected_ = 0;
+	private int beaconCounter_ = 0;
+	
 	/**
 	 * Instantiates a new vehicle. You will get an exception if the destinations don't contain at least two <b>valid</b> elements.<br>
 	 * Elements are considered as invalid if
@@ -670,6 +675,9 @@ public class Vehicle extends LaneObject{
 			
 			//set the countdowns so that not all fire at the same time!
 			beaconCountdown_ = (int)Math.round(curPosition_)%beaconInterval_;
+			
+			//beaconCountdown_ = (int) (Math.random() * (beaconInterval_ + 1 - 0) + 0);
+
 			communicationCountdown_ = (int)Math.round(curPosition_)%communicationInterval_;
 			mixCheckCountdown_ = (int)Math.round(curPosition_)%MIX_CHECK_INTERVAL;
 			knownVehiclesTimeoutCountdown_ = (int)Math.round(curPosition_)%KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
@@ -3211,11 +3219,15 @@ public class Vehicle extends LaneObject{
 						}
 					}
 					
+					//tmp
+					double rssiSaved = -1;
+					double distanceSavedRSU = -1;
+					
                     // send beacons to RSUs
                     rsus = regions_[i][j].getRSUs();
                     size = rsus.length;
                     currentRssi = Double.NaN;
-                    
+                  
                     for (int index = 0; index < size; ++index) {
                         rsu = rsus[index];
                         if (rsu.getX() >= MapMinX && rsu.getX() <= MapMaxX && rsu.getY() >= MapMinY && rsu.getY() <= MapMaxY) {
@@ -3236,13 +3248,50 @@ public class Vehicle extends LaneObject{
                                             propagationModel_ = PropagationModel.getInstance();
                                         }
 
+                                        
                                         if (sybilVehicle_) {
                                             currentRssi = propagationModel_.calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                                                     dArsuX, dArsuY);
+                                           
+                                            if(rssiSaved == -1){
+                                            	
+                                            	rssiSaved = currentRssi;
+                                            	distanceSavedRSU = Math.sqrt((dx * dx + dy * dy));
+                                            }
+                                            else{
+                                            	
+                                            	 if(distanceSavedRSU < Math.sqrt((dx * dx + dy * dy))){
+                                            		 beaconCounter_++;
+                                            		 IDSLogWriter.log(rssiSaved + " " + currentRssi + " " + distanceSavedRSU + " " + Math.sqrt((dx * dx + dy * dy)) + " " + beaconCounter_ + " " + ID_);
+                                            	 }
+
+                                            	//IDSLogWriter.log((rssiSaved/currentRssi) + " " + Math.sqrt((dx * dx + dy * dy)) + " " +  distanceSavedRSU + " " + beaconCounter_);
+                                            }
+                                            
+                                            //  IDSLogWriter.log(currentRssi + " " + Math.sqrt((dx * dx + dy * dy)));
+
+
                                         } else {
                                             currentRssi = propagationModel_.calculateRSSI(PropagationModel.getGlobalDistanceToRSSPropagationModel(),
                                                     dx, dy);
-                                        }
+                                            
+                                            if(rssiSaved == -1){
+                                            	
+                                            	rssiSaved = currentRssi;
+                                            	distanceSavedRSU = Math.sqrt((dx * dx + dy * dy));
+                                            }
+                                            else{
+                                            	if(distanceSavedRSU < Math.sqrt((dx * dx + dy * dy))){
+                                            		beaconCounter_++;
+                                            		IDSLogWriter.log(rssiSaved + " " + currentRssi + " " + distanceSavedRSU + " " + Math.sqrt((dx * dx + dy * dy)) + " " + beaconCounter_ + " " + ID_);
+                                            	}
+                                            	//IDSLogWriter.log((rssiSaved/currentRssi) + " " + Math.sqrt((dx * dx + dy * dy)) + " " +  distanceSavedRSU + " " + beaconCounter_);
+                                            }
+                                          
+                                          //  IDSLogWriter.log(currentRssi + " " + Math.sqrt((dx * dx + dy * dy)));
+                                           // IDSLogWriter.log(currentRssi + " " + Math.sqrt((dx * dx + dy * dy)));
+
+                                        }  
                                     }
 
                                     if (sybilVehicle_) {
@@ -3860,6 +3909,8 @@ public class Vehicle extends LaneObject{
 		//reset RSU infos
 		knownRSUsList_.clear();
 		knownRSUsTimeoutCountdown_ = 0;
+		
+		beaconCounter_ = 0;
 		
 		speedFluctuationCountdown_ = (int)Math.round(curPosition_)%SPEED_FLUCTUATION_CHECKINTERVAL;
 		

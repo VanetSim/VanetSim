@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.apache.commons.math3.distribution.GammaDistribution;
 
+import vanetsim.scenario.Vehicle;
+
 public class PropagationModel {
 
     private static final PropagationModel INSTANCE = new PropagationModel();
@@ -27,7 +29,7 @@ public class PropagationModel {
     private static int globalReversePropagationModel = 1;
 
     /** Random Number generator used for Gauss Distribution */
-    private Random rand_ = new Random(System.currentTimeMillis());
+    private Random rand_ = Vehicle.getRandom();
 
     /** a Gamma Distribution used for Nakagami Fading */
     private GammaDistribution gammaDist = null;
@@ -48,7 +50,7 @@ public class PropagationModel {
      * Sending and receiving parameters set to 1, because they are assumed to be equal for every vehicle. Parameters exist in case we want to change
      * these.
      */
-    static double sendingPower_ = 30, sendingGain_, receivingGain_ = 1;
+    static double sendingPower_ = 30, sendingGain_ = 1, receivingGain_ = 1;
 
     /** Passloss Factor for propagation modells. */
     static double passLossFactor_ = 2;
@@ -64,7 +66,6 @@ public class PropagationModel {
 
     /** Empty constructor in order to disable instancing. */
     private PropagationModel() {
-        calculateReferenceSignalStrength();
     }
 
     /** sets the PassLoss Facot **/
@@ -202,11 +203,12 @@ public class PropagationModel {
 
     /** calculates a reference Signalstrength at a <code> referenceDistance_ </code>. Used for Shadowing **/
     private void calculateReferenceSignalStrength() {
-        if (Pr_0 != Double.NaN) {
-            return;
-        }
+
         // calculate the reference received strength at a reference distance
-        Pr_0 = sendingPower_ + sendingGain_ + receivingGain_ - (passLossFactor_ * 10 * Math.log10(4 * Math.PI * referenceDistance_ / waveLength_));
+        
+        Pr_0 = (32.4 + 20*Math.log10(waveLength_*1000) + 20*Math.log10(referenceDistance_/1000));
+      // Pr_0 = sendingPower_ + sendingGain_ + receivingGain_ - (passLossFactor_ * 10 * Math.log10(4 * Math.PI * referenceDistance_ / waveLength_));
+ 
     }
 
     /**
@@ -232,15 +234,28 @@ public class PropagationModel {
         switch (propagationModel) {
             case PROPAGATION_MODEL_FREE_SPACE:
                 // calculate the Friis / Free Space RSSI value in [dB]
-                result = sendingPower_ + sendingGain_ + receivingGain_ - (10 * passLossFactor_ * Math.log10((4 * Math.PI * distance) / waveLength_));
+            	
+            	//System.out.print(sendingPower_ + "+" + sendingGain_ + "+" + receivingGain_ + "-(10*" + passLossFactor_ + "*log10(4*Pi*" +  distance + "/" +  waveLength_+ "=" );
+               // result = sendingPower_ + sendingGain_ + receivingGain_ - (10 * passLossFactor_ * Math.log10((4 * Math.PI * distance) / waveLength_*1000));
+              
+            	//important: Use kilometers and kilohertz
+            	result = sendingPower_ -  (32.4 + 20*Math.log10(waveLength_*1000) + 20*Math.log10(distance/1000));
+
+            	// System.out.print(result + " oder " + (sendingPower_-(32.4 + 20*Math.log10(waveLength_*1000) + 20*Math.log10(distance/1000))));
+               // System.out.println(" oder " + ( (20*Math.log10(waveLength_*1000/(4 * Math.PI * distance)))));
+
                 break;
 
             case PROPAGATION_MODEL_SHADOWING:
+            	if(Pr_0 == Double.NaN || Pr_0 == 0)  calculateReferenceSignalStrength();
+
                 // get a random gauss distributed value
                 double gaussNormal = rand_.nextGaussian() * sigma_ + mean_;
 
                 // calculate the received signal strength in [dB]
-                result = Pr_0 - (10 * passLossFactor_ * Math.log10(distance / referenceDistance_)) + gaussNormal;
+               // result = Pr_0;
+                //result = Pr_0 - (10 * passLossFactor_ * Math.log10(distance / referenceDistance_)) + gaussNormal;
+                result =  sendingPower_ - (Pr_0 + (10 * passLossFactor_ * Math.log10(distance / referenceDistance_)) + gaussNormal);
 
                 break;
             case PROPAGATION_MODEL_NAKAGAMI:
@@ -271,6 +286,7 @@ public class PropagationModel {
      * @return the distance
      */
     public double calculateDistance(int propagationModel, double rssi) {
+    	/*
         double result = Double.NaN;
         switch (propagationModel) {
             case PROPAGATION_MODEL_FREE_SPACE:
@@ -295,6 +311,9 @@ public class PropagationModel {
                 result = Double.NaN;
                 break;
         }
+        
         return result * 100;
+        */
+    	return -1;
     }
 }
