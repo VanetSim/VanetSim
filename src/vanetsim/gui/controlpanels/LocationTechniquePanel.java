@@ -37,6 +37,8 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
 
     /** RadioButton to select Manual Mode */
     JRadioButton useManualMode;
+    
+  //TODO: add RadioButton for RSSi Ratio
 
     /** CheckBox to choose RSU to RSU Information Exchange. */
     private final JCheckBox rsuExchange2RSU_;
@@ -79,6 +81,8 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
     /** CheckBox to enable Vehicle Tracing other Vehicles */
     private final JCheckBox vehicleTraceNeighbours_;
     private final JLabel vehicleTraceNeighboursLabel_;
+    
+    //TODO: add CheckBox and Label for RSSi Ratio for manual Mode
 
     public LocationTechniquePanel() {
         setLayout(new GridBagLayout());
@@ -117,6 +121,8 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
         ++c.gridy;
         add(useVehicleTraceNeighbours, c);
 
+        //TODO: add GUI creationcode for RSSI Ratio here
+        
         useManualMode = new JRadioButton(Messages.getString("LocationTechniquePanel.ManualMode")); //$NON-NLS-1$
         useManualMode.setActionCommand("techManualMode"); //$NON-NLS-1$
         useManualMode.addActionListener(this);
@@ -405,6 +411,8 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             rsuPredictMovementLabel_.setVisible(true);
             vehicleTraceNeighbours_.setVisible(true);
             vehicleTraceNeighboursLabel_.setVisible(true);
+            
+            //TODO: add settings for RSSI Ratio
 
         } else if ("activateRSUTrilateration".equals(command)) {
             PositioningHelper.setPositionVerificationByRSUEnabled(true);
@@ -431,6 +439,7 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
             rsuTrilateration_.setSelected(false);
             rsuPredictMovement_.setSelected(false);
         }
+        //TODO: add action handling for RSSI Ratio
     }
 
     public void loadAttributes() {
@@ -471,4 +480,6 @@ public class LocationTechniquePanel extends JPanel implements ActionListener {
     public void setLocationVehicleSendToVehicle(boolean tmpBoolean) {
         vehicleExchange2Vehicle_.setSelected(tmpBoolean);
     }
+    
+    //TODO: add getter and setter for RSSI Ratio CheckBox
 }
