@@ -861,8 +861,8 @@ public final class Renderer{
 
 			// fill background
 			//FIXME
-			//g2d.setColor(new Color(230,230,230));
-			g2d.setColor(Color.white);
+			g2d.setColor(new Color(230,230,230));
+			//g2d.setColor(Color.white);
 			
 			g2d.fillRect(0,0,drawWidth_,drawHeight_);	
 
@@ -881,7 +881,7 @@ public final class Renderer{
 			if(!antialias) g2d.setPaint(Color.gray);
 			else g2d.setPaint(Color.black);
 			//fixme
-			//g2d.drawRect(0, 0, map_.getMapWidth(), map_.getMapHeight());
+			g2d.drawRect(0, 0, map_.getMapWidth(), map_.getMapHeight());
 
 			
 			// prepare variables
@@ -1058,7 +1058,7 @@ public final class Renderer{
 					drawColor = new Color(Math.max((int)(((key >> 16) & 0xFF) *0.8), 0), Math.max((int)(((key >> 8) & 0xFF)*0.8), 0), Math.max((int)(((key >> 0) & 0xFF)*0.8), 0));	//simulate colors like if they were with antialias (darker)!
 				}
 				//FIXME
-				drawColor = Color.black;
+				//drawColor = Color.black;
 				g2d.setPaint(drawColor);	
 				//FIXME
 				g2d.draw(layers.get(key));
@@ -1096,13 +1096,13 @@ public final class Renderer{
 										//paint the now shorter line completely
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes+90,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER));
 										//FIXME
-										g2d.setColor(Color.black);
-										//g2d.setColor(Color.white);
+										//g2d.setColor(Color.black);
+										g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
 										//fixme
-										//g2d.setColor(street.getDisplayColor());
-										g2d.setColor(Color.white);
+										g2d.setColor(street.getDisplayColor());
+										//g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
 									}									
 								}
@@ -1122,8 +1122,8 @@ public final class Renderer{
 								paintArrayList = street.getBridgePaintPolygons();
 								if(paintArrayList != null){		
 									//fixme
-									g2d.setColor(Color.white);
-									//g2d.setColor(street.getDisplayColor());
+									//g2d.setColor(Color.white);
+									g2d.setColor(street.getDisplayColor());
 									for(l = 3; l < paintArrayList.size(); l= l+4){
 										int[] xPoints = new int[4];
 										int[] yPoints = new int[4];
@@ -1157,8 +1157,8 @@ public final class Renderer{
 									}
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
 									//fixme
-									g2d.setColor(Color.black);
-									//g2d.setColor(Color.white);
+									//g2d.setColor(Color.black);
+									g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){
 										int x1=(int)Math.round(paintArrayList.get(l-1).x);
 										int y1=(int)Math.round(paintArrayList.get(l-1).y);
@@ -1172,8 +1172,8 @@ public final class Renderer{
 								if(paintArrayList != null){									
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
 									//FIXME
-									g2d.setColor(Color.black);
-									//g2d.setColor(Color.white);
+									//g2d.setColor(Color.black);
+									g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){
 										int x1=(int)Math.round(paintArrayList.get(l-1).x);
 										int y1=(int)Math.round(paintArrayList.get(l-1).y);

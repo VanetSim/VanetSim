@@ -326,7 +326,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		makejobs.setActionCommand("makejobs");
 		makejobs.setPreferredSize(new Dimension(200,20));
 		makejobs.addActionListener(this);
-		//add(makejobs,c);		
+		add(makejobs,c);		
 		
 		//createscenarios
 		++c.gridy;
@@ -655,8 +655,12 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		else if("makejobs".equals(command)){
 			//accumulateVehicleFluctuation();
 			//accumulateSpammerFiles();
-			accumulateVehicleIDSResults();
+			//accumulateVehicleIDSResults();
+			//perturbationLog();
+			//logPercentage();
 			//makejobs();
+			//reorderData();
+			//getMax();
 			//accumulateKnownVehiclesTimeFiles();
 			//ResearchSeriesDialog.getInstance().setVisible(true);
 			//calculateAngles();
@@ -2118,6 +2122,230 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 			}
 			
 		}
-	}					
+	}	
 	
+	public void perturbationLog(){
+		
+		//begin with selection of file
+		JFileChooser fc = new JFileChooser();
+		//set directory and ".log" filter
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileFilter(logFileFilter_);
+		
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+		
+
+		int lineCounter = 0;
+		int amountOfFiles = 10;
+		int counter = 0;
+		int counterTotal = 0;
+		
+		float x = 0;
+		float y = 0;
+		
+		float[][] resultsX = new float[5][5];
+		float[][] resultsY = new float[5][5];
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+				File file = fc.getSelectedFile().getAbsoluteFile();
+		        BufferedReader reader;
+		        
+		        try{
+		        	reader = new BufferedReader(new FileReader(file));
+		            String line = reader.readLine();
+		           
+		            String data[];
+		           
+		            //check if the log is a silent-period or a mix-zone log
+		            while(line != null){
+		            	
+		            	if(counterTotal%(amountOfFiles)==0 && counterTotal > 0){
+		            		System.out.println(counter + ":" + lineCounter);
+
+		            		resultsX[counter][lineCounter] = x/amountOfFiles;
+		            		resultsY[counter][lineCounter] = y/amountOfFiles;
+		            		
+		            		System.out.println(resultsX[counter][lineCounter] + ":" + resultsY[counter][lineCounter]);
+		            		
+		            		x = 0;
+		            		y = 0;
+		            		
+		            		lineCounter++;
+		            		
+		            		if(lineCounter == 5){
+		            			lineCounter = 0;
+		            			counter++;
+		            		}
+		            	}
+		            		
+		            	data = line.split(":");
+	            		
+	            		System.out.println(Float.parseFloat(data[0]) + ":" + Float.parseFloat(data[1]) + ":" + data[4] + ":" + data[6]);
+
+	            		
+		            	x += Float.parseFloat(data[0]);
+		            	y += Float.parseFloat(data[1]);			        		
+
+		            	counterTotal++;
+		            	
+		            	line = reader.readLine();
+		            }
+				} catch (FileNotFoundException e) {
+				    System.err.println("FileNotFoundException: " + e.getMessage());
+				} catch (IOException e) {
+				    System.err.println("Caught IOException: " + e.getMessage());
+				}
+		    
+		        resultsX[counter][lineCounter] = x/amountOfFiles;
+        		resultsY[counter][lineCounter] = y/amountOfFiles;
+        		
+		        for(int i = 0; i < resultsX.length; i++){
+		        	for(int j = 0; j < resultsX[i].length; j++){
+		        		System.out.print(resultsX[j][i] + " " + resultsY[j][i] + " ");
+		        	}
+		        	System.out.println();
+		        }
+		}
+		        
+	}
+	
+public void logPercentage(){
+		
+		//begin with selection of file
+		JFileChooser fc = new JFileChooser();
+		//set directory and ".log" filter
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileFilter(logFileFilter_);
+		
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+		
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+				File file = fc.getSelectedFile().getAbsoluteFile();
+		        BufferedReader reader;
+		        
+		        try{
+		        	reader = new BufferedReader(new FileReader(file));
+		            String line = reader.readLine();
+		            line = reader.readLine();
+		            
+		            String data[];
+		           
+		            //check if the log is a silent-period or a mix-zone log
+		            while(line != null){		            
+		            	data = line.split(" ");
+	            		
+	            		//System.out.println(Math.round(Double.parseDouble(data[1])*100/(Double.parseDouble(data[1]) + Double.parseDouble(data[2]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[3])*100/(Double.parseDouble(data[3]) + Double.parseDouble(data[4]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[5])*100/(Double.parseDouble(data[5]) + Double.parseDouble(data[6]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[7])*100/(Double.parseDouble(data[7]) + Double.parseDouble(data[8]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[9])*100/(Double.parseDouble(data[9]) + Double.parseDouble(data[10]))*100)/100.0);
+	            		System.out.println("0.00," + Math.round(Double.parseDouble(data[1])*100/(Double.parseDouble(data[1]) + Double.parseDouble(data[2]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[3])*100/(Double.parseDouble(data[3]) + Double.parseDouble(data[4]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[5])*100/(Double.parseDouble(data[5]) + Double.parseDouble(data[6]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[7])*100/(Double.parseDouble(data[7]) + Double.parseDouble(data[8]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[9])*100/(Double.parseDouble(data[9]) + Double.parseDouble(data[10]))*100)/100.0);
+
+		            	line = reader.readLine();
+		            }
+				} catch (FileNotFoundException e) {
+				    System.err.println("FileNotFoundException: " + e.getMessage());
+				} catch (IOException e) {
+				    System.err.println("Caught IOException: " + e.getMessage());
+				}
+		    
+		       
+		}
+		        
+	}
+
+	public void reorderData(){
+	
+	//begin with selection of file
+	JFileChooser fc = new JFileChooser();
+	//set directory and ".log" filter
+	fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+	fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	fc.setFileFilter(logFileFilter_);
+	
+	int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+	
+	
+	if(status == JFileChooser.APPROVE_OPTION){
+			File file = fc.getSelectedFile().getAbsoluteFile();
+			
+	        BufferedReader reader;
+			FileWriter fstream;
+
+	         
+	        try{
+	        	fstream = new FileWriter("Cluster_sorted.log", true);
+				BufferedWriter out = new BufferedWriter(fstream);
+	        	reader = new BufferedReader(new FileReader(file));
+	            String line = reader.readLine();
+	            
+	            String data1[];
+	            String data2[];
+	            String data3[];
+	            
+	            data1 = line.split(" ");
+	            line = reader.readLine();
+	            data2 = line.split(" ");
+	            line = reader.readLine();
+	            data3 = line.split(" ");
+	            
+	            for(int i = 0; i < data1.length; i++){
+	            	out.write(data1[i] + " " + data2[i] + " " + data3[i] + "\n");
+	            }
+	            //check if the log is a silent-period or a mix-zone log
+	            out.flush();
+			} catch (FileNotFoundException e) {
+			    System.err.println("FileNotFoundException: " + e.getMessage());
+			} catch (IOException e) {
+			    System.err.println("Caught IOException: " + e.getMessage());
+			}
+	    
+	       
+		}
+	        
+	}
+public void getMax(){
+		
+		//begin with selection of file
+		JFileChooser fc = new JFileChooser();
+		//set directory and ".log" filter
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileFilter(logFileFilter_);
+		
+		int status = fc.showDialog(this, Messages.getString("EditLogControlPanel.approveButton"));
+		
+		int max = 0;
+		int nullCounter = 0;
+		
+		if(status == JFileChooser.APPROVE_OPTION){
+				File file = fc.getSelectedFile().getAbsoluteFile();
+		        BufferedReader reader;
+		        
+		        try{
+		        	reader = new BufferedReader(new FileReader(file));
+		            String line = reader.readLine();
+		            
+		            String data[];
+		           
+		            //check if the log is a silent-period or a mix-zone log
+		            while(line != null){		            
+		            	data = line.split(",");
+	            			
+		            	for(int i = 0; i < data.length; i++) if(Integer.parseInt(data[i]) > max) max = Integer.parseInt(data[i]);
+		            	for(int i = 0; i < data.length; i++) if(Integer.parseInt(data[i]) == 0) nullCounter++;
+
+		            	line = reader.readLine();
+		            }
+		            
+		            System.out.println("max:" + max + " null zaehler: " + nullCounter);
+				} catch (FileNotFoundException e) {
+				    System.err.println("FileNotFoundException: " + e.getMessage());
+				} catch (IOException e) {
+				    System.err.println("Caught IOException: " + e.getMessage());
+				}
+		    
+		       
+		}
+		        
+	}
 }

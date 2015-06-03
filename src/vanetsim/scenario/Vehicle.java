@@ -570,6 +570,12 @@ public class Vehicle extends LaneObject{
 	private int amountOfLoggedBeacons_ = 0;
 	private boolean logJunctionFrequency_ = false;
 	
+	private boolean probeDataActive_ = false;
+	private int PROBE_DATA_TIME_INTERVAL = 80;
+	private int amountOfProbeData_ = 3;
+	private int startAfterTime_ = 60000;
+	private int curProbeDataInterval_ = 0;
+	
 	/**
 	 * Instantiates a new vehicle. You will get an exception if the destinations don't contain at least two <b>valid</b> elements.<br>
 	 * Elements are considered as invalid if
@@ -644,7 +650,6 @@ public class Vehicle extends LaneObject{
 			mixCheckCountdown_ = (int)Math.round(curPosition_)%MIX_CHECK_INTERVAL;
 			knownVehiclesTimeoutCountdown_ = (int)Math.round(curPosition_)%KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
 			knownPenaltiesTimeoutCountdown_ = (int)Math.round(curPosition_)%KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-		
 
 			knownRSUsTimeoutCountdown_ = (int)Math.round(curPosition_)%KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
 			speedFluctuationCountdown_ = (int)Math.round(curPosition_)%SPEED_FLUCTUATION_CHECKINTERVAL;
@@ -2928,7 +2933,19 @@ public class Vehicle extends LaneObject{
 	public void sendBeacons(){
 		beaconCountdown_ += beaconInterval_;
 		
-			
+		
+		if(probeDataActive_ && Renderer.getInstance().getTimePassed() > startAfterTime_ && amountOfProbeData_ > 0){
+			if(curProbeDataInterval_ <= 1){
+				
+				GeneralLogWriter.log(Renderer.getInstance().getTimePassed() + ":" +  curX_ + ":" +  curY_ + ":" + curSpeed_ + ":" + ID_);
+
+				curProbeDataInterval_  = PROBE_DATA_TIME_INTERVAL;
+				amountOfProbeData_--;
+			}
+			else curProbeDataInterval_--;
+		}
+
+		
 		if(isInSlow && !changedPseudonymInSlow && Renderer.getInstance().getTimePassed() >= (slowTimestamp + TIME_TO_PSEUDONYM_CHANGE - (2*beaconInterval_))){
 			changedPseudonymInSlow = true;
 			
@@ -3122,9 +3139,7 @@ public class Vehicle extends LaneObject{
 					REPORT_PANEL.addBeacon(this, ID_, curX_, curY_, curSpeed_, false);
 				}
 			}
-				
-			GeneralLogWriter.log("time:" + Renderer.getInstance().getTimePassed() + ":id:" + ID_ + ":x:" + curX_ + ":y:" +  curY_ + ":v:" +  curSpeed_); 
-			
+							
 			
 			if(logBeaconsAfterEvent_){
 				amountOfLoggedBeacons_++;
@@ -3308,7 +3323,6 @@ public class Vehicle extends LaneObject{
 	 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
 	 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
 	 						}
-	 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
 						}
 						else if(!curDirection_ && routeStreets_[routePosition_].getEndNode().getCrossingStreetsCount() > 2) {
 							tmpNode = routeStreets_[routePosition_].getEndNode();
@@ -3316,7 +3330,6 @@ public class Vehicle extends LaneObject{
 	 							if(tmpNode.getCrossingStreets()[b].equals(curStreet_)) street1 = b;
 	 							if(tmpNode.getCrossingStreets()[b].equals(routeStreets_[routePosition_])) street2 = b;
 	 						}
-	 						GeneralLogWriter.log(tmpNode.getNodeID() + ":" + street1 + ":" + street2);
 						}
 					}
 

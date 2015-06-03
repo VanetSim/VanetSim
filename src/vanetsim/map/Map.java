@@ -18,9 +18,12 @@
 package vanetsim.map;
 
 import java.awt.Color;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -1111,5 +1114,44 @@ public final class Map{
 		this.mapName_ = mapName_;
 	}
 	
+	
+	/**
+	 * displays amount of vehicles per region
+	 */
+	public void printVehiclesPerRegion(){
+		int counter = 0;
+		for(int i = 0; i < regionCountY_; ++i){
+			for(int j = 0; j < regionCountX_; ++j){
+				System.out.print(regions_[j][i].getVehicleArrayList().size() + ",");
+				counter++;
+			}
+			System.out.println();
+		}
+		
+		System.out.println("Counter: " + counter);
+	}
+	
+	/**
+	 * save vehicle coordinates to file
+	 */
+	public void saveVehicles(){
+		 FileWriter fstream;
+         try {
+			fstream = new FileWriter("vehicleCoords.log", true);
+			BufferedWriter out = new BufferedWriter(fstream);
+
+			for(int i = 0; i < regionCountY_; ++i){
+				for(int j = 0; j < regionCountX_; ++j){
+					for(Vehicle vehicle:regions_[j][i].getVehicleArrayList()) out.write(vehicle.getX() + " " + vehicle.getY() + "\n");
+				}
+			}
+			out.flush();
+ 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+	
+	}
 	
 }
