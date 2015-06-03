@@ -60,7 +60,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.gui.Renderer;
-import vanetsim.gui.helpers.VectorCanvas;
 import vanetsim.localization.Messages;
 import vanetsim.scenario.IDSProcessor;
 import vanetsim.scenario.KnownEventSource;
@@ -638,12 +637,6 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 			Renderer.getInstance().setLocationInformationMDS_(null);
 			Renderer.getInstance().ReRender(true, true);
 		}
-		else if("save".equals(command)){
-			if(Renderer.getInstance().getLocationInformationMDS_() != null){
-				VectorCanvas.saveCanvas(Renderer.getInstance().getLocationInformationMDS_(), Renderer.getInstance().getMDSMode_(), Renderer.getInstance().getDrawWidth_(), Renderer.getInstance().getDrawHeight_());
-			}
-		}
-		
 	}
 	
 	public void updateList(String list, String value){

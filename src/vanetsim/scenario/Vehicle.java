@@ -570,7 +570,7 @@ public class Vehicle extends LaneObject{
 	private int amountOfLoggedBeacons_ = 0;
 	private boolean logJunctionFrequency_ = false;
 	
-	private boolean probeDataActive_ = true;
+	private boolean probeDataActive_ = false;
 	private int PROBE_DATA_TIME_INTERVAL = 80;
 	private int amountOfProbeData_ = 3;
 	private int startAfterTime_ = 60000;
@@ -856,7 +856,6 @@ public class Vehicle extends LaneObject{
 	 */
 
 	public void adjustSpeed(int timePerStep){
-		if(Renderer.getInstance().getMarkedVehicle() != null && Renderer.getInstance().getMarkedVehicle() .equals(this)) System.out.println(this.curRegion_.getX() + ":" + this.curRegion_.getY());
 		waitingForSignal_ = false;
 		if(curWaitTime_ != 0 && curWaitTime_ != Integer.MIN_VALUE){
 			if(curWaitTime_ <= timePerStep){

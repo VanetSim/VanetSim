@@ -660,7 +660,7 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 			//logPercentage();
 			//makejobs();
 			//reorderData();
-			getMax();
+			//getMax();
 			//accumulateKnownVehiclesTimeFiles();
 			//ResearchSeriesDialog.getInstance().setVisible(true);
 			//calculateAngles();
