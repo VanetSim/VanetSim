@@ -352,12 +352,10 @@ public class EditOneVehicleControlPanel extends JPanel implements ActionListener
 		++c.gridy;
 		add(label,c);
 		fakeMessagesTypes_ = new JComboBox<String>();
-		//fakeMessagesTypes_.setName("fakeMessagesTypes");
 
 		fakeMessagesTypes_.addItem(Messages.getString("EditVehicleControlPanel.all"));
 		for(int i = 0; i < IDSProcessor.getIdsData_().length; i++) fakeMessagesTypes_.addItem(IDSProcessor.getIdsData_()[i]);
-			//if(!IDSProcessor.getIdsData_()[i].equals("PCN_FORWARD")) 	
-		//fakeMessagesTypes_.addActionListener(this);
+
 		c.gridx = 1;
 		add(fakeMessagesTypes_, c);
 		

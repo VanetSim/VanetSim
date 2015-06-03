@@ -24,24 +24,28 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-/**
- * @author andreastomandl
- *
- */
+
 public class Cluster {
+	/** id of the cluster */
 	private String clusterID_;
 	
+	/** event type the cluster represents */
 	private String eventType_;
+	
+	/** min max values of the map */
 	private int minX_ = Integer.MAX_VALUE;
 	private int minY_ = Integer.MAX_VALUE;
 	private int maxX_ = 0;
 	private int maxY_ = 0;
+	
+	/** size of the cluster */
 	private int size_ = 0;
+	
+	/** color of the cluster */
 	private Color clusterColor = Color.black;
 
+	/** coordinates of the cluster map */
 	private ArrayList<Integer> xCoords_ = new ArrayList<Integer>();
-
-
 	private ArrayList<Integer> yCoords_ = new ArrayList<Integer>();
 
 	
@@ -66,11 +70,7 @@ public class Cluster {
 			while ((strLine = br.readLine()) != null) {
 				if(strLine.equals(searchKey)) found = true;
 				
-				if(found){			
-					//System.out.println(strLine):
-
-					
-				
+				if(found){								
 					splitLine = strLine.split(",");
 					
 					if(splitLine[splitLine.length-1].equals("cluster" + clusterID_)){

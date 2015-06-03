@@ -46,9 +46,6 @@ public class KnownEventSourcesList{
 	/** Save the time between updates */
 	private int timeBetweenUpdates = 0; 
 	
-	/** the id of the vehicle this structure belongs to*/
-	//private long ID_ = 0;
-	
 	/** variable to save spamCounters */
 	private int spamCount = 0;
 	
@@ -56,7 +53,6 @@ public class KnownEventSourcesList{
 	 * Empty constructor.
 	 */
 	public KnownEventSourcesList(long ID){
-		//ID_ = ID;
 		for(int i = 0; i < HASH_SIZE; ++i){
 			head_[i] = null;
 		}
@@ -82,9 +78,6 @@ public class KnownEventSourcesList{
 		
 		while(next != null){
 			if(next.getID() == ID){	// update of entry possible
-				//if(timePassed_ > 59999)GeneralLogWriter.log(timePassed_ + ":" + ID + ":update");
-				//GeneralLogWriter.log(timePassed_ + ":" + ID + ":update");
-
 				updatedSources++;
 				next.setX(x);
 				next.setY(y);
@@ -103,8 +96,6 @@ public class KnownEventSourcesList{
 		}					
 		
 		if(!found){
-			//GeneralLogWriter.log(timePassed_ + ":" + ID + ":create");
-			//if(timePassed_ > 59999)GeneralLogWriter.log(timePassed_ + ":" + ID + ":create");
 			createdSources++;
 			next = new KnownEventSource(vehicle, ID, x, y, speed, timePassed_, isFake);
 			next.setNext(head_[hash]);
@@ -168,9 +159,6 @@ public class KnownEventSourcesList{
 	 * Clears everything from this data structure.
 	 */
 	public void clear(){
-		//activate this for fluctuation measurements
-		//writeOutputFile();
-		
 		//activate this for spam measurements
 		writeSpam();
 		head_ = new KnownEventSource[HASH_SIZE];
@@ -195,7 +183,6 @@ public class KnownEventSourcesList{
 			}
 		}	
 		if(output.length() > 0) GeneralLogWriter.log("***:" + output.subSequence(0, (output.length()-1)));
-		//else GeneralLogWriter.log("***:" + output);
 	}
 	
 	/**

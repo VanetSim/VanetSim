@@ -350,7 +350,6 @@ public class EditTrafficLightsControlPanel extends JPanel implements ActionListe
 				int tmpGreenPhaseLength = ((Number)redGreenPhaseLength_.getValue()).intValue() + ((Number)crossingPriorityDifferenceLength_.getValue()).intValue();
 				if(tmpRedPhaseLength != 0 && tmpYellowPhaseLength != 0 &&  tmpGreenPhaseLength != 0){
 					//create new TrafficLight object
-					//Renderer.getInstance().getMarkedJunction_().getNode().setTrafficLight_(new TrafficLight(Renderer.getInstance().getMarkedJunction_()));
 					actualJunction_.getNode().setTrafficLight_(new TrafficLight(tmpRedPhaseLength, tmpYellowPhaseLength, tmpGreenPhaseLength, actualJunction_));
 					actualJunction_.getNode().setHasTrafficSignal_(true);
 					Renderer.getInstance().ReRender(true, false);

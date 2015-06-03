@@ -19,15 +19,11 @@ package vanetsim.gui.helpers;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map.Entry;
-
-import vanetsim.gui.Renderer;
 
 /**
  * @author andreastomandl
@@ -139,9 +135,11 @@ public class AnonymizeLogHelper {
             
             int successCount = 0;
             int failCount = 0;
-            int counter = 0;
             
-            double factorToRealVehicle = 0;
+            double calibration = 1.1;
+            
+            @SuppressWarnings("unused")
+			double factorToRealVehicle = 0;
             
             //check if the log is a silent-period or a mix-zone log
             while(line != null){
@@ -165,10 +163,8 @@ public class AnonymizeLogHelper {
             
             skipLine = savedSkipLine;
             
-            //System.out.println("all vehicles read");
             
             for(String vehicleLine:vehicleAttacked){
-            	//System.out.println("attacking " + vehicleLine + " wish me luck!");
             	
             	reader = new BufferedReader(new FileReader(inputFile));
                 line = reader.readLine();
@@ -182,14 +178,12 @@ public class AnonymizeLogHelper {
                     	
                     	//second beacon found
                     	if(data[idIndex].equals(data2[idIndex]) && Integer.parseInt(data2[timestampId]) > Integer.parseInt(data[timestampId])){
-                    		//System.out.println("second Beacon found");
                     		//time between beacons
                     		
                     		timeBetweenBeacons = Integer.parseInt(data2[timestampId]) - Integer.parseInt(data[timestampId]);
                     				
                     		//calculate expected way
-                            expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]))*1.1;
-                         //   expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]));
+                            expectedWay = (double)(timeBetweenBeacons/1000 * Double.parseDouble(data[speedId]))*calibration;
 
                             
                             //coords
@@ -220,7 +214,6 @@ public class AnonymizeLogHelper {
                 
                 savedFactor = 999999999;
             	
-                //System.out.println("looking for closest vehile to calculated point" + savedFactor);
             	
             	reader = new BufferedReader(new FileReader(inputFile));
                 line = reader.readLine();
@@ -252,23 +245,20 @@ public class AnonymizeLogHelper {
                 }
                 
                 if(data[idIndex].equals(savedID)){
-                	//System.out.println("erfolg :-)" + successCount + ":" + failCount + ":::" + factorToRealVehicle + "<->" + savedFactor);
                 	successCount++;
                 }
                 else{
-                	//System.out.println("buhuu :-( " + successCount + ":" + failCount + ":::" + factorToRealVehicle + "<->" + savedFactor);
                 	failCount++;
                 }
-            	counter++;
-            	//if(counter%1000 == 0)System.out.println(counter + ":" + successCount + ":" + failCount);
             }
         	System.out.println(successCount + ":" + failCount + ":x:BTI:" + beaconIntervalTime + " Name:" + inputFile);
         	
-        	 FileWriter fstream;
-             fstream = new FileWriter("attackResult.log", true);
+        	FileWriter fstream;
+            fstream = new FileWriter("attackResult.log", true);
  			BufferedWriter out = new BufferedWriter(fstream);
  			out.write(successCount + ":" + failCount + " :BTI:" + beaconIntervalTime + " Name:" + inputFile + "\n");
  			out.flush();
+ 			out.close();
 
 		} catch (FileNotFoundException e) {
 		    System.err.println("FileNotFoundException: " + e.getMessage());

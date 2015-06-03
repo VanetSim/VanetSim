@@ -148,10 +148,6 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 	
 	/** the delete button */
 	private static JButton scenarioApplyButton_;
-	
-	
-	/** a flag if the current job is ready */
-	//private boolean jobIsReady_ = false;
 
 	/** a ArrayList of all buttons of the selectproperty mode */
 	private static ArrayList<JButton> buttonList_ = new ArrayList<JButton>();
@@ -512,7 +508,6 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 		fakeMessagesTypes_.addItem(Messages.getString("EditVehicleControlPanel.all"));
 		for(int i = 0; i < IDSProcessor.getIdsData_().length; i++) if(!IDSProcessor.getIdsData_()[i].equals("PCN_FORWARD"))fakeMessagesTypes_.addItem(IDSProcessor.getIdsData_()[i]);
 		
-		//fakeMessagesTypes_.addActionListener(this);
 		c.gridx = 1;
 		add(fakeMessagesTypes_, c);
 		
@@ -715,7 +710,6 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 					ErrorLog.log(Messages.getString("EditVehicleControlPanel.createdRandomVehicles") + i + " (" + amountValue +Messages.getString("EditVehicleControlPanel.requested"), errorLevel, getClass().getName(), "actionPerformed", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					VanetSimStart.setProgressBar(false);
 					Renderer.getInstance().ReRender(false, false);
-					//jobIsReady_ = true;
 				}
 			};
 			new Thread(job).start();
@@ -785,8 +779,6 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 			int maxPoliteness = ((Number)maxPoliteness_.getValue()).intValue();
 			int vehiclesDeviatingMaxSpeed = ((Number)vehiclesDeviatingMaxSpeed_.getValue()).intValue();
 			int deviationFromSpeedLimit = ((Number)deviationFromSpeedLimit_.getValue()).intValue();
-			//int deviationFromSpeedLimit = (int)Math.round(((Number)deviationFromSpeedLimit_.getValue()).intValue() * 100000.0/3600);
-			//int speedDeviation = 0;
 			int wiFiValue = ((Number)wiFi_.getValue()).intValue();
 			int emergencyValue = ((Number)emergencyVehicle_.getValue()).intValue();
 			int speedRestriction = (int)Math.round(((Number)speedStreetRestriction_.getValue()).intValue() * 100000.0/3600);
@@ -866,9 +858,6 @@ public class EditVehicleControlPanel extends JPanel implements ActionListener, M
 	 * Mouse listener used to open JColorChooser dialog when colorPreview Panel is clicked
 	 */
 	public void mouseClicked(MouseEvent e) {
-	//	if(colorPreview_.getBackground().equals(Color.black)) colorPreview_.setBackground(Color.red);
-		//else if(colorPreview_.getBackground().equals(Color.red)) colorPreview_.setBackground(Color.blue);
-		//else if(colorPreview_.getBackground().equals(Color.blue)) colorPreview_.setBackground(Color.black);
 		Color color = JColorChooser.showDialog(this, Messages.getString("EditOneVehicleControlPanel.color"), colorPreview_.getBackground());
 		
 		if(color == null)colorPreview_.setBackground(Color.black);

@@ -674,7 +674,6 @@ public final class Renderer{
 
 			// draw all nodes coloured to aid editing (only when editing streets and near enough)
 			if(highlightAllNodes_ && zoom_ > 0.0012){
-				//g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 				Node[] nodes;
 				Node node;
 				for(i = regionMinX_; i <= regionMaxX_; ++i){
@@ -860,7 +859,7 @@ public final class Renderer{
 			panCountY_ = 0;
 
 			// fill background
-			//FIXME
+			//FIXME change for black white mode
 			g2d.setColor(new Color(230,230,230));
 			//g2d.setColor(Color.white);
 			
@@ -880,7 +879,7 @@ public final class Renderer{
 			// paint outline of map
 			if(!antialias) g2d.setPaint(Color.gray);
 			else g2d.setPaint(Color.black);
-			//fixme
+			//FIXME change for black white mode
 			g2d.drawRect(0, 0, map_.getMapWidth(), map_.getMapHeight());
 
 			
@@ -990,7 +989,7 @@ public final class Renderer{
 				}
 				Iterator<Integer> iterator = layers.keySet().iterator();
 				int key;
-				//FIXME
+				//FIXME change for black white mode
 				g2d.setPaint(Color.black);
 				//g2d.setPaint(Color.white);
 				g2d.setStroke(lineBackground_);
@@ -999,7 +998,7 @@ public final class Renderer{
 					key = iterator.next();
 					if(key == 2) g2d.setStroke(lineBackground_);
 					else g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*key+90,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
-					//fixme
+					//FIXME change for black white mode
 					g2d.draw(layers.get(key));
 				}
 			}
@@ -1020,7 +1019,7 @@ public final class Renderer{
 								startNode = street.getStartNode();		//saves some function calls
 								endNode = street.getEndNode();
 								if(antialias){
-									//fixme
+									//FIXME change for black white mode
 									if(street.isOneway()) totalLanes = street.getDisplayColor().getRGB()*100 - street.getLanesCount();
 									else totalLanes = street.getDisplayColor().getRGB()*100 - (2*street.getLanesCount());
 								} else totalLanes = street.getDisplayColor().getRGB();							
@@ -1047,7 +1046,7 @@ public final class Renderer{
 			while(coloriterator.hasNext()){
 				key = coloriterator.next();
 				if(antialias){
-					//Fixme
+					//FIXME change for black white mode
 					drawColor = new Color(key/100);
 					//drawColor = Color.white;
 					lanes = -key+(key/100*100);
@@ -1057,10 +1056,10 @@ public final class Renderer{
 					g2d.setStroke(lineMain_);
 					drawColor = new Color(Math.max((int)(((key >> 16) & 0xFF) *0.8), 0), Math.max((int)(((key >> 8) & 0xFF)*0.8), 0), Math.max((int)(((key >> 0) & 0xFF)*0.8), 0));	//simulate colors like if they were with antialias (darker)!
 				}
-				//FIXME
+				//FIXME change for black white mode
 				//drawColor = Color.black;
 				g2d.setPaint(drawColor);	
-				//FIXME
+				//FIXME change for black white mode
 				g2d.draw(layers.get(key));
 			}
 			// If the zoom is near enough, do a correction to display bridges more accurately (though not perfect as intersection calculation
@@ -1095,12 +1094,12 @@ public final class Renderer{
 										MapHelper.calculateResizedLine(start, end, correction, correctStart, correctEnd);
 										//paint the now shorter line completely
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes+90,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER));
-										//FIXME
+										//FIXME change for black white mode
 										//g2d.setColor(Color.black);
 										g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
 										g2d.setStroke(new BasicStroke(Map.LANE_WIDTH*totalLanes,BasicStroke.CAP_ROUND,BasicStroke.JOIN_MITER));
-										//fixme
+										//FIXME change for black white mode
 										g2d.setColor(street.getDisplayColor());
 										//g2d.setColor(Color.white);
 										g2d.drawLine(start[0], start[1], end[0], end[1]);
@@ -1121,7 +1120,7 @@ public final class Renderer{
 								//Step 2.1: Paint intersections which consist of 4 intersection points
 								paintArrayList = street.getBridgePaintPolygons();
 								if(paintArrayList != null){		
-									//fixme
+									//FIXME change for black white mode
 									//g2d.setColor(Color.white);
 									g2d.setColor(street.getDisplayColor());
 									for(l = 3; l < paintArrayList.size(); l= l+4){
@@ -1156,7 +1155,7 @@ public final class Renderer{
 										g2d.fillPolygon(xPoints, yPoints, 4);			
 									}
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
-									//fixme
+									//FIXME change for black white mode
 									//g2d.setColor(Color.black);
 									g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){
@@ -1171,7 +1170,7 @@ public final class Renderer{
 								paintArrayList = street.getBridgePaintLines();
 								if(paintArrayList != null){									
 									g2d.setStroke(new BasicStroke(45,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER));
-									//FIXME
+									//FIXME change for black white mode
 									//g2d.setColor(Color.black);
 									g2d.setColor(Color.white);
 									for(l = 1; l < paintArrayList.size(); l= l+2){

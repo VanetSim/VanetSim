@@ -128,7 +128,6 @@ public class KnownPenalties{
 			if(streets_[i] == street && directions_[i] == direction && isFake_[i] == isFake && penaltyType_[i] == penaltyType){	// update existing value
 				found = true;
 				if(penalties_[i] != penalty) otherPenaltyValue = true;
-				//if(penaltyType_[i] != penaltyType) otherPenaltyValue = true;
 				penalties_[i] = penalty;
 				validUntil_[i] = validUntil;
 				isFake_[i] = isFake;
@@ -234,7 +233,6 @@ public class KnownPenalties{
 			//** change event logger to do k-means analysis
 			if(logEvents_) EventLogWriter.log(Renderer.getInstance().getTimePassed() + "," + penaltyType + "," + x + "," + y + "," + ID + "," + vehicle_.getID());
 
-			//if(logEvents_) EventLogWriter.log(Renderer.getInstance().getTimePassed() + ":PenaltyType:" + penaltyType + ":x:" + x + ":y:" + y + ":Sender:" + ID + ":Receiver:" + vehicle_.getID());
 			//lets check if it is a false message
 			if(Vehicle.isIdsActivated() && ruleActive){
 				if(vehicle_.getID() != ID){
@@ -288,31 +286,20 @@ public class KnownPenalties{
 						routeUpdateNecessary_[size-1] = true;
 						vehicle_.calculateRoute(true, true);
 					}
-					
-					
-					//long tmp1 = street.getStartNode().getX() - x;
-				//	long tmp2 = street.getStartNode().getY() - y;
-				//	for(int j = 1; j <= street.getLanesCount(); ++j){
-					//	if(createBlocking)vehicle_.getTmpBlockings().add(new BlockingObject(j, direction < 1 ? true : false, street, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), penaltyType, (Renderer.getInstance().getTimePassed() + 10000)));
-				//	}
+
 				}
 				
 			}	
 			if(found && penaltyType.equals("HUANG_RHCN")  && !vehicle_.isFakingMessages() && vehicle_.getID() != ID){
 				if(!Vehicle.isIdsActivated() || !activateIDS){
-					//long tmp1 = street.getStartNode().getX() - x;
-					//long tmp2 = street.getStartNode().getY() - y;
-					
-					
+
 					try{
 						StartBlocking start = new StartBlocking(Renderer.getInstance().getTimePassed(), x_[0], y_[0], direction, 20, false, "HUANG_RHCN");
 						EventList.getInstance().addEvent(start); //$NON-NLS-1$	
 						EventList.getInstance().addEvent(new StopBlocking(Renderer.getInstance().getTimePassed() + 10000, x_[0], y_[0], start)); //$NON-NLS-1$
 					}
 					catch(Exception e){e.printStackTrace();}
-					//for(int j = 1; j <= street.getLanesCount(); ++j){
-					//	vehicle_.getTmpBlockings().add(new BlockingObject(j, direction < 1 ? true : false, street, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), penaltyType, (Renderer.getInstance().getTimePassed() + 10000), x_[0], y_[0]));
-					//}
+
 
 				}
 
@@ -321,18 +308,7 @@ public class KnownPenalties{
 			if(found && penaltyType.equals("HUANG_EEBL") && !vehicle_.isFakingMessages() && vehicle_.getID() != ID){
 				if(!Vehicle.isIdsActivated() || !activateIDS){
 					//braking not needing because the event spot handles this now
-					/*
-					long tmp1 = street.getStartNode().getX() - x;
-					long tmp2 = street.getStartNode().getY() - y;
-				
-					try{
-						StartBlocking start = new StartBlocking(Renderer.getInstance().getTimePassed(), x_[0], y_[0], direction, lane_[0], false, "HUANG_EEBL");
-						EventList.getInstance().addEvent(start); //$NON-NLS-1$	
-						EventList.getInstance().addEvent(new StopBlocking(Renderer.getInstance().getTimePassed() + 2000, x_[0], y_[0], start)); //$NON-NLS-1$
-					}
-					catch(Exception e){e.printStackTrace();}
-					*/
-					//vehicle_.getTmpBlockings().add(new BlockingObject(lane, direction < 1 ? true : false, street, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), penaltyType, (Renderer.getInstance().getTimePassed() + 2000), x_[0], y_[0]));
+
 				}
 			}
 		}

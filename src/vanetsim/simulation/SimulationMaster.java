@@ -106,7 +106,6 @@ public final class SimulationMaster extends Thread{
 	
 	/** the header of the general log writer */
 	private String generalLogWriterHeader_ = "timestamp:x:y:v:id";
-	//private String generalLogWriterHeader_ = "EventType,Attack,x1,y1,v1,x2,y2,v2,x3,y3,v3,x4,y4,v4,x5,y5,v5,x6,y6,v6,x7,y7,v7,x8,y8,v8,x9,y9,v9,x10,y10,v10";
 
 	
 	/**
@@ -313,13 +312,7 @@ public final class SimulationMaster extends Thread{
 					renderer.setTimePassed(time);		
 					KnownEventSourcesList.setTimePassed(time);
 					if(eventSpotCountdown_ < time) eventSpotCountdown_ = EventSpotList.getInstance().doStep(time);
-
-					
-					//GeneralLogWriter.setLogPath(System.getProperty("user.dir"));
-					
-					
-					
-					
+									
 					if(!jumpTimeMode_){
 						
 						renderer.ReRender(false, true);
@@ -358,10 +351,7 @@ public final class SimulationMaster extends Thread{
 								}
 								System.out.println("\n" + IDSProcessor.getReport());
 									
-								//System.out.println("FN: " + IDSProcessor.counterFakeNegativ + " FP: " + IDSProcessor.counterFakePositiv + " TN:" + IDSProcessor.counterTrueNegativ + " TP:" + IDSProcessor.counterTruePositiv);
-								//createAndSaveSpamData();
-								//writeAverageKnownVehiclesTime();
-								//vehicleFluctuation();
+
 								System.exit(0);
 							}
 							if(!consoleStart){
@@ -505,7 +495,6 @@ public final class SimulationMaster extends Thread{
 		}
 		
 		//get the creates and updates per event
-		//String output = "timestamp new update\n";
 		for(String senderID:theIDs){
 			fstream = new FileInputStream(GeneralLogWriter.getFile_());
 			// Get the object of DataInputStream
@@ -533,9 +522,7 @@ public final class SimulationMaster extends Thread{
 							if(lineSplit != null && lineSplit.length > 2){
 								
 								if(tmpTime >= (timestamp + 1000)){	
-									
-									//output += (timestamp + " " + createCounter + " " + updateCounter + "\n");
-									
+																		
 									//write results in array
 									//if vehicles near by are 0 skip:
 									if(createCounter > 0 || updateCounter > 0){
@@ -567,7 +554,6 @@ public final class SimulationMaster extends Thread{
 									while(tmpTime >= (timestamp + 1000 + fakeMessageInterval)){
 									
 										timestamp += (fakeMessageInterval + 40);
-										//output += (timestamp + " " + createCounter + " " + updateCounter + "\n");
 									}
 									timestamp = tmpTime;
 									
@@ -670,14 +656,12 @@ public final class SimulationMaster extends Thread{
 	public void createAndSaveSpamData(){
 		int spamAmount = 0;
 		int fakeMessageCounter = 0;
-		//int bugCounter = 0;
-		//int messageSendCount = 0;
+
 		Region[][] Regions = Map.getInstance().getRegions();
 		int Region_max_x = Map.getInstance().getRegionCountX();
 		int Region_max_y = Map.getInstance().getRegionCountY();
 		int i, j;
 		
-	
 		//get array size
 		for(i = 0; i < Region_max_x; ++i){
 			for(j = 0; j < Region_max_y; ++j){
@@ -687,13 +671,11 @@ public final class SimulationMaster extends Thread{
 					vehicle.getKnownEventSourcesList_().clear();
 					spamAmount += vehicle.getKnownEventSourcesList_().getSpamCount();
 					fakeMessageCounter += vehicle.getFakeMessagesCreated_();
-					//bugCounter += vehicle.getKnownPenalties().getBugCounter();
 				}		
 			}
 		}
 		
 		
-	//	writeToFile("Fake Messages:" + fakeMessageCounter + ":SpamDectected:" + spamAmount, System.getProperty("user.dir"), Scenario.getInstance().getScenarioName() + "_spammerData.txt");
 		try {
 			writeToFile("Fake Messages:" + fakeMessageCounter + ":SpamDectected:" + spamAmount, System.getProperty("user.dir"), "_spammerData_" + Scenario.getInstance().getScenarioName().substring(0, (Scenario.getInstance().getScenarioName().length() - 4)) + ".txt");
 		} catch (Exception e) {

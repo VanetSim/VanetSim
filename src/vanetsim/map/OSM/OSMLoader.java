@@ -122,7 +122,6 @@ public final class OSMLoader{
 			SMInputCursor rootCrsr = SMInputFactory.rootElementCursor(sr);
 			rootCrsr.getNext();
 			
-			//ArrayList<String> tmpList = new ArrayList<String>();
 			if(rootCrsr.getLocalName().toLowerCase().equals("osm") && (rootCrsr.getAttrValue("version").equals("0.5") || rootCrsr.getAttrValue("version").equals("0.6"))){	// only accept version 0.5 and 0.6 because other versions might have changed XML syntax! //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				SMInputCursor childCrsr = rootCrsr.childElementCursor();
 				while (childCrsr.getNext() != null){
@@ -157,9 +156,6 @@ public final class OSMLoader{
 										
 										if (key.equals("amenity")){
 											if(value.equals("school")  || value.equals("hospital")|| value.equals("police") || value.equals("fire_station") || value.equals("kindergarten")) amenityNodes.add(new OSMNode(latitude, longitude, value));
-
-											// || value.equals("driving_school") 
-											// 
 										}
 									}
 								}
@@ -237,7 +233,6 @@ public final class OSMLoader{
 													maxspeed = 130*100000/3600;
 												}
 											} else if(value.equals("motorway_link")){ //$NON-NLS-1$
-												//if(onewaySet == false) isOneway = 1;	//actually, some OSM tools like Java OpenStreetMap (as of Aug. 2008) automatically set oneway but it's wrong according to http://wiki.openstreetmap.org/index.php/Tag:highway%3Dmotorway_link (link last visited: 20.09.2008)
 												displayColor = new Color(117,146,185);	//blue
 												if(maxspeedSet == false){
 													maxspeed = 70*100000/3600;

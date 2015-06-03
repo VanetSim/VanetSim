@@ -19,7 +19,6 @@ package vanetsim.scenario;
 
 import vanetsim.gui.Renderer;
 import vanetsim.gui.helpers.AttackLogWriter;
-import vanetsim.gui.helpers.GeneralLogWriter;
 
 /**
  * A list of all known vehicles which was discovered through beacons. In contrast to the KnownPenalties-
@@ -59,7 +58,6 @@ public class KnownVehiclesList{
 		}
 	}
 	
-	private boolean logKnownTime = false;
 	/**
 	 * Update a vehicle or add it if it doesn't exist yet.
 	 * 
@@ -92,7 +90,6 @@ public class KnownVehiclesList{
 				
 				next.setX(x);
 				next.setY(y);
-				//next.setLastUpdate(timePassed_+VALID_TIME);
 				next.setLastUpdate(timePassed_);
 				next.setSpeed(speed);
 				next.setEncrypted_(isEncrypted);
@@ -142,8 +139,6 @@ public class KnownVehiclesList{
 			next = head_[i];
 			while(next != null){
 				if(next.getLastUpdate() < timeout){ // remove!
-					//if(logKnownTime)GeneralLogWriter.log(String.valueOf(next.getLastUpdate() - next.getFirstContact_()));
-
 					if(next.getNext() != null) next.getNext().setPrevious(next.getPrevious());
 					if(next.getPrevious() != null) next.getPrevious().setNext(next.getNext());
 					else { //it is the head!

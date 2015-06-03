@@ -69,17 +69,12 @@ public class IDSProcessor{
 	private double[] speed_;
 	private int AMOUNT_OF_BEACONS_LOGGED = 16;
 	private boolean isFake_;
-	//private boolean debug = false;
-	//private boolean emergencyVehicle_;
 	private Street street_;
-	//private boolean direction_;
 	private int directionAsNumber_;
 	private static int[] falsePositiv = new int[6];
 	private static int[] falseNegativ = new int[6];
 	private static int[] truePositiv = new int[6];
 	private static int[] trueNegativ = new int[6];
-	//private KnownVehicle knownVehicle_;
-	//private boolean createBlocking_;
 	private Vehicle penaltySourceVehicle_;
 	
 	private static int PCNDistance_ = 625;
@@ -104,7 +99,6 @@ public class IDSProcessor{
 	private int loggingType_ = 1;
 	
 	/** A JList to save all available IDS rules **/
-	//private static String[] idsData_ = {"HUANG_EEBL", "HUANG_PCN", "HUANG_RHCN", "HUANG_RFN", "HUANG_SVA", "HUANG_CCW", "HUANG_CVW", "HUANG_CL", "HUANG_EVA"};
 	private static String[] idsData_ = {"HUANG_EEBL", "HUANG_PCN", "PCN_FORWARD", "HUANG_RHCN", "HUANG_EVA_FORWARD", "EVA_EMERGENCY_ID"};
 	
 	private static boolean logIDS_ = true;
@@ -113,15 +107,10 @@ public class IDSProcessor{
 	
 	/** the vehicle this structure belongs to */
 	private Vehicle vehicle_;
-	
-	/** the x coordinate of the receiver on message reception */
-	//private int oldX_;
-	
-	/** the y coordinate of the receiver on message reception */
-	//private int oldY_;
 
 	/** a flag to start in classic HUANG mode (eebl and rhcn) are with static distances */
 	private boolean classicMode_ = false;
+	
 	/**
 	 * Instantiates a new known vehicle.
 	 * 
@@ -140,14 +129,9 @@ public class IDSProcessor{
 		sourceVehicle_ = sourceVehicle;
 		ID_ = ID;
 		rule_ = rule;
-		//sourceX_ = x;
-		//sourceY_ = y;
 		isFake_ = isFake;
-		//emergencyVehicle_ = emergencyVehicle;
 		street_ = street;
 		directionAsNumber_ = direction;
-		//if(direction < 1) direction_ = true;
-		//else direction_ = false;
 		
 		lane_ = new int[AMOUNT_OF_BEACONS_LOGGED];
 		x_ = new int[AMOUNT_OF_BEACONS_LOGGED];
@@ -155,7 +139,6 @@ public class IDSProcessor{
 		sourceX_ = x;
 		sourceY_ = y;
 		speed_ = new double[AMOUNT_OF_BEACONS_LOGGED];
-		//createBlocking_ = createBlocking;
 		penaltySourceVehicle_ = penaltySourceVehicle;
 	
 		
@@ -165,10 +148,6 @@ public class IDSProcessor{
 			y_[i] = -1;
 			speed_[i] = -1;
 		}
-		
-		//oldX_ = thisVehicle.curX_;
-		//oldY_ = thisVehicle.curY_;
-		
 		
 		if(loggingType_ > 1)writeLog(sourceVehicle_.getID() +  ":Monitoring:" + monitoredVehicleID_ + ":for:" + rule_);
 	}
@@ -243,18 +222,6 @@ public class IDSProcessor{
 		
 		
 		if(rule_.equals("HUANG_PCN")){		
-			
-
-			//(advancedAttackRules_ && timeStanding[0] < 14) && 
-		//			if((advancedAttackRules_ && (timeStanding[0] < 2 && timeStanding[0] < timeStanding[1])) ||  (!(advancedAttackRules_ && ((timeStanding[0]  - beaconsWithZeroSpeed) > 8)) && (PCNDistance_ < distance)) || (advancedAttackRules_ && ((timeStanding[1]  - 8)  == timeStanding[0]))){
-//			if((advancedAttackRules_ && (timeStanding[0] - beaconsWithZeroSpeed < (timeStanding[1] - AMOUNT_OF_BEACONS_LOGGED - 4))) || !(advancedAttackRules_ && ((timeStanding[1]  - AMOUNT_OF_BEACONS_LOGGED -2)  < timeStanding[0])) &&  (PCNDistance_ < distance)){
-//((advancedAttackRules_ && (timeStanding[0] - beaconsWithZeroSpeed) < 5) && 
-			//if(speed_[0] == 0)System.out.println("timeStanding: " + timeStanding[0] + ":" + timeStanding[1] + " und ist fake: " + isFake_);
-			
-			//			if((!(advancedAttackRules_ && ((timeStanding[0] - beaconsWithZeroSpeed) > (timeStanding[1] - AMOUNT_OF_BEACONS_LOGGED - 2))) && ((timeStanding[0] - beaconsWithZeroSpeed) < 6) || (PCNDistance_ < distance))){
-//			if((!(advancedAttackRules_ && ((timeStanding[0] - beaconsWithZeroSpeed) > (timeStanding[1] - AMOUNT_OF_BEACONS_LOGGED - 2))) && ((advancedAttackRules_ && (timeStanding[0] - beaconsWithZeroSpeed) < 6)) || (PCNDistance_ < distance))){
-//(advancedAttackRules_ && (timeStanding[0] - beaconsWithZeroSpeed) < 6)) || 
-			// && (!(advancedAttackRules_ && ((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1))) && )))
 			dx = x_[0] -  x_[(lastLoggedBeacon-1)];
 			dy = y_[0] -  y_[(lastLoggedBeacon-1)];
 			
@@ -266,7 +233,6 @@ public class IDSProcessor{
 				//we do not need the last one
 				for(int i = 0; i < AMOUNT_OF_BEACONS_LOGGED-1; i++) if(speed_[i] == 0) beaconsWithZeroSpeed++;
 				int[] timeStanding = vehicle_.getKnownVehiclesList().hasBeenSeenWaitingFor(monitoredVehicleID_);
-				//if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && 100 < distance)){
 				if((timeStanding[0] - beaconsWithZeroSpeed) < (timeStanding[1] - (AMOUNT_OF_BEACONS_LOGGED-1)) || (timeStanding[0] == 0 && PCNDistance_ < distance)){
 
 					if(loggingType_ > 0){
@@ -277,7 +243,6 @@ public class IDSProcessor{
 					if(isFake_) truePositiv[0]++;
 					else falsePositiv[0]++;
 					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 					return rule_;
 				}
 				else{
@@ -313,18 +278,6 @@ public class IDSProcessor{
 					}
 					
 					
-				//	sourceVehicle_.calculateRoute(true, true);
-					/*
-					if(isFake_){
-						long tmp1 = street_.getStartNode().getX() - x_[0];
-						long tmp2 = street_.getStartNode().getY() - y_[0];
-						for(int i = 1; i <= street_.getLanesCount(); ++i){
-							//if(createBlocking_)sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-						}	
-					}
-					*/
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
 					return "";
 					
 				}
@@ -343,7 +296,6 @@ public class IDSProcessor{
 					if(isFake_) truePositiv[0]++;
 					else falsePositiv[0]++;
 					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 					return rule_;
 				}
 				else{
@@ -378,16 +330,6 @@ public class IDSProcessor{
 					if(found){
 						vehicle_.calculateRoute(true, true);
 					}
-					/*
-					if(isFake_){
-						long tmp1 = street_.getStartNode().getX() - x_[0];
-						long tmp2 = street_.getStartNode().getY() - y_[0];
-						for(int i = 1; i <= street_.getLanesCount(); ++i){
-							//if(createBlocking_)sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-						}	
-					}
-					*/
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 
 					return "";
 					
@@ -398,15 +340,6 @@ public class IDSProcessor{
 		else if(rule_.equals("PCN_FORWARD")){
 			if(lastLoggedBeacon < 2) return "";
 			
-			//dx = x_[0] -  x_[1];
-		//	dy =  y_[0] -  y_[1];
-			
-		//	double firstSpeed = speed_[0];
-			
-		//	dx = x_[(lastLoggedBeacon-2)] -  x_[(lastLoggedBeacon-1)];
-		//	dy =  y_[(lastLoggedBeacon-2)] -  y_[(lastLoggedBeacon-1)];
-			
-		//	double lastSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
 			double ratio = 0;
 			if(speed_[0] != 0) ratio = (speed_[lastLoggedBeacon-1]/speed_[0]);
 			
@@ -418,9 +351,6 @@ public class IDSProcessor{
 				if(isFake_) truePositiv[1]++;
 				else falsePositiv[1]++;
 				
-				//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
-
-				
 				return rule_;
 			}
 			else{
@@ -430,30 +360,12 @@ public class IDSProcessor{
 				else falseNegativ[1]++;
 				
 				sourceVehicle_.calculateRoute(true, true);
-				/*
-				long tmp1 = street_.getStartNode().getX() - x_[0];
-				long tmp2 = street_.getStartNode().getY() - y_[0];
-				for(int i = 1; i <= street_.getLanesCount(); ++i){
-					sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-
-				}
-				*/
-				//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
+			
 			}
 		}
 		else if(rule_.equals("HUANG_RHCN")){	
 			if(lastLoggedBeacon < 2) return "";
 
-			//dx = x_[0] -  x_[1];
-			//dy =  y_[0] -  y_[1];
-			
-			//double firstSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
-			
-			//dx = x_[(lastLoggedBeacon-2)] -  x_[(lastLoggedBeacon-1)];
-			//dy =  y_[(lastLoggedBeacon-2)] -  y_[(lastLoggedBeacon-1)];
-			
-			//double lastSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
 			int beaconsWithZeroSpeed = 0;
 			for(int i = 0; i < AMOUNT_OF_BEACONS_LOGGED; i++) if(speed_[i] == 0) beaconsWithZeroSpeed++;
 			int[] timeStanding = vehicle_.getKnownVehiclesList().hasBeenSeenWaitingFor(monitoredVehicleID_);
@@ -461,29 +373,16 @@ public class IDSProcessor{
 			
 			double ratio = 1;
 			
-			//double lastSpeedValues = vehicle_.getKnownVehiclesList().hasBeenSlowingDown(monitoredVehicleID_);
-			
-			//if((advancedAttackRules_ && speed_[0] == 0 && lastSpeedValues == 0) || ratio > RHCNThreshold_){
 			
 			if(advancedIDSRules_){
 				double[] advancedSpeedData = vehicle_.getKnownVehiclesList().getSpecificSpeedDataSet(monitoredVehicleID_, 7);
-				/*
-				if((vehicle_.getID() + "").equals("234092945793091839") && (monitoredVehicleID_ + "").equals("2799064286177330538")){
-					for(int i = 0; i < AMOUNT_OF_BEACONS_LOGGED; i++) System.out.println("speed: " + speed_[i]);
-					vehicle_.getKnownVehiclesList().showSpeedData(monitoredVehicleID_);
-					System.out.println(advancedSpeedData[0] + ":" + advancedSpeedData[1]);
-				}
-	*/
+
 				if(advancedSpeedData[1] != -1 && advancedSpeedData[0] != -1){
 					if(advancedSpeedData[0] != 0) ratio = (advancedSpeedData[1]/advancedSpeedData[0]);
 				}
 				else{
 					if(speed_[0] != 0) ratio = (speed_[lastLoggedBeacon-1]/speed_[0]);
 				}
-				//(advancedAttackRules_ && ((timeStanding[0] - beaconsWithZeroSpeed) > 2)) ||
-				//int editLastValue = 0;
-				//if(speed_[lastLoggedBeacon-1] == 0) editLastValue = 1;
-				//if(((timeStanding[0] - beaconsWithZeroSpeed + editLastValue) > 0) || (ratio > RHCNThreshold_)){
 				if(speed_[0] == 0 || (speed_[0] > 400 && ratio > RHCNThreshold_)){
 					if(loggingType_ > 0){
 						LocationInformationLogWriter.log("Type:HUANG_RHCN:Source:" + "MDS:RESTNET:"+ x_[0] + ":" + y_[0] + ":Attack:" + true + ":Correct:" + (isFake_==true));
@@ -492,7 +391,6 @@ public class IDSProcessor{
 					
 					if(isFake_) truePositiv[2]++;
 					else falsePositiv[2]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				}
@@ -504,17 +402,7 @@ public class IDSProcessor{
 					
 					if(!isFake_) trueNegativ[2]++;
 					else falseNegativ[2]++;
-					/*
-					long tmp1 = street_.getStartNode().getX() - x_[0];
-					long tmp2 = street_.getStartNode().getY() - y_[0];
-					for(int i = 1; i <= street_.getLanesCount(); ++i){
-						sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-
-					}
-					*/
 					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
 				}
 			}
 			else if(classicMode_){
@@ -531,7 +419,6 @@ public class IDSProcessor{
 					
 					if(isFake_) truePositiv[2]++;
 					else falsePositiv[2]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				}
@@ -543,16 +430,6 @@ public class IDSProcessor{
 					
 					if(!isFake_) trueNegativ[2]++;
 					else falseNegativ[2]++;
-					/*
-					long tmp1 = street_.getStartNode().getX() - x_[0];
-					long tmp2 = street_.getStartNode().getY() - y_[0];
-					for(int i = 1; i <= street_.getLanesCount(); ++i){
-						sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-
-					}
-					*/
-					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 
 				}
 			}
@@ -562,7 +439,6 @@ public class IDSProcessor{
 				int amountOfBrakesSave = 0;
 				int amountOfBrakes = 0;
 				
-				//int firstBeaconIndex = -1;
 				for(int i = 1; i < AMOUNT_OF_BEACONS_LOGGED; i++ ){
 					if(speed_[i] == -1)break;
 					else{
@@ -584,7 +460,6 @@ public class IDSProcessor{
 					
 					if(isFake_) truePositiv[2]++;
 					else falsePositiv[2]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				}
@@ -593,16 +468,6 @@ public class IDSProcessor{
 					
 					if(!isFake_) trueNegativ[2]++;
 					else falseNegativ[2]++;
-					/*
-					long tmp1 = street_.getStartNode().getX() - x_[0];
-					long tmp2 = street_.getStartNode().getY() - y_[0];
-					for(int i = 1; i <= street_.getLanesCount(); ++i){
-						sourceVehicle_.getTmpBlockings().add(new BlockingObject(i, direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (Renderer.getInstance().getTimePassed() + 10000)));
-
-					}
-					*/
-					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 
 				}
 			}
@@ -611,18 +476,7 @@ public class IDSProcessor{
 		}
 		else if(rule_.equals("HUANG_EVA_FORWARD")){		
 			if(classicMode_){
-				
-				//dx = x_[0] -  x_[1];
-				//dy =  y_[0] -  y_[1];
-				
-				//double firstSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
-				
-				//dx = x_[(lastLoggedBeacon-2)] -  x_[(lastLoggedBeacon-1)];
-				//dy =  y_[(lastLoggedBeacon-2)] -  y_[(lastLoggedBeacon-1)];
-				
-				//double lastSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
-			//	if((speed_[lastLoggedBeacon-1]/speed_[0]) > EVAFORWARDThreshold_){	
-				//lane_[lastLoggedBeacon-1] == 0 || 
+
 				dx = x_[0] -  x_[(lastLoggedBeacon-1)];
 				dy = y_[0] -  y_[(lastLoggedBeacon-1)];
 				
@@ -635,7 +489,6 @@ public class IDSProcessor{
 					}
 					if(isFake_) truePositiv[3]++;
 					else falsePositiv[3]++;
-				//	sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 				}
 				else{
 					if(!sourceVehicle_.isDrivingOnTheSide_() && sourceVehicle_.getKnownPenalties().hasToMoveOutOfTheWay(penaltySourceVehicle_))sourceVehicle_.setMoveOutOfTheWay_(true);
@@ -652,23 +505,10 @@ public class IDSProcessor{
 						sourceVehicle_.setWaitingForVehicle_(penaltySourceVehicle_);
 					}
 					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 				}
 			}
 			else{
-				
-				//dx = x_[0] -  x_[1];
-				//dy =  y_[0] -  y_[1];
-				
-				//double firstSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
-				
-				//dx = x_[(lastLoggedBeacon-2)] -  x_[(lastLoggedBeacon-1)];
-				//dy =  y_[(lastLoggedBeacon-2)] -  y_[(lastLoggedBeacon-1)];
-				
-				//double lastSpeed = Math.sqrt(dx * dx + dy * dy) / 240 * 36;
-			//	if((speed_[lastLoggedBeacon-1]/speed_[0]) > EVAFORWARDThreshold_){	
-				//lane_[lastLoggedBeacon-1] == 0 || 
-		
+
 				double ratio = 1;
 				
 				if(speed_[0] != 0) ratio = (speed_[lastLoggedBeacon-1]/speed_[0]);
@@ -677,7 +517,6 @@ public class IDSProcessor{
 					if(loggingType_ > 0)writeLog("Type:HUANG_EVA_FORWARD:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EVAFORWARDThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
 					if(isFake_) truePositiv[3]++;
 					else falsePositiv[3]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 				}
 				else{
 					if(!sourceVehicle_.isDrivingOnTheSide_() && sourceVehicle_.getKnownPenalties().hasToMoveOutOfTheWay(penaltySourceVehicle_))sourceVehicle_.setMoveOutOfTheWay_(true);
@@ -690,7 +529,6 @@ public class IDSProcessor{
 						sourceVehicle_.setWaitingForVehicle_(penaltySourceVehicle_);
 					}
 					
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 				}
 			}
 
@@ -703,7 +541,6 @@ public class IDSProcessor{
 			if(beaconAmount > 0){
 				double[] response = sourceVehicle_.getKnownVehiclesList().getBeaconInformationFromVehicles(monitoredVehicleID_);
 			
-				//double thresholdTime = ((double)(beaconAmount * Vehicle.getBeaconInterval())/EVABeaconTimeFactor_);
 
 				double thresholdTime = ((double)(beaconAmount * Vehicle.getBeaconInterval())/EVABeaconFactor_);
 				double thresholdBeacon = ((double)beaconAmount/EVABeaconFactor_);
@@ -713,7 +550,6 @@ public class IDSProcessor{
 					response = vehicle_.getKnownVehiclesList().checkBeacons(monitoredVehicleID_);
 				}
 				if(response != null){
-					//if((thresholdBeacon > response[1])){
 
 					if((thresholdBeacon > response[1]) && thresholdTime > response[0]){
 
@@ -728,7 +564,6 @@ public class IDSProcessor{
 						catch(Exception e){
 							e.printStackTrace();
 						}
-						//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 					}
 					else{
 						if(loggingType_ > 0){
@@ -743,7 +578,6 @@ public class IDSProcessor{
 							sourceVehicle_.setMoveOutOfTheWay_(true);
 							sourceVehicle_.setWaitingForVehicle_(penaltySourceVehicle_);
 						}
-						//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
 
 							
 						sourceVehicle_.setForwardMessage_(true);
@@ -779,7 +613,6 @@ public class IDSProcessor{
 					}
 					if(isFake_) truePositiv[5]++;
 					else if(!isFake_) falsePositiv[5]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				
@@ -793,29 +626,6 @@ public class IDSProcessor{
 					if(!isFake_) trueNegativ[5]++;
 					else if(isFake_) falseNegativ[5]++;
 					
-					//long tmp1 = street_.getStartNode().getX() - x_[0];
-					//long tmp2 = street_.getStartNode().getY() - y_[0]; 
-					
-					/*
-					int direction = 0;
-					
-					if(direction_) direction = 1; //$NON-NLS-1$
-					else direction = -1; //$NON-NLS-1$
-					try{
-						StartBlocking start = new StartBlocking(Renderer.getInstance().getTimePassed(), x_[0], y_[0], direction, lane_[0], false, "HUANG_EEBL");
-						if(!EventList.getInstance().eventAlreadyExists(start)){
-							EventList.getInstance().addEvent(start); //$NON-NLS-1$	
-							EventList.getInstance().addEvent(new StopBlocking(Renderer.getInstance().getTimePassed() + 3000, x_[0], y_[0], start)); //$NON-NLS-1$
-						}
-
-					}
-					catch(Exception e){e.printStackTrace();}
-			*/
-
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
-
-					//sourceVehicle_.getTmpBlockings().add(new BlockingObject(lane_[0], direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (+ 2000), x_[0], y_[0]));
 				}
 
 			}
@@ -832,7 +642,6 @@ public class IDSProcessor{
 					}
 					if(isFake_) truePositiv[5]++;
 					else if(!isFake_) falsePositiv[5]++;
-					//sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				
@@ -845,30 +654,6 @@ public class IDSProcessor{
 					
 					if(!isFake_) trueNegativ[5]++;
 					else if(isFake_) falseNegativ[5]++;
-					
-					//long tmp1 = street_.getStartNode().getX() - x_[0];
-					//long tmp2 = street_.getStartNode().getY() - y_[0]; 
-					
-					/*
-					int direction = 0;
-					
-					if(direction_) direction = 1; //$NON-NLS-1$
-					else direction = -1; //$NON-NLS-1$
-					try{
-						StartBlocking start = new StartBlocking(Renderer.getInstance().getTimePassed(), x_[0], y_[0], direction, lane_[0], false, "HUANG_EEBL");
-						if(!EventList.getInstance().eventAlreadyExists(start)){
-							EventList.getInstance().addEvent(start); //$NON-NLS-1$	
-							EventList.getInstance().addEvent(new StopBlocking(Renderer.getInstance().getTimePassed() + 3000, x_[0], y_[0], start)); //$NON-NLS-1$
-						}
-
-					}
-					catch(Exception e){e.printStackTrace();}
-			*/
-
-				//	sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
-
-					//sourceVehicle_.getTmpBlockings().add(new BlockingObject(lane_[0], direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (+ 2000), x_[0], y_[0]));
 				}
 			}
 			else{
@@ -876,7 +661,6 @@ public class IDSProcessor{
 					if(loggingType_ > 0)writeLog("Type:HUANG_EEBL:Source:" + sourceVehicle_.getID() +  ":Monitored:" + monitoredVehicleID_ + ":Threshold:" + EEBLThreshold_ + ":Distance:" + ratio + ":Attack:" + true + ":Correct:" + (isFake_==true));
 					if(isFake_) truePositiv[5]++;
 					else if(!isFake_) falsePositiv[5]++;
-				//	sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], true);
 
 					return rule_;
 				
@@ -886,30 +670,6 @@ public class IDSProcessor{
 					
 					if(!isFake_) trueNegativ[5]++;
 					else if(isFake_) falseNegativ[5]++;
-					
-					//long tmp1 = street_.getStartNode().getX() - x_[0];
-					//long tmp2 = street_.getStartNode().getY() - y_[0]; 
-					
-					/*
-					int direction = 0;
-					
-					if(direction_) direction = 1; //$NON-NLS-1$
-					else direction = -1; //$NON-NLS-1$
-					try{
-						StartBlocking start = new StartBlocking(Renderer.getInstance().getTimePassed(), x_[0], y_[0], direction, lane_[0], false, "HUANG_EEBL");
-						if(!EventList.getInstance().eventAlreadyExists(start)){
-							EventList.getInstance().addEvent(start); //$NON-NLS-1$	
-							EventList.getInstance().addEvent(new StopBlocking(Renderer.getInstance().getTimePassed() + 3000, x_[0], y_[0], start)); //$NON-NLS-1$
-						}
-
-					}
-					catch(Exception e){e.printStackTrace();}
-			*/
-
-				//	sourceVehicle_.getKnownEventSourcesList_().update(penaltySourceVehicle_, monitoredVehicleID_, sourceX_, sourceY_, speed_[0], false);
-
-
-					//sourceVehicle_.getTmpBlockings().add(new BlockingObject(lane_[0], direction_, street_, Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2), rule_, (+ 2000), x_[0], y_[0]));
 				}
 
 			}

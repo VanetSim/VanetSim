@@ -24,11 +24,22 @@ public class MonitoredVehicle {
 	/** The vehicle associated. */
 	private final Vehicle vehicle_;
 	
+	/** the timestamp of the last received beacon */
 	private int lastUpdate_;
+	
+	/** the ID of the vehicle */
 	private long ID;
+	
+	/** the lane of the current street */
 	private int[] lane;
+	
+	/** the distance to brake */
 	private int[] distance;
+	
+	/** the speed of the vehicle */
 	private double[] speed;
+	
+	/** the index of the container */
 	private int actualIndex = 0;
 	
 	/** Link to the previous object. */

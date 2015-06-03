@@ -129,25 +129,15 @@ public final class SimulateControlPanel extends JPanel implements ActionListener
 		//language suppport
 		JPanel panning = new JPanel();
 		panning.setLayout(new FlowLayout(FlowLayout.LEFT));
-		/*
-		hideBar_ = new JButton(">");	
-		hideBar_.setPreferredSize(new Dimension(30,30));
-		hideBar_.setSize(new Dimension(30,20));
-		hideBar_.addActionListener(this);
-		panning.add(hideBar_, c); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		hideBar_.setActionCommand("toogleBar");
-		*/
 		JButton changeGUI = new JButton("*");
 		changeGUI.setPreferredSize(new Dimension(30,30));
 		changeGUI.setSize(new Dimension(30,20));
 		changeGUI.addActionListener(this);
-		//panning.add(changeGUI, c); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		changeGUI.setActionCommand("guimode"); 
 		
 		hideBar_ = ButtonCreator.getJButton("hide.png", "hide", "hide", true, this);
 		hideBar_.setPreferredSize(new Dimension(15,31));
 		hideBar_.setSize(new Dimension(15,31));
-		//hideBar_.addActionListener(this);
 		hideBar_.setBorder(BorderFactory.createEmptyBorder());
 		hideBar_.setActionCommand("toogleBar");
 		panning.add(hideBar_, c); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -340,7 +330,6 @@ public final class SimulateControlPanel extends JPanel implements ActionListener
 		slider.setPaintLabels(true);
 		slider.setMinorTickSpacing(10);
 		slider.setMajorTickSpacing(40);
-		//slider.setPaintTicks(true);
 		slider.addChangeListener(this);
 		return slider;
 	}

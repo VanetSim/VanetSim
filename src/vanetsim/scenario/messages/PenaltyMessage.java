@@ -103,8 +103,6 @@ Change of Lanes (CL, 9), Emergency Vehicle approaching (EVA, 10). */
 			penaltySourceVehicle.setBeaconString_(penaltyType + "," + isFake);
 			penaltySourceVehicle.setAmountOfLoggedBeacons_(0);
 		}
-		//System.out.println("PenaltyMessage");
-		//GeneralLogWriter.log(x + ":"+ y + ":" +  destinationX + ":" +  destinationY + ":" +  destinationRadius + ":" + validUntil + ":" +  penaltyStreet + ":" + lane + ":" + penaltyDirection + ":" +  penaltyValue + ":" +  penaltyValidUntil + ":" + isFake + ":" +  ID + ":" +  penaltyType + ":" +  emergencyVehicle + ":" +  createBlocking);
 	}
 
 	

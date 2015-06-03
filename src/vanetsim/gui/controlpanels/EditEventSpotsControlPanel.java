@@ -290,7 +290,6 @@ public final class EditEventSpotsControlPanel extends JPanel implements ActionLi
 		clusterSelection_ = new JComboBox<Cluster>();
 		clusterSelection_.setActionCommand("selectCluster");
 		clusterSelection_.addActionListener(this);
-		//for(int i = 0; i < IDSProcessor.getIdsData_().length; i++) eventType_.addItem(IDSProcessor.getIdsData_()[i]);
 
 		c.gridx = 1;
 		add(clusterSelection_, c);
@@ -459,7 +458,6 @@ public final class EditEventSpotsControlPanel extends JPanel implements ActionLi
 
 			//set directory and ".log" filter
 			fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
-			//fc.addChoosableFileFilter(logFileFilter_);
 			fc.setAcceptAllFileFilterUsed(true);
 			fc.setFileFilter(logFileFilter_);
 			
@@ -499,7 +497,6 @@ public final class EditEventSpotsControlPanel extends JPanel implements ActionLi
 			else if(!((Cluster)clusterSelection_.getSelectedItem()).getClusterID_().equals("none")) Renderer.getInstance().setDisplayCluster_((Cluster)clusterSelection_.getSelectedItem());
 				
 		}
-		//for(int i = 0; i < IDSProcessor.getIdsData_().length; i++) eventType_.addItem(IDSProcessor.getIdsData_()[i]);
 
 		
 		Renderer.getInstance().ReRender(true, true);

@@ -109,7 +109,6 @@ public class TrafficLight {
 		streets_ = junction_.getNode().getCrossingStreets();
 		Street[] tmpPriorityStreets = junction_.getPriorityStreets();
 		
-		//boolean priorityStreet = false;
 		boolean isOneway = false;
 		
 		for(int i = 0; i < streets_.length; i++){

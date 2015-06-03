@@ -274,12 +274,8 @@ public final class Map{
 					if(newMapWidth > 0 && newMapHeight > 0 && newRegionWidth > 0 && newRegionHeight > 0){		// only continue if settings were all found
 						if(!Renderer.getInstance().isConsoleStart())VanetSimStart.setProgressBar(false);
 						CyclicBarrier barrier = new CyclicBarrier(2);
-						if(!Renderer.getInstance().isConsoleStart()){
-							
+						if(!Renderer.getInstance().isConsoleStart()){						
 							new MapSizeDialog(newMapWidth, newMapHeight, newRegionWidth, newRegionHeight, barrier);	//initialize new map
-							//try {
-						//		barrier.await();
-						//	} catch (Exception e) {}
 						}
 						else Map.getInstance().initNewMap(newMapWidth, newMapHeight, newRegionWidth, newRegionHeight);
 						int addX = (width_ - newMapWidth)/2;
@@ -1001,7 +997,6 @@ public final class Map{
 		if(value.equals("school")) n.setNodeColor(Color.yellow);
 		else if(value.equals("kindergarten")) n.setNodeColor(Color.green);
 		else if(value.equals("hospital")) n.setNodeColor(Color.magenta);
-	//	else if(value.equals("driving_school")) n.setNodeColor(Color.orange);
 		else if(value.equals("police")) n.setNodeColor(Color.blue);
 		else if(value.equals("fire_station")) n.setNodeColor(Color.red);
 
@@ -1146,6 +1141,7 @@ public final class Map{
 				}
 			}
 			out.flush();
+			out.close();
  		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

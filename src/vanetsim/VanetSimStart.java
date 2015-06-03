@@ -22,7 +22,6 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.io.FileInputStream;
@@ -32,7 +31,7 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import com.apple.eawt.Application;
+
 
 import vanetsim.gui.DrawingArea;
 import vanetsim.gui.Renderer;
@@ -95,14 +94,17 @@ public final class VanetSimStart implements Runnable {
 		Rectangle bounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds(); 
 		
 		String osName = System.getProperty("os.name").toLowerCase();
+		@SuppressWarnings("unused")
 		boolean isMacOs = osName.startsWith("mac os x");
+		//leads to some issues on linux
+		/*
 		if (isMacOs) 
 		{
 			Application application = Application.getApplication();
 			Image image = Toolkit.getDefaultToolkit().getImage(appicon);
 			application.setDockIconImage(image);
 		}
-		
+		*/
 
 		mainFrame_.pack();
 		//mainFrame_.setIconImage(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("vanetsim/images/logo.png")));

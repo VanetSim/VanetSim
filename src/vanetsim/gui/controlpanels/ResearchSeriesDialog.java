@@ -126,14 +126,12 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 	/** string array to save jobs */
 	ArrayList<String> jobList_ = new ArrayList<String>();
 	
-	/** a flag if the current job is ready */
-	//private boolean jobIsReady_ = false;
-	
 	/** simulation duration */
 	private int simulationDuration_ = 1000000;
 	
 	/** available memory for simulation */
 	private int availableMemory_ = 6144;
+	
 	/**
 	 * Constructor. Creating GUI items.
 	 */
@@ -183,7 +181,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		c.gridwidth = 1;
 		c.gridx = 0;	
 		add(chooseSeries_, c);
-		//chooseSeries_.addItem(Messages.getString("ResearchSeriesDialog.addSeries"));
 		chooseSeries_.setActionCommand("SeriesChanged");
 		chooseSeries_.addActionListener(this);
 		
@@ -196,7 +193,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		JButton addSeries = new JButton("+");
 		addSeries.setPreferredSize(new Dimension(40,20));
 		addSeries.setActionCommand("addSeries");
-		//add(addSeries, c);
 		wraperPanel.add(addSeries);
 		addSeries.addActionListener(this);
 		
@@ -227,10 +223,7 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		
 		c.gridwidth = 3;
 		generalSettingsList_ = new JList<Object>(generalSettingsModel_);
-		//for(int i = 0; i < 6; i++) generalSettingsModel_.add(i, " ");
 		generalSettingsList_.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//generalSettingsList_.removeListSelectionListener(this);
-		//generalSettingsList_.addListSelectionListener(this);
 		add(generalSettingsList_, c);
 		
 		++c.gridy;
@@ -269,7 +262,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		c.gridwidth = 1;
 		c.gridx = 0;	
 		add(chooseVehicleSet_, c);
-		//chooseVehicleSet_.addItem(Messages.getString("ResearchSeriesDialog.addVehicleSet"));
 		chooseVehicleSet_.setActionCommand("VehicleSetChanged");
 		chooseVehicleSet_.addActionListener(this);
 		
@@ -308,9 +300,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		vehicleSetsList_ = new JList<Object>(vehicleSetsModel_);
 
 		vehicleSetsList_.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//for(int i = 0; i < 6; i++) vehicleSetsModel_.add(i, " ");
-		//vehicleSetsList_.removeListSelectionListener(this);
-		//vehicleSetsList_.addListSelectionListener(this);
 		add(vehicleSetsList_, c);
 		
 		c.gridwidth = 1;
@@ -464,7 +453,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 		}
 		else if(("addVehicleSetting").equals(command)){
 			if(vehicleSetsModel_.getSize() == 1){
-				System.out.println("nur ein item erlaubt");
 			}
 			else{
 				if(activeSeries_ == null){
@@ -485,8 +473,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 			}
 		}
 		else if(("createScenarios").equals(command)){
-			//boolean containsAmountKey = false;
-			//if(activeVehicleSet_ != null) for(SimulationProperty p: activeVehicleSet_.getPropertyList_()) if(p.getPropertyKey_().equals("amount")) containsAmountKey = true;
 			if(activeSeries_ == null){
 				JOptionPane.showMessageDialog(null, Messages.getString("ResearchSeriesDialog.MsgBoxCreateSeries"), "Error", JOptionPane.ERROR_MESSAGE);
 			}
@@ -496,14 +482,11 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 			else if(Map.getInstance().getMapName_().equals("")){
 				JOptionPane.showMessageDialog(null, Messages.getString("ResearchSeriesDialog.loadMapBeforeStarting"), "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			//else if(!containsAmountKey){
-			//	JOptionPane.showMessageDialog(null, Messages.getString("ResearchSeriesDialog.MsgBoxNoAmountKey"), "Error", JOptionPane.ERROR_MESSAGE);
-			//}
 			else{
 				for(SimulationSeries series:simulationSeriesList_){
 					if(series.getPropertyList_().size() == 1){
 						
-						//get 1 item
+						//get one item
 						for(SimulationProperty simulationProperty:series.getPropertyList_()){
 							for(int i = 0;i < simulationProperty.getStepAmount_();i++){
 								solveRec(series.getVehicleSetList_(), simulationSeriesList_.indexOf(series) + ":" + series.getPropertyList_().indexOf(simulationProperty) + ":" + i + ":", 0);
@@ -610,7 +593,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 									}
 									
 									if(vehicleSet.getPropertyList_() != null && vehicleSet.getPropertyList_().size() > 0 && vehicleSet.getPropertyList_().get(0) != null){		
-										//SimulationProperty simProp = vehicleSet.getPropertyList_().get(0);
 										String propertyKey = vehicleSet.getPropertyList_().get(0).getPropertyKey_();
 										double value = (vehicleSet.getPropertyList_().get(0).getStartValue_() + vehicleSet.getPropertyList_().get(0).getStepValue_() *(Integer.parseInt(data[5])*(m+1)));
 										
@@ -716,7 +698,6 @@ public final class ResearchSeriesDialog extends JDialog implements ActionListene
 						ResearchSeriesDialog.getInstance().setVisible(true);
 						VanetSimStart.setProgressBar(false);
 						Renderer.getInstance().ReRender(false, false);
-						//jobIsReady_ = true;
 						jobList_.clear();
 					}
 			

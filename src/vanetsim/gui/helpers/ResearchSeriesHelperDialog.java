@@ -155,14 +155,11 @@ public final class ResearchSeriesHelperDialog extends JDialog implements ActionL
 		vehicleAmountVariation_.setActionCommand("activateAmountVariation"); //$NON-NLS-1$
 		c.gridx = 1;
 		add(vehicleAmountVariation_,c);
-		//if(mode.equals("vehicles") && command.equals("amount")) {
-			vehicleAmountVariationLabel_.setVisible(true);
-			vehicleAmountVariation_.setVisible(true);
-		//}
-		//else {
-			vehicleAmountVariationLabel_.setVisible(false);
-			vehicleAmountVariation_.setVisible(false);
-		//}
+		vehicleAmountVariationLabel_.setVisible(true);
+		vehicleAmountVariation_.setVisible(true);
+
+		vehicleAmountVariationLabel_.setVisible(false);
+		vehicleAmountVariation_.setVisible(false);
 		vehicleAmountVariation_.addActionListener(this);	
 		
 		

@@ -188,7 +188,6 @@ public final class EventSpotList{
 		gridPCNFORWARD_ = new int[cellAmountX][cellAmountY];
 		gridRHCN_ = new int[cellAmountX][cellAmountY];
 		gridEVAFORWARD_ = new int[cellAmountX][cellAmountY];
-		System.out.println(Map.getInstance().getMapWidth() + ":cellAX:" + cellAmountX + " :cellAY:" + cellAmountY);
 		
 		try{
 			// Open the file that is the first 
@@ -203,7 +202,6 @@ public final class EventSpotList{
 			String currentTime = "0";
 			//Read file line By line
 			while ((strLine = br.readLine()) != null) {
-			//	System.out.println(strLine);
 				strParse = strLine.split(":");
 				if(Integer.parseInt(strParse[4]) > 0 && Integer.parseInt(strParse[6]) > 0){
 					if(!currentTime.equals(strParse[0])){
@@ -249,7 +247,6 @@ public final class EventSpotList{
 
 	public void createIntelligentStreetCluster(){
 		//use to find nearest street
-		//MapHelper.findNearestStreet(x,y, 10000, new double[1], nearestpoint);	// search in 100m radius for the starting street
 	}
 	/**
 	 * save the grid to file

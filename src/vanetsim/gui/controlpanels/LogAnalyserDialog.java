@@ -137,7 +137,7 @@ public final class LogAnalyserDialog extends JDialog implements ActionListener{
 	private FileFilter logFileFilter_;
 	
 	/** Note to describe the standard attack. */
-	TextAreaLabel standardAttackNote_;
+	private TextAreaLabel standardAttackNote_;
 	
 	/** An area to display text information. */
 	private final JTextArea informationTextArea_;

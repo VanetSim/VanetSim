@@ -427,252 +427,6 @@ public final class Region{
 		}
 	}
 	
-	
-	/**
-	 * Gets intersection points between mix-zone and streets. Before evoking check if this node is a mix-zone. Note that the performance of this function is very bad. It has to be evoked before the
-	 * start of the simulation!
-	 * 
-	 * @return string array with to intersection String in form of "x1:x2:x3"
-	 */
-	/*
-	public String[] getIntersectionPoints(Node mixNode, Region r) {
-		String[] returnArray = new String[2];
-		returnArray[0] = "Mix-Zone(x):Node ID:" + mixNode.getNodeID();
-		returnArray[1] = "Mix-Zone(y):Node ID:" + mixNode.getNodeID();
-		
-		//we need to check all streets:
-		Street[] streets;
-		Street street;
-		
-		double y1 = -1;
-		double x1 = -1;
-		double y2 = -1;
-		double x2 = -1;
-		double m = -1;
-		double t = -1;
-		
-		double xNode = -1;
-		double yNode = -1;
-		double radius = -1;
-		
-		double resultForSqrt = -1;
-		double result = -1;
-		
-		//blacklist to avoid double values on two lane Motorways
-		ArrayList<Street> blackList = new ArrayList<Street>();
-		
-		streets = getStreets();
-		for(int k = 0; k < streets.length; ++k){	
-			street = streets[k];
-			boolean blackListed = false;
-					
-			if(street.getLanesCount() > 1){
-				if(blackList.contains(street)){							
-					blackListed = true;
-				}	
-				if(!blackListed) blackList.add(street);
-			}
-
-					if(true){
-						//now let's do some magic
-						y1 = street.getEndNode().getY();
-						x1 = street.getEndNode().getX();
-						y2 = street.getStartNode().getY();
-						x2 = street.getStartNode().getX();
-						xNode = mixNode.getX();
-						yNode = mixNode.getY();
-						
-						m = ((y1-y2)/(x1-x2));
-					
-						t = y1 - (m*x1);
-					
-						radius = mixNode.getMixZoneRadius();
-						if(street.getStartNode().getX() == 38191) System.out.println("y1:x1:y2:x2:yNode:xNode:m:t:::" + y1 + ":" + x1 + ":" + y2 + ":" + x2 + ":" + yNode + ":" + xNode + ":" + m + ":" + t);
-					//	BigInteger term1 = BigInteger.valueOf(xNode).pow(4).negate();
-						//BigInteger term2 = BigInteger.valueOf(xNode).pow(2);
-					//	BigInteger term3 = BigInteger.valueOf((long)((2*yNode) + (radius*radius)-(2*t))).multiply(term2);
-					//	BigInteger term4 = BigInteger.valueOf(yNode).pow(2);
-					//	BigInteger term5 = BigInteger.valueOf((long)((2*yNode*t) + (radius*radius) - (t*t)));
-						
-					//	BigInteger ergebnis = term1.add(term3).subtract(term4).add(term5);
-						//
-
-
-					//	System.out.println("term1" + (long)(xNode*xNode*xNode*xNode));
-						//System.out.println("term2" +  (xNode*xNode) * ((2*yNode) + (radius*radius)-(2*t)) + "-" + ((yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t)));
-						//System.out.println((xNode*xNode)*((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-					/*
-						System.out.println("x1=" + x1);
-						System.out.println("y1=" + y1);
-						System.out.println("x2=" + x2);
-						System.out.println("y2=" + y2);
-						System.out.println("xNode=" + xNode);
-						System.out.println("yNode=" + yNode);
-						System.out.println("radius=" + radius);
-						System.out.println("m=" + m);
-						System.out.println("t=" + t);
-					
-						//resultForSqrt=(long) (-(xNode*xNode*xNode*xNode) + (xNode*xNode)*((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-						//resultForSqrt=(-(xNode*xNode)*(m*m) + (2 * xNode * m)*(yNode - t) + (m*m)*(radius*radius)-(yNode*yNode) + 2*yNode*t + (radius*radius) - (t*t));
-						resultForSqrt = (-xNode*xNode*m*m + 2*xNode*m*(yNode - t) + m*m*radius*radius - yNode*yNode + 2*yNode*t + radius*radius - t*t);
-						//resultForSqrt=( + *((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-						if(street.getStartNode().getX() == 38191) System.out.println("resultForSqrt:" + resultForSqrt);
-						//resultForSqrt = ergebnis.longValue();
-					//	System.out.println(resultForSqrt);
-						//no solution
-						if(resultForSqrt < 0){
-						//	System.out.println("kleiner 0");
-						}
-						//one solution
-						else if(resultForSqrt > 0){
-							//if(street.getStartNode().getX() == 38191) System.out.println("ger");
-							//result = ((xNode*(yNode - t + 1)) - Math.sqrt(resultForSqrt))/((xNode*xNode) + 1);
-							//result = (Math.sqrt(resultForSqrt) + (xNode+m*(yNode - t)))/((xNode*xNode) + 1);
-							result =  -(Math.sqrt(resultForSqrt) - xNode + m*(t - yNode))/(Math.pow(m,2) + 1);
-							//if(street.getStartNode().getX() == 38191) System.out.println(result);
-							//if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
-							double dx1= xNode - x1;
-							double dy1 = yNode - y1;
-							double distanceSquared1 = dx1 * dx1 + dy1 * dy1;
-							
-							double dx2= xNode - x2;
-							double dy2 = yNode - y2;
-							double distanceSquared2 = dx2 * dx2 + dy2 * dy2;
-							
-						//	if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
-							if(((distanceSquared1 <= radius*radius) || (distanceSquared2 <= radius*radius)) && ((distanceSquared1 > radius*radius) || (distanceSquared2 > radius*radius)) ){
-									//if(result > xNode) returnArray[0] += ":" + String.valueOf((int)result - radius);
-									//else returnArray[0] += ":" + String.valueOf(radius + (int)result);
-									//if(x1 < 0) {
-									//	returnArray[0] += ":" + String.valueOf(-(int)result);
-									//	returnArray[1] += ":" + String.valueOf(-(int)((m*result + t)));
-									//}
-									//else {
-										returnArray[0] += ":" + String.valueOf((int)result);
-										returnArray[1] += ":" + String.valueOf((int)((m*result + t)));
-									//}
-
-									
-								
-							if(street.getStartNode().getX() == 38191) System.out.println(Map.getInstance().getMapHeight()-(m*result + t));
-							if(street.getStartNode().getX() == 38191) System.out.println(Map.getInstance().getMapHeight());
-							}
-
-						}
-						//two solutions
-						/*
-						else if(resultForSqrt == 0){
-							if(street.getStartNode().getX() == 38191) System.out.println("gleich");
-							result = -(Math.sqrt(resultForSqrt) - xNode + m*(t - yNode))/(Math.pow(m,2) + 1);
-
-							if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
-							//	returnArray[0] += ":" + String.valueOf((int)result);
-								//returnArray[1] += ":" + String.valueOf((int)(m*result + t));
-								
-							//	if(y1 < 0){
-							//		returnArray[0] += ":" + String.valueOf(-(int)result);
-								//	returnArray[1] += ":" + String.valueOf(-(int)(m*result + t));
-							//	}
-							//	else{
-									returnArray[0] += ":" + String.valueOf((int)result);
-									returnArray[1] += ":" + String.valueOf((int)((Map.getInstance().getMapHeight()-(m*result + t))));
-							//	}
-
-							}
-							
-							result =  -(Math.sqrt(resultForSqrt) + xNode + m*(t - yNode))/(Math.pow(m,2) + 1);
-
-							if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
-							//	returnArray[0] += ":" + String.valueOf((int)result);
-							//	returnArray[1] += ":" + String.valueOf((int)(m*result + t));
-								
-							//	if(y1 < 0){
-								//	returnArray[0] += ":" + String.valueOf(-(int)result);
-							//		returnArray[1] += ":" + String.valueOf(-(int)(m*result + t));
-							//	}
-							//	else{
-									returnArray[0] += ":" + String.valueOf((int)result);
-									returnArray[1] += ":" + String.valueOf((int)(Map.getInstance().getMapHeight()-(m*result + t)));
-							//	}
-
-							}
-						}
-						
-					}					
-				}
-		//	}
-	//	}
-
-		
-		return returnArray;
-	}
-	*/
-	/*
-	public String[] getIntersectionPoints(Node mixNode, Region r) {
-		String[] returnArray = new String[2];
-		returnArray[0] = "Mix-Zone(x):Node ID:" + mixNode.getNodeID();
-		returnArray[1] = "Mix-Zone(y):Node ID:" + mixNode.getNodeID();
-		
-		//we need to check all streets:
-		Street[] streets;
-		Street street;
-
-		double a1 = -1;
-		double a2 = -1;
-		double b1= -1;
-		double b2 = -1;
-
-		double resultForSqrt = -1;
-		double result = -1;
-		
-		double xNode = -1;
-		double yNode = -1;
-		double radius = -1;
-		
-		double m = -1;
-		
-		double t = -1;
-	
-		
-		streets = getStreets();
-		for(int k = 0; k < streets.length; ++k){	
-			street = streets[k];
-			
-			a1 = street.getEndNode().getX();
-			a2 = street.getEndNode().getY();
-			b1= street.getStartNode().getX();
-			b2 = street.getStartNode().getY();
-			
-			xNode = mixNode.getX();
-			yNode = mixNode.getY();
-			
-			radius = mixNode.getMixZoneRadius();
-			
-			m = ((a2-b2)/(a1-b1));
-			
-			t = a2 - (m*a1);
-		
-			
-			resultForSqrt =  (radius*radius) * ( ((b1 - a1) * (b1 - a1)) + ((b2 - a2) * (b2 - a2)) ) - ( (a1 * (b2-a2) - a2*(b1-a1)) * (a1 * (b2-a2) - a2*(b1-a1)) );
-			
-			if(resultForSqrt < 0){
-				
-			}
-			else if(resultForSqrt == 0){
-				result =  (-a1*(b1-a1) - a2 *(b2 - a2)) / (((b1-a1)*(b1-a1)) + ((b2-a2) * (b2-a2)));
-
-				returnArray[0] += ":" + String.valueOf((int)result);
-				returnArray[1] += ":" + String.valueOf((int)((m*result + t)));
-			}
-			else{
-
-			}
-		}
-		
-		return returnArray;
-	}
-	*/
-	
 	public String[] getIntersectionPoints(Node mixNode, Region region12) {
 		Region[][] regions = Map.getInstance().getRegions();
 		
@@ -741,93 +495,32 @@ public final class Region{
 								t = y1 - (m*x1);
 							
 								r = mixNode.getMixZoneRadius();
-							//	BigInteger term1 = BigInteger.valueOf(xNode).pow(4).negate();
-								//BigInteger term2 = BigInteger.valueOf(xNode).pow(2);
-							//	BigInteger term3 = BigInteger.valueOf((long)((2*yNode) + (radius*radius)-(2*t))).multiply(term2);
-							//	BigInteger term4 = BigInteger.valueOf(yNode).pow(2);
-							//	BigInteger term5 = BigInteger.valueOf((long)((2*yNode*t) + (radius*radius) - (t*t)));
-								
-							//	BigInteger ergebnis = term1.add(term3).subtract(term4).add(term5);
-								//
-
-
-							//	System.out.println("term1" + (long)(xNode*xNode*xNode*xNode));
-								//System.out.println("term2" +  (xNode*xNode) * ((2*yNode) + (radius*radius)-(2*t)) + "-" + ((yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t)));
-								//System.out.println((xNode*xNode)*((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-							
-								//resultForSqrt=(long) (-(xNode*xNode*xNode*xNode) + (xNode*xNode)*((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-								
-								//System.out.println("wurzel:" + resultForSqrt);
-								//resultForSqrt=(-(xNode*xNode)*(m*m) + (2 * xNode * m)*(yNode - t) + (m*m)*(radius*radius)-(yNode*yNode) + 2*yNode*t + (radius*radius) - (t*t));
-								//resultForSqrt = (-xNode*xNode*m*m + 2*xNode*m*(yNode - t) + m*m*radius*radius - yNode*yNode + 2*yNode*t + radius*radius - t*t);
-								//resultForSqrt=( + *((2*yNode) + (radius*radius)-(2*t)) - (yNode * yNode) + (2*yNode*t) + (radius*radius) - (t*t));
-								//resultForSqrt = ergebnis.longValue();
-							//	System.out.println(resultForSqrt);
-								//no solution
-
-								
+												
 
 								if((-yNode*yNode + 2*xNode*yNode*m - xNode*xNode*m*m + r*r + m*m*r*r + 2*yNode*t - 2*xNode*m*t - t*t) < 0){
-								//	System.out.println("kleiner 0");
 								}
 								//two solution
 								else if((-yNode*yNode + 2*xNode*yNode*m - xNode*xNode*m*m + r*r + m*m*r*r + 2*yNode*t - 2*xNode*m*t - t*t) > 0){
-									
-									//result1 =  -(Math.sqrt(resultForSqrt) - xNode + m*(t - yNode))/(Math.pow(m,2) + 1);
-									//result1 = (xNode*(yNode - t + 1) - Math.sqrt(resultForSqrt)) / ((xNode * xNode) + 1);
-									//result1 = (xNode*(yNode - t + 1) + Math.sqrt(resultForSqrt)) / ((xNode * xNode) + 1);
+							
 									result1 = (xNode + yNode*m - m*t - Math.sqrt(-yNode*yNode + 2*xNode*yNode*m - xNode*xNode*m*m + r*r + m*m*r*r + 2*yNode*t - 2*xNode*m*t - t*t))/(1 + m*m);
 									result2 = (xNode + yNode*m - m*t + Math.sqrt(-yNode*yNode + 2*xNode*yNode*m - xNode*xNode*m*m + r*r + m*m*r*r + 2*yNode*t - 2*xNode*m*t - t*t))/(1 + m*m);
 									
-									//double dx1= xNode - x1;
-								//	double dy1 = yNode - y1;
-								//	double distanceSquared1 = dx1 * dx1 + dy1 * dy1;
-									
-								//	double dx2= xNode - x2;
-								//	double dy2 = yNode - y2;
-									//double distanceSquared2 = dx2 * dx2 + dy2 * dy2;
-
-									
-
-								//	if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
-									//if(((distanceSquared1 <= r*r) || (distanceSquared2 <= r*r)) && ((distanceSquared1 > r*r) || (distanceSquared2 > r*r)) ){
-
 
 										if((result1 >= x1 && result1 <= x2) || (result1 <= x1 && result1 >= x2)){
 											returnArray[0] += ":" + String.valueOf((int)result1);
 											returnArray[1] += ":" + String.valueOf((int)((m*result1 + t)));
-											/*
-											System.out.println(xNode + "/" + yNode);
-									
-											System.out.println("x: " + result1);
-											System.out.println("y: " + (m*result1 + t));
-											*/
 										}
 
 
 										if((result2 >= x1 && result2 <= x2) || (result2 <= x1 && result2 >= x2)){
 											returnArray[0] += ":" + String.valueOf((int)result2);
 											returnArray[1] += ":" + String.valueOf((int)((m*result2 + t)));
-											
-											/*
-											System.out.println(xNode + "/" + yNode);
-									
-											System.out.println("x: " + result2);
-											System.out.println("y: " + (m*result2 + t));
-										*/	
 										}
-
-									//}
-								//}
-											//if(result > xNode) returnArray[0] += ":" + String.valueOf((int)result - radius);
-										
-
 								}
 								
 								//one solutions
 								
 								else if((-yNode*yNode + 2*xNode*yNode*m - xNode*xNode*m*m + r*r + m*m*r*r + 2*yNode*t - 2*xNode*m*t - t*t) == 0){
-									//result = (xNode *(yNode - t + 1))/((xNode*xNode)+1);
 									result = (xNode + yNode*m - m*t)/(1 + m*m);
 
 									double dx1= xNode - x1;
@@ -838,23 +531,15 @@ public final class Region{
 									double dy2 = yNode - y2;
 									double distanceSquared2 = dx2 * dx2 + dy2 * dy2;
 									
-									//if((result >= x1 && result <= x2) || (result <= x1 && result >= x2)){
 									if(((distanceSquared1 <= r*r) || (distanceSquared2 <= r*r)) && ((distanceSquared1 > r*r) || (distanceSquared2 > r*r)) ){
-										//System.out.println(xNode + "/" + yNode);
 										returnArray[0] += ":" + String.valueOf((int)result);
 										returnArray[1] += ":" + String.valueOf((int)(((m*result + t))));
-								
-										//System.out.println("x: " + result);
-										//System.out.println("y: " + (m*result + t));
 									}
 
 								}
 								
 							}					
 						}
-				//	}
-			//	}
-
 				
 			}
 		}

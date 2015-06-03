@@ -193,7 +193,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 		editPanel_ = new JPanel();
 		editPanel_.setLayout(new BorderLayout(0,5));
 		String[] choices = { Messages.getString("EditControlPanel.settings"),Messages.getString("EditControlPanel.trafficModel"),Messages.getString("EditControlPanel.dataAnalysis"),Messages.getString("EditControlPanel.presentationMode"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		//String[] choices = { Messages.getString("EditControlPanel.settings"), Messages.getString("EditControlPanel.street"), Messages.getString("EditControlPanel.trafficLights"), Messages.getString("EditControlPanel.vehicles"),  Messages.getString("EditControlPanel.privacy"), Messages.getString("EditControlPanel.rsus"), Messages.getString("EditControlPanel.attackers"), Messages.getString("EditControlPanel.event"), Messages.getString("EditControlPanel.ids"), Messages.getString("EditControlPanel.logs")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		editChoice_ = new JComboBox<String>(choices);
 		editChoice_.setSelectedIndex(0);
@@ -291,8 +290,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			editAttackerPanel_.receiveMouseEvent(x, y);
 		} else if(item.equals(Messages.getString("EditControlPanel.trafficLights"))){ //$NON-NLS-1$
 			editTrafficLightsPanel_.receiveMouseEvent(x, y);
-		} else if(item.equals(Messages.getString("EditControlPanel.ids"))){ //$NON-NLS-1$
-			//editIDSControlPanel_.receiveMouseEvent(x, y);
 		} else if(item.equals(Messages.getString("EditControlPanel.event")) && tabbedPaneEvents_.getTitleAt(tabbedPaneEvents_.getSelectedIndex()).equals(Messages.getString("EditEventControlPanel.events"))){ //$NON-NLS-1$
 			editEventPanel_.receiveMouseEvent(x, y);
 		} else if(item.equals(Messages.getString("EditControlPanel.event")) && tabbedPaneEvents_.getTitleAt(tabbedPaneEvents_.getSelectedIndex()).equals(Messages.getString("EditEventControlPanel.eventSpots"))){ //$NON-NLS-1$
@@ -423,7 +420,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			Renderer.getInstance().setShowRSUs(false);
 			Renderer.getInstance().setShowAttackers(false);
 			Renderer.getInstance().setHighlightCommunication(false);
-			//Renderer.getInstance().setShowAttackers(false);
 			Renderer.getInstance().setMarkedVehicle(null);
 			Renderer.getInstance().setMarkedJunction_(null);
 			Renderer.getInstance().ReRender(true, false);
@@ -443,7 +439,6 @@ public final class EditControlPanel extends JPanel implements ActionListener {
 			Renderer.getInstance().setHighlightCommunication(false);
 			Renderer.getInstance().setShowAttackers(false);
 			Renderer.getInstance().setMarkedJunction_(null);
-			//Renderer.getInstance().setShowAttackers(false);
 			Renderer.getInstance().setMarkedVehicle(null);
 			Renderer.getInstance().ReRender(true, false);
 	        if(Messages.getString("EditControlPanel.street").equals(item)){	//$NON-NLS-1$	        	

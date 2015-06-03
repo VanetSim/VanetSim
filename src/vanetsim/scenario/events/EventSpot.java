@@ -250,8 +250,6 @@ public class EventSpot{
 						PenaltyMessage message = new PenaltyMessage(tmpVehicle.getX(), tmpVehicle.getY(), tmpVehicle.getX(), tmpVehicle.getY(), 50000, (timePassed + 2000), tmpVehicle.getCurStreet(), tmpVehicle.getCurLane(), (int) tmpVehicle.getCurPosition(), 500, (timePassed + 2000), false, tmpVehicle.getID(), null,  "HUANG_EEBL", false, true);							
 						tmpVehicle.getKnownMessages().addMessage(message, false, true);
 						message.setFloodingMode(true);	// enable flooding mode if within distance!				
-						//tmpVehicle.getTmpBlockings().add(new BlockingObject(tmpVehicle.getCurLane(), tmpVehicle.getCurDirection(), tmpVehicle.getCurStreet(),  tmpVehicle.getCurPosition(), "HUANG_EEBL", (timePassed + 2000)));
-						//Renderer.getInstance().setMarkedVehicle(tmpVehicle);
 					
 						tmpVehicle.setEmergencyBraking_(true);
 						tmpVehicle.setEEBLmessageIsCreated_(true);

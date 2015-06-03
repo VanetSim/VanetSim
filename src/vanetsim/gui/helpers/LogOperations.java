@@ -308,9 +308,7 @@ public class LogOperations extends Thread {
 		int[][] dataCollection = new int[maxOfRow][maxOfRow];
 
 		//calculate advanced states
-		//long vehiclesTotal = 0;
 		for(Map.Entry<String, String> e : successLog.entrySet()){
-			//vehiclesTotal++;
 			dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] = dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] + 1;
 		}
 		
@@ -345,34 +343,12 @@ public class LogOperations extends Thread {
 		logAnalyser_.updateInformationArea("#Success/Crossed", true);
 		for(int i = 1; i < maxOfRow; i++) logAnalyser_.updateInformationArea(" " + i, true);
 		logAnalyser_.updateInformationArea(" VehiclesLeft", true);
-		//float tmpSumLine = 0;
-		//float vehiclesTotal2 = 0;
 		for(int l = 0; l < maxOfRow;l++){
 			logAnalyser_.updateInformationArea("\n" + l, true);	
 			for(int m = 1; m < maxOfRow;m++){
-				//tmpSumLine += dataCollection[m][l];
 				logAnalyser_.updateInformationArea(" " + dataCollection[m][l], true);
 			}
 			
-			//this is the old version of the detailed calculator. Now there is a script -> accumulateDetailedLogFiles() in ReportingControlPanel
-			/*
-			if(l == 0){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else if(l == 1){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else{
-				vehiclesTotal2 = vehiclesTotal;
-				for(int n = 0; n < l;n++){
-					for(int o = 1; o < l;o++){
-						vehiclesTotal2 -= dataCollection[o][n];
-					}
-				}
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal2), true);
-			}
-			tmpSumLine = 0;
-			*/
 		}
 		
 		
@@ -985,10 +961,7 @@ public class LogOperations extends Thread {
 		
 		maxOfRow++;
 		int[][] dataCollection = new int[maxOfRow][maxOfRow];
-		//calculate advanced stats
-		//long vehiclesTotal = 0;
 		for(Map.Entry<String, String> e : successLog.entrySet()){
-			//vehiclesTotal++;
 			dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] = dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] + 1;
 		}
 
@@ -1005,33 +978,11 @@ public class LogOperations extends Thread {
 		logAnalyser_.updateInformationArea("#Success/Crossed", true);
 		for(int i = 1; i < maxOfRow; i++) logAnalyser_.updateInformationArea(" " + i, true);
 		logAnalyser_.updateInformationArea(" VehiclesLeft", true);
-		//float tmpSumLine = 0;
-		//float vehiclesTotal2 = 0;
 		for(int l = 0; l < maxOfRow;l++){
 			logAnalyser_.updateInformationArea("\n" + l, true);	
 			for(int m = 1; m < maxOfRow;m++){
-			//	tmpSumLine += dataCollection[m][l];
 				logAnalyser_.updateInformationArea(" " + dataCollection[m][l], true);
 			}
-			//this is the old version of the detailed calculator. Now there is a script -> accumulateDetailedLogFiles() in ReportingControlPanel
-			/*
-			if(l == 0){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else if(l == 1){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else{
-				vehiclesTotal2 = vehiclesTotal;
-				for(int n = 0; n < l;n++){
-					for(int o = 1; o < l;o++){
-						vehiclesTotal2 -= dataCollection[o][n];
-					}
-				}
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal2), true);
-			}
-			tmpSumLine = 0;
-			*/
 		}
 		
 		logAnalyser_.updateProgressBar(100);
@@ -1357,9 +1308,7 @@ public class LogOperations extends Thread {
 		
 		maxOfRow++;
 		int[][] dataCollection = new int[maxOfRow][maxOfRow];
-		//long vehiclesTotal = 0;
 		for(Map.Entry<String, String> e : successLog.entrySet()){
-			//vehiclesTotal++;
 			dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] = dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] + 1;
 		}
 		
@@ -1375,33 +1324,12 @@ public class LogOperations extends Thread {
 		logAnalyser_.updateInformationArea("#Success/Crossed", true);
 		for(int i = 1; i < maxOfRow; i++) logAnalyser_.updateInformationArea(" " + i, true);
 		logAnalyser_.updateInformationArea(" VehiclesLeft", true);
-	//	float tmpSumLine = 0;
-	//	float vehiclesTotal2 = 0;
+
 		for(int l = 0; l < maxOfRow;l++){
 			logAnalyser_.updateInformationArea("\n" + l, true);	
 			for(int m = 1; m < maxOfRow;m++){
-			//	tmpSumLine += dataCollection[m][l];
 				logAnalyser_.updateInformationArea(" " + dataCollection[m][l], true);
 			}
-			//this is the old version of the detailed calculator. Now there is a script -> accumulateDetailedLogFiles() in ReportingControlPanel
-			/*
-			if(l == 0){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else if(l == 1){
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal), true);
-			}
-			else{
-				vehiclesTotal2 = vehiclesTotal;
-				for(int n = 0; n < l;n++){
-					for(int o = 1; o < l;o++){
-						vehiclesTotal2 -= dataCollection[o][n];
-					}
-				}
-				logAnalyser_.updateInformationArea(" " + (tmpSumLine/vehiclesTotal2), true);
-			}
-			tmpSumLine = 0;
-			*/
 		}
 		
 		
@@ -1520,15 +1448,6 @@ public class LogOperations extends Thread {
 		double score = 0;
 		
 		double maxDrivingDistance = Integer.parseInt(slowHeaderArray[1])*(maxSlowSearchTime/1000);
-
-		//double anoTotal = 0;
-		//double anoCounter = 0;
-	
-
-		//int countertest = 0;
-		
-		
-		//int timeInSlowCounter = 0;
 		
 		//variables for the progressbar
 		long amountOfLines = savedLog.length;
@@ -1538,45 +1457,11 @@ public class LogOperations extends Thread {
 		
 		//a ArrayList for all vehicles which reached destination.
 		ArrayList<String> vehiclesReachedGoalArray = new ArrayList<String>();
-		
-		//int tmpCounter = 0;
-		
+				
 		BufferedReader reader = new BufferedReader(new StringReader(completeFile));     
-	/*
-		try {
-			//read vehicle data line by line and check every vehicle
-			while ((line = reader.readLine()) != null) {  			
-				//skip empty lines and header lines
-				if (line.length() > 8 && !line.substring(0, 4).equals("Slow")){
-					//in this loop we look for all vehicles which started a slow period. --> skip vehicles with OUT direction
-					logData = line.split(":");
-					
-					if(logData[0].equals("VehicleReachedDestination")){
-						vehiclesReachedGoalArray.add(logData[1]);
-					}
-					
-					if(logData.length == 25){
-						if(Integer.parseInt(logData[24]) <= 3000){
-							if(tmpCounter < 200){
-								System.out.println(line);
-								tmpCounter++;
-							}
-							timeInSlowCounter++;
-						}
-					}
-				}
-					
-			}
-		} catch(IOException e) {
-			System.out.println("Error while doing standard slow attack");
-			e.printStackTrace();
-		}
-		
-		System.out.println("*********");
-		*/
+	
 		ArrayList<String> blacklist = new ArrayList<String>();
 
-		//reader = new BufferedReader(new StringReader(completeFile));  
 		try {
 			//read vehicle data line by line and check every vehicle
 			while ((line = reader.readLine()) != null) {  		
@@ -1587,31 +1472,13 @@ public class LogOperations extends Thread {
 					
 					if(logData[0].equals("VehicleReachedDestination")){
 						
-						vehiclesReachedGoalArray.add(logData[1] + ":" + logData[2]);
-						/*
-						System.out.println("suche:" + line);
-						//now reverse search the start of this slow
-						ReverseLineReader rlr = new ReverseLineReader(logAnalyser_.getActualJob(), tmpFile.length());
-
-						while((tmpLine = rlr.readPreviousLine()) != null){
-							tmpArray = tmpLine.split(":");
-							if(tmpArray != null && tmpArray.length > 6){
-								if(tmpArray[2].equals(logData[1])){
-									vehiclesReachedGoalArray.add(tmpLine);
-									System.out.println("finde:" + tmpLine);
-									break;
-								}
-							}
-						}
-						*/	
+						vehiclesReachedGoalArray.add(logData[1] + ":" + logData[2]);	
 					}
 					else if(logData[direction].equals("IN")){
 						//take the second beacon. It is more actual
 						line = reader.readLine();
 						logData = line.split(":");
-						
-						//numberOfVehicles++;
-													
+																		
 								
 						//now check every vehicle that left the mix zone in the time (expectedTime + buffer)
 						//set mark for reader (performance tweak, we can resume our buffer on this position later)
@@ -1685,9 +1552,7 @@ public class LogOperations extends Thread {
 						//take the second beacon. It is more actual
 						line = reader.readLine();
 						logData = line.split(":");
-						
-						//numberOfVehicles++;
-													
+																		
 								
 						//now check every vehicle that left the mix zone in the time (expectedTime + buffer)
 						//set mark for reader (performance tweak, we can resume our buffer on this position later)
@@ -1736,10 +1601,7 @@ public class LogOperations extends Thread {
 										dy = Integer.parseInt(logData[y]) - Integer.parseInt(logData2[y]);
 
 										if((maxDrivingDistance*maxDrivingDistance) > (dx*dx + dy*dy)){
-											//anoTotal++;
-											//if(logData[steadyID].equals(logData2[steadyID]))anoCounter++;
-											
-	
+
 											expectedWay = (float) ((float)((Integer.parseInt(logData2[timestamp]) - Integer.parseInt(logData[timestamp]))/1000 * Integer.parseInt(logData[vehicleSpeed])) / tuneTimeValue);
 
 											score = Math.abs((dx*dx + dy*dy) - (expectedWay*expectedWay));
@@ -1875,10 +1737,7 @@ public class LogOperations extends Thread {
 		int[][] dataCollection = new int[maxOfRow][maxOfRow];
 		int[][] dataCollection2 = new int[maxOfRow][maxOfRow];
 		//calculate advanced stats
-		//long vehiclesTotal = 0;
 		for(Map.Entry<String, String> e : successLog.entrySet()){
-			//vehiclesTotal++;
-			//System.out.println(e);
 			dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] = dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] + 1;
 			dataCollection2[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[2])] = dataCollection2[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[2])] + 1;
 		}
@@ -1937,21 +1796,14 @@ public class LogOperations extends Thread {
 	public void calculateAverageSlowTime(String file){
 		String line = "";
 		String[] array;
-		
-		//double sumTotal = 0;
-		//double counter = 0;
-		//int moreThen10 = 0;
-		//int lessThen10 = 0;
+
 		BufferedReader reader = new BufferedReader(new StringReader(file));        
 		try {
 			//read vehicle data line by line and check every vehicle
 			while ((line = reader.readLine()) != null) { 
 				array = line.split(":");
 				if(array.length == 25){
-					//counter++;
-					//sumTotal += Integer.parseInt(array[24]);
-					//if(Integer.parseInt(array[24]) > 10000) moreThen10++;
-					//else lessThen10++;
+
 				}
 			}
 		} catch(IOException e) {
@@ -1959,310 +1811,9 @@ public class LogOperations extends Thread {
 			e.printStackTrace();
 		}
 		
-	//System.out.print("Average:" + sumTotal / counter + " more than 10:" + moreThen10 + " less than 10:" + lessThen10);
 	}
 	
-	/*
-	public void advancedAttackSlow(){
-		logAnalyser_.updateProgressBar(0);
-		logAnalyser_.updateInformationArea(0, 0, false);
-		
-
-		//hash map to follow vehicles through more mix zones
-		HashMap<String,String> successLog = new HashMap<String,String>();
-		
-		logAnalyser_.updateProgressBar(5);
-		String completeFile = "";
-		//save and load data (analysis will be faster the second time, e.g. after changing variables)
-		if(logAnalyser_.isFilePathChanged()){
-			completeFile = readFile(logAnalyser_.getActualJob());
-			savedLog = completeFile.split("\n");
-			logAnalyser_.setFilePathChanged(false);
-		}	
-		
-		logAnalyser_.updateProgressBar(10);
-		
-		//check if we have a correct log -> if yes quit analysis
-		if(savedLog[0] == null || !savedLog[0].contains("Slow")){
-			JOptionPane.showMessageDialog(null, Messages.getString("LogOperations.WrongLogType"), "Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		
-		writeLocationInformationToFile(savedLog[0] + "******************\n", false);
-		
-		String[] slowHeaderArray = savedLog[0].split(":");
-		
-		//variables for statistics
-		int numberOfVehicles = 0;
-		int numberOfVehiclesLeftTooSoon = 0;
-		int numberOfCorrectVehicles = 0;
-		
-		System.out.println("file loaded...");
-		
-		//temp line variable
-		String line = "";
-		
-		//variable to save split line of log (":")
-		String[] logDataA;
-		String[] logDataB;
-		String[] logData2A;
-		String[] logData2B;
-		
-		//index of log data (useful if log structure changes)
-		int timestamp = 0;
-		int steadyID = 2;
-		int pseudonym = 4;
-		int direction = 12;
-		int streetName = 14;
-		int streetSpeed = 16;
-		int vehicleSpeed = 18;
-		int x = 20;
-		int y = 22;
-		
-		//values for variables set in GUI	
-		double tuneTimeValue =  logAnalyser_.getGuiElement("tuneTimeValue");
-		double maxSlowSearchTime = logAnalyser_.getGuiElement("maxSlowSearchTime");
-		
-		//initializing variables
-		float expectedWay = 0;
-		float realWay = 0;
-		String savedSteadyID = "";
-		double savedScore = 0;
-		
-		float dx = 0;
-		float dy = 0;
-		
-		double score = 0;
-		
-		double maxDrivingDistance =  6944.44444444444444444444444444444444444*(maxSlowSearchTime/1000);
-		
-
-		String line2 = "";
-		
-		//variables for calculation
-		float x1 = 0;
-		float x2 = 0;
-		float y1 = 0;
-		float y2 = 0;
-		//float v1 = 0;
-		//float v2 = 0;
-		float x3 = 0;
-		float x4 = 0;
-		float y3 = 0;
-		float y4 = 0;
-		double vector1x = 0;
-		double vector1y = 0;
-			
-		double vector2x = 0;
-		double vector2y = 0;
-			
-		double vector = 0;
-		double vector2 = 0; 
-			
-		double cos = 0;
-		double winkelBogenmass = 0;
-
-		float limitToAngle = 80;
-		
-		//variables for the progressbar
-		long amountOfLines = savedLog.length;
-		long updateEveryNLine = amountOfLines/80;
-		long counter = 0;
-		if(updateEveryNLine == 0) updateEveryNLine = 1;
-		
-		BufferedReader reader = new BufferedReader(new StringReader(completeFile));        
-		try {
-			//read vehicle data line by line and check every vehicle
-			while ((line = reader.readLine()) != null) {  
-				counter++;
-				//update progressbar
-				if(counter%updateEveryNLine == 0) logAnalyser_.addToProgressBar(1);
-				
-				//skip empty lines and header lines
-				if (line.length() > 8 && !line.substring(0, 4).equals("Slow")){
-					//in this loop we look for all vehicles which started a slow period. --> skip vehicles with OUT direction
-					logDataA = line.split(":");
-					
-					if(logDataA[direction].equals("IN")){
 	
-						//take the second beacon. It is more actual
-						line = reader.readLine();
-						line2 = line;
-						logDataB = line.split(":");
-						
-						numberOfVehicles++;
-													
-								
-						//now check every vehicle that left the mix zone in the time (expectedTime + buffer)
-						//set mark for reader (performance tweak, we can resume our buffer on this position later)
-						reader.mark(completeFile.length());
-								
-						//tmp variable to save steadyID and the factor
-						savedSteadyID = "";
-						savedScore = 999999999;
-								
-						
-						//calculate estimated way
-						x1 = Integer.parseInt(logDataA[x]);
-						x2 = Integer.parseInt(logDataB[x]);
-						y1 = Integer.parseInt(logDataA[y]);
-						y2 = Integer.parseInt(logDataB[y]);
-						
-						try {
-							//read vehicle data line by line
-							while ((line = reader.readLine()) != null) {   
-								logData2A = line.split(":");
-								logData2B = reader.readLine().split(":");
-								
-								//we are looking for vehicles leaving the slow period, skip IN!
-								if(logData2A[direction].equals("IN")){
-									//always two beacons, skip 1 more
-									//reader.readLine();
-								}
-								else{
-
-									//we only check vehicles until a selected time (performance tweak, calculated expected time + buffer)
-									if((Integer.parseInt(logDataB[timestamp]) + maxSlowSearchTime) < Integer.parseInt(logData2A[timestamp])){
-										break;
-									}
-									
-									
-									//check if vehicle was under the min time to chance pseudonym
-									if(logDataB[pseudonym].equals(logData2A[pseudonym])){
-										savedSteadyID = logData2A[steadyID];
-										numberOfVehiclesLeftTooSoon++;
-										break;
-									}
-									
-									dx = Integer.parseInt(logDataB[x]) - Integer.parseInt(logData2A[x]);
-									dy = Integer.parseInt(logDataB[y]) - Integer.parseInt(logData2A[y]);
-
-									
-									if(maxDrivingDistance*maxDrivingDistance > (dx*dx + dy*dy)){
-										expectedWay = (float) ((float)((Integer.parseInt(logData2A[timestamp]) - Integer.parseInt(logDataB[timestamp]))/1000 * Integer.parseInt(logDataB[vehicleSpeed])) / tuneTimeValue);
-										
-
-										score = Math.abs((dx*dx + dy*dy) - (expectedWay*expectedWay));
-										
-										x3 = Integer.parseInt(logData2A[x]);
-										x4 = Integer.parseInt(logData2B[x]);
-										y3 = Integer.parseInt(logData2A[y]);
-										y4 = Integer.parseInt(logData2B[y]);
-										
-										//calculate 2. vector and get the angle (it's more likely that the vehicle won't change his vector. So we estimate that the vehicle drives straight ahead and is in this area)
-										vector1x = (x2 - x1);
-										vector1y = (y2 - y1);
-										
-										vector2x = (x4 - x3);
-										vector2y = (y4 - y3);
-										
-										vector = vector1x*vector2x + vector1y*vector2y;
-										vector2 = Math.sqrt(vector1x*vector1x + vector1y*vector1y) * Math.sqrt(vector2x*vector2x + vector2y*vector2y); 
-										
-										cos = vector / vector2;
-										winkelBogenmass = Math.acos(cos);
-
-									//	System.out.println("compare:" + line2 + " : " + line + " expectedWay^2:" + expectedWay*expectedWay + " : dxbla: " + (dx*dx + dy*dy) + " score:" + score);
-										
-										//always save the smallest vehicle with the smallest factor
-										if(score < savedScore  && Math.toDegrees(winkelBogenmass) < limitToAngle){
-											savedScore = score;
-											savedSteadyID = logData2A[steadyID];
-										}
-									}						
-								}
-							}
-						} catch(IOException e) {
-							System.out.println("Error while doing standard slow attack");
-							e.printStackTrace();
-						}
-						
-						if(savedSteadyID.equals(logDataB[steadyID])) numberOfCorrectVehicles++;
-							
-						logAnalyser_.updateInformationArea(numberOfVehicles, numberOfVehiclesLeftTooSoon, numberOfCorrectVehicles, true);
-						
-						//jump to mark
-						reader.reset();	
-					}
-				}
-					
-			}
-		} catch(IOException e) {
-			System.out.println("Error while doing standard slow attack");
-			e.printStackTrace();
-		}
-		logAnalyser_.updateInformationArea(numberOfVehicles, numberOfVehiclesLeftTooSoon, numberOfCorrectVehicles, true);
-
-		/*
-		int maxOfRow = 0;
-		//calculate max crossed mix zones
-		for(Map.Entry<String, String> e : successLog.entrySet()){
-			if(maxOfRow < Integer.parseInt(e.getValue().split(":")[0])) maxOfRow = Integer.parseInt(e.getValue().split(":")[0]);
-		}
-		
-		maxOfRow++;
-		int[][] dataCollection = new int[maxOfRow][maxOfRow];
-
-		//calculate advanced states
-		//long vehiclesTotal = 0;
-		for(Map.Entry<String, String> e : successLog.entrySet()){
-			//vehiclesTotal++;
-			dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] = dataCollection[Integer.parseInt(e.getValue().split(":")[0])][Integer.parseInt(e.getValue().split(":")[1])] + 1;
-		}
-		
-		logAnalyser_.updateInformationArea("\n\n", false);
-		logAnalyser_.updateInformationArea("#GNU-Plot Data Simple\n", true);
-		logAnalyser_.updateInformationArea("#Privacy VehiclesTotal Probabilities k-Anonymity\n", true);
-		//calculate anonymity set for the silent period and log the results
-		float[] kAnonymityValues = new float[numberOfMixZones];
-
-		float numberOfVeh = 0;
-		float numberOfCorrVeh = 0;
-		float numberOfKAnoVehTotal = 0;
-		float numberOfKAnoVeh = 0;
-		
-		float[] tmpKAno = null;
-		for(int i = 0; i < mixZoneHeaderArray.length; i++){
-			tmpKAno = getKAnonymityInMix(mixZoneHeaderArray[i].split(":")[2],savedLog[1]);
-			kAnonymityValues[i] = tmpKAno[0];
-			
-			numberOfKAnoVehTotal += tmpKAno[1];
-			numberOfKAnoVeh += tmpKAno[2];
-			
-			numberOfVeh += numberOfVehicles[i];
-			numberOfCorrVeh += numberOfCorrectVehicles[i];
-			
-			logAnalyser_.updateInformationArea("Mix-Zone" + (i+1) + " " + numberOfVehicles[i] + " " + (float)100*numberOfCorrectVehicles[i]/numberOfVehicles[i] + " " + kAnonymityValues[i] + "\n", true);
-		}
-		logAnalyser_.updateInformationArea("Total " + numberOfVeh + " " + (numberOfCorrVeh*100/numberOfVeh) + " " + (numberOfKAnoVehTotal/numberOfKAnoVeh) + "\n", true);
-		logAnalyser_.writeResultsToFile("simple");
-		logAnalyser_.updateInformationArea("\n\n", false);
-		logAnalyser_.updateInformationArea("#GNU-Plot Data Detail\n", true);
-		logAnalyser_.updateInformationArea("#Success/Crossed", true);
-		for(int i = 1; i < maxOfRow; i++) logAnalyser_.updateInformationArea(" " + i, true);
-		logAnalyser_.updateInformationArea(" VehiclesLeft", true);
-		//float tmpSumLine = 0;
-		//float vehiclesTotal2 = 0;
-		for(int l = 0; l < maxOfRow;l++){
-			logAnalyser_.updateInformationArea("\n" + l, true);	
-			for(int m = 1; m < maxOfRow;m++){
-				//tmpSumLine += dataCollection[m][l];
-				logAnalyser_.updateInformationArea(" " + dataCollection[m][l], true);
-			}
-			
-		}
-		
-		*/
-		
-		
-		//logAnalyser_.updateProgressBar(100);
-		//logAnalyser_.guiControl("progressBar", false);
-		//logAnalyser_.updateProgressBar(0);
-		//logAnalyser_.writeResultsToFile("detail");
-		//writeLocationInformationToFile(null, true);
-/*	
-}
-	*/
 	
 	/**
 	 * return k-anonymity of a mix log (for a chosen node id)

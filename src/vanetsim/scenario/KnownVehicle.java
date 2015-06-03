@@ -154,53 +154,13 @@ public class KnownVehicle{
 			System.out.println("savedspeed:" + savedSpeed_[i%(amountOfSavedBeacons_)]);
 		}
 	}
-	
-	/**
-	 *  get the time for how long this vehicle has been seen standing around. returns a counter (0:countStanding;1:countNotEmpty)
-	 */
-	/*
-	public double[] getFirstLastSpeed(){
-		double[] returnValue = new double[2];
-		int starter = arrayCounter + 1;
-		if(starter == amountOfSavedBeacons_) starter = 0;
-		
-		boolean foundFirst = false;
-		for(int i = starter; i <  (amountOfSavedBeacons_ + starter); i++){
-			if(!foundFirst && savedSpeed_[i%(amountOfSavedBeacons_)] != -1){
-				foundFirst = true;
-				returnValue[0] = savedSpeed_[i%(amountOfSavedBeacons_)];
-			}
-			
-			if(foundFirst && i == (amountOfSavedBeacons_ + starter - 1)) returnValue[1] = savedSpeed_[i%(amountOfSavedBeacons_)];
-		}
-		if(!foundFirst)System.out.println("error!");
-		return returnValue;
-	}
-	
-	
-	*/
+
 	public double[] getSpecificSpeedDataSet(int index){
 		double[] returnValue = new double[2];
 		returnValue[0] = savedSpeed_[(arrayCounter + 1 + index)%amountOfSavedBeacons_];
 		returnValue[1] = savedSpeed_[(amountOfSavedBeacons_ + arrayCounter)%(amountOfSavedBeacons_)];
 		return returnValue;
 	}
-	/*
-	/**
-	 *  get the last speed values logged
-	 */
-	/*
-	public int getSpeedValues(int speedValuesAmount){
-		int returnSpeed = 0;
-		
-		if(speedValuesAmount > amountOfSavedBeacons_)speedValuesAmount = amountOfSavedBeacons_;
-		
-		for(int i = 0; i <  speedValuesAmount; i++){
-			if(savedSpeed_[(arrayCounter+i)] != -1) returnSpeed += savedSpeed_[(arrayCounter+i)];
-		}
-		return returnSpeed;
-	}
-*/
 	
 	/**
 	 * Updates the x coordinate.

@@ -24,6 +24,7 @@ public class VehicleSet {
 	private final String name_;
 	private ArrayList<SimulationProperty> propertyList_ = new ArrayList<SimulationProperty>();
 
+	/** vehicle attributes --> see Vehicle.java */
 	int vehicleLength_;
 	int minSpeed_;
 	int maxSpeed_;
@@ -43,8 +44,6 @@ public class VehicleSet {
 	int emergencyVehicle_;
 	int fakingVehicle_;
 	String fakeMessagesTypes_;
-	
-
 	int amount_;
 	int speedStreetRestriction_;
 	int vehiclesDeviatingMaxSpeed_;

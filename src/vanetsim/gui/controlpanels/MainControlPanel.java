@@ -76,19 +76,6 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 	 * Constructor for the main control panel.
 	 */
 	public MainControlPanel(){
-		// Create the file chooser in a separate thread. This may take some seconds on Windows...
-		/*Runnable job = new Runnable(){
-			public void run() {
-				
-				
-				JFileChooser tmpChooser = new JFileChooser();
-				tmpChooser.setMultiSelectionEnabled(false);
-				fileChooser_ = tmpChooser;	//now it's ready and we can set the global filechooser
-			}
-		};
-		new Thread(job).start();*/
-
-
 		java.awt.EventQueue.invokeLater ( new Runnable() {
 
 			public void run() {
@@ -125,7 +112,6 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 		size.setSize(size.width + 155, size.height < 800? 800: size.height);
 		setMinimumSize(new Dimension(size.width+50,400));
 		editPanel_.setMinimumSize(size);
-		//simulatePanel_.setBackground(Color.black);
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.PAGE_START;
@@ -144,42 +130,20 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 		tabbedPane_.addChangeListener(this);
 	
 		UIManager.put("TabbedPane.contentOpaque", false);
-		//JTabbedPane tabPane_ = new JTabbedPane();
-		//JPanel pane = new JPanel();
-		//pane.setSize(new Dimension(300, 3000));
-		//pane.setPreferredSize(new Dimension(300, 3000));
-		//tabPane_.add(pane);
 		JScrollPane scrollPane = new JScrollPane(tabbedPane_);
 		tabbedPane_.setOpaque(false);
 		simulatePanel_.setOpaque(false);
 		editPanel_.setOpaque(false);
 		reportingPanel_.setOpaque(false);
 		aboutPanel_.setOpaque(false);
-		//tabbedPane_.setOpaque(false);
-		//tabPane_.setOpaque(false);
-		//tabPane_.setBackground(Color.red);
-		//tabPane_.setBackground(new Color(Color.BITMASK));
-		//pane.setOpaque(false);
 		
-		//simulatePanel_.setOpaque(false);
 		scrollPane.setOpaque(false);
-		//pane.setOpaque(false);
 		scrollPane.getViewport().setOpaque(false);
-		//tabbedPane_.setOpaque(false);
-		//simulatePanel_.setOpaque(false);
-		//this.setOpaque(false);
-		//scrollPane.setOpaque(false);
-		//editPanel_.setOpaque(false);
-		//tabbedPane_.setOpaque(false);
-		//tabbedPane_.setBackground(Color.blue);
-	   ////scrollPane.setForeground(Color.red);
-		//scrollPane.setBackground(Color.red);
 
 		JViewport jv = scrollPane.getViewport();  
 		jv.setViewPosition(new Point(0,0)); 
 		scrollPane.getVerticalScrollBar().setValue(0);
 		add(scrollPane, c);
-		//add(tabbedPane_, c);
 	}
 
 	/**
@@ -287,7 +251,6 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 	 * resize the side bar
 	 */
 	public void resizeSideBar(boolean maxOut){
-		//Dimension size = simulatePanel_.getPreferredSize();
 		if(maxOut){
 			Dimension newSize = simulatePanel_.getPreferredSize();
 			newSize.setSize(newSize.width + 300, newSize.height < 800? 800: newSize.height);
@@ -309,16 +272,13 @@ public final class MainControlPanel extends JPanel implements ChangeListener{
 		Dimension size = simulatePanel_.getPreferredSize();
 		hideBar_ = !hideBar_;
 		if(hideBar_){
-			//simulatePanel_.getHideBar_().setText("<");
 			size.setSize(0, size.height < 800? 800: size.height);
 		}
 		else{
-			//simulatePanel_.getHideBar_().setText(">");
 			size.setSize(size.width+155, size.height < 800? 800: size.height);
 		}
 		setMinimumSize(new Dimension(size.width+50,400));
 		editPanel_.setMinimumSize(new Dimension(size.width, size.height));
-		//editPanel_.setSize(new Dimension(size.width, size.height));
 		this.revalidate();
 		this.repaint();
 	}

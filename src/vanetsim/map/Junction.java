@@ -34,7 +34,6 @@ public final class Junction{
 	
 	/** For passing a node, the needed distance is calculated by multiplying 
 	 * the max. speed of the street with this factor. Measured in seconds. */
-	//private static final double JUNCTION_PASS_TIME_FREE = 2.5;
 	private static final double JUNCTION_PASS_TIME_FREE = 1.5; //changed to 1.5 to get more realistic traffic
 	
 	/** The interval for cleaning up the junction queues. */
@@ -42,7 +41,6 @@ public final class Junction{
 	
 	/** The maximum time in milliseconds to wait for a vehicle to pass the junction. If a vehicle
 	 * doesn't signal that it has passed the junction within this time, another vehicle gets the permission! */
-	//private static final int MAXIMUM_TIME_ON_JUNCTION = 2500;
 	private static final int MAXIMUM_TIME_ON_JUNCTION = 1000;
 	/** A static reference to the renderer. */
 	private static final Renderer renderer_ = Renderer.getInstance();
@@ -82,11 +80,8 @@ public final class Junction{
 	
 	/** When (in simulation time) the next cleanup on the junction queues will be done.*/
 	private int nextJunctionQueueCleanUp_ = JUNCTION_QUEUES_CLEANUP_INTERVAL;	
-	
-	/** Traffic Light*/
-	/*
-	private TrafficLight trafficLight_ = null;
-	*/
+
+
 	/**
 	 * Constructor
 	 * 

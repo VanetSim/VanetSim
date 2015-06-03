@@ -137,7 +137,6 @@ public final class VehicleTypeDialog extends JDialog implements ActionListener, 
 	 */
 	public VehicleTypeDialog(){
 		//some JDialog options
-		//setUndecorated(true);
 		setLayout(new GridBagLayout());
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		

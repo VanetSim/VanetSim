@@ -78,7 +78,6 @@ public class IDSProcessorList{
 		while(next != null){
 			if(next.getMonitoredVehicleID_() == ID){	// update of entry possible
 				next.addBeacon(lane, x, y, speed, timePassed_);
-				//break; <-- there can be more than one ids processor for a vehicle id!
 			}
 			next = next.getNext();
 		}					
@@ -105,11 +104,9 @@ public class IDSProcessorList{
 
 
 		//check if processor already aktiv
-		//boolean flag = false;
 		
 		while(next != null){
 			if((next.getID_() == ID)){ // remove!
-				//flag = true;
 				
 			}
 			next = next.getNext();	// still works as we didn't change it. Garbage Collector will remove it now.
@@ -144,7 +141,6 @@ public class IDSProcessorList{
 		if(instantIDS){
 			next.setReady_(true);
 			vehicle.setCheckIDSProcessors_(true);
-		//	next.setInstantIDS_(0);
 		}
 		return true;
 	}

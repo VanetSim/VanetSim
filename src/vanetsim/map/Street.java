@@ -287,8 +287,6 @@ public final class Street {
 	 * 					endNode to startNode
 	 */
 	public void addLaneObject(LaneObject object, boolean direction){
-		//if(direction) startToEndLane_.doMagic(object, -1, "addSorted");
-		//else endToStartLane_.doMagic(object, -1, "addSorted");
 		if(direction) startToEndLane_.addSorted(object);
 		else endToStartLane_.addSorted(object);
 	}
@@ -301,8 +299,6 @@ public final class Street {
 	 * 					endNode to startNode
 	 */
 	public void delLaneObject(LaneObject object, boolean direction){
-		//if(direction) startToEndLane_.doMagic(object, -1, "remove");
-		//else endToStartLane_.doMagic(object, -1, "remove");
 		if(direction) startToEndLane_.remove(object);
 		else endToStartLane_.remove(object);
 	}
@@ -316,8 +312,6 @@ public final class Street {
 	 * @param newPosition	the new position of the object
 	 */
 	public void updateLaneObject(LaneObject object, boolean direction, double newPosition){
-		//if(direction) startToEndLane_.doMagic(object, newPosition, "updatePosition");
-		//else endToStartLane_.doMagic(object, newPosition, "updatePosition");
 		if(direction) startToEndLane_.updatePosition(object, newPosition);
 		else endToStartLane_.updatePosition(object, newPosition);
 	}

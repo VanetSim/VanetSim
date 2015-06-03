@@ -35,12 +35,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-
-
-
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -525,11 +519,6 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 			}
 		};
 		
-		//Provide minimum sizes for the two components in the split pane
-		//Dimension minimumSize = new Dimension(100, 50);
-		//listScrollPane.setMinimumSize(minimumSize);
-		//pictureScrollPane.setMinimumSize(minimumSize);
-
 			
 		//to consume the rest of the space
 		c.weighty = 1.0;
@@ -720,7 +709,6 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 			
         	ArrayList<String> locationInformation = new ArrayList<String>();
         	
-			String logType = "";
 			
 			if(status == JFileChooser.APPROVE_OPTION){
 					File file = fc.getSelectedFile().getAbsoluteFile();
@@ -729,9 +717,7 @@ public class EditIDSControlPanel extends JPanel implements ListSelectionListener
 			        try{
 			            reader = new BufferedReader(new FileReader(file));
 			            String line = reader.readLine();
-			            			            
-			            String data[];
-		            
+			            			            		            
 			            //check if the log is a silent-period or a mix-zone log
 			            while(line != null){
 				        	locationInformation.add(line);

@@ -166,7 +166,6 @@ public class EditLogControlPanel extends JPanel implements  FocusListener, Actio
 		
 		
 		++c.gridy;
-		//c.gridwidth = 1;
 		c.gridx = 0;
 		add(new JLabel(Messages.getString("EditLogControlPanel.privacyLogLabel")),c); //$NON-NLS-1$
 		
@@ -199,7 +198,6 @@ public class EditLogControlPanel extends JPanel implements  FocusListener, Actio
 		
 		
 		++c.gridy;
-		//c.gridwidth = 1;
 		c.gridx = 0;
 		add(new JLabel(Messages.getString("EditLogControlPanel.IDSLogLabel")),c); //$NON-NLS-1$
 		
@@ -231,7 +229,6 @@ public class EditLogControlPanel extends JPanel implements  FocusListener, Actio
 		add(new JSeparator(SwingConstants.HORIZONTAL),c);
 		
 		++c.gridy;
-		//c.gridwidth = 1;
 		c.gridx = 0;
 		add(new JLabel(Messages.getString("EditLogControlPanel.EventLogLabel")),c); //$NON-NLS-1$
 		

@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.ArrayDeque;
 
 
+
+
 import vanetsim.VanetSimStart;
 import vanetsim.gui.Renderer;
 import vanetsim.gui.controlpanels.ReportingControlPanel;
@@ -230,9 +232,6 @@ public class Vehicle extends LaneObject{
 	
 	/** the counter for the rhcn message */
 	private int waitToSendRHCNCounter_ = -1;
-	
-//	private static int vehiclesInSlow = 0;
-	// object variables begin here
 
 	/** The destinations this vehicle wants to visit. */
 	public ArrayDeque<WayPoint> originalDestinations_;
@@ -385,8 +384,6 @@ public class Vehicle extends LaneObject{
 	/** Breaking of vehicle in fluctuation mode */
 	private double fluctuation_ = 0;
 	
-	/** How much time has passed since the last message was created*/
-	//private int lastMessageCreated = 0;
 
 	/** How much time has passed since the last rhcn message was created*/
 	private int lastRHCNMessageCreated = 0;
@@ -400,22 +397,8 @@ public class Vehicle extends LaneObject{
 	/** How much time has passed since the last eva message was created*/
 	private int lastEVAMessageCreated = 0;
 	
-	/** How much time has passed since the last eva forward message was created*/
-	//private int lastEVAFORWARDMessageCreated = 0;
-	
-	/** How much time has passed since the last eebl message was created*/
-	//private int lastEEBLMessageCreated = 0;
-	
-	/** How much time has passed since the last fake message was created*/
-	//private int lastFAKEMessageCreated = 0;
-
-	
-	
 	/** How long this vehicle is waiting in a jam (in milliseconds). */
 	private int stopTime_ = 0;
-	
-	/** How many messages this vehicle has created. */
-	//private int messagesCreated_ = 0;
 	
 	/** How many messages this vehicle has created. Used to give the messages unique ids (vehicle id + messageCounter; note that a collusion is possible but unlikely) */
 	private int messagesCounter_ = 0;
@@ -537,10 +520,7 @@ public class Vehicle extends LaneObject{
 	
 	/** counter how much emergency beacons should be faked */
 	private int emergencyBeacons = -1;
-	
-	/** local blocking object */
-	//private ArrayList<BlockingObject> tmpBlockings = new ArrayList<BlockingObject>();
-	
+
 	/** flag to save if vehicle is driving on the side of a road because of a emergency vehicle. */
 	private boolean drivingOnTheSide_ = false;
 	
@@ -559,21 +539,38 @@ public class Vehicle extends LaneObject{
 	/** a counter to save the amount of found spamers */
 	private int spamCounter_ = 0;
 	
-
+	/** the amount of normal Beacons, which are sent out before the EVA message */
 	private int EVAMessageDelay_ = 3;
 
+	/** min and max amount of beacons a recipient of an EVA message will wait until she moves out of the way */
 	private static int minEVAMessageDelay_ = 1;
 	private static int maxEVAMessageDelay_ = 10;
 	
+	/** enables logging of Beacons after an event */
 	private boolean logBeaconsAfterEvent_ = false;
+	
+	/** buffers Beacons until they are written on hard drive */
 	private String beaconString_ = "";
+	
+	/** amount beacons logged */
 	private int amountOfLoggedBeacons_ = 0;
+	
+	/** enables logging of differents ways vehicles use in a junction (for entropy calculation) */
 	private boolean logJunctionFrequency_ = false;
 	
+	/** enables logging of probe data */
 	private boolean probeDataActive_ = false;
+	
+	/** frequency probe data is logged */
 	private int PROBE_DATA_TIME_INTERVAL = 80;
+	
+	/** how many Beacons are logged in the probe data */
 	private int amountOfProbeData_ = 3;
+	
+	/** time to wait before logging probe data */
 	private int startAfterTime_ = 60000;
+	
+	/** helper for probe data logging */
 	private int curProbeDataInterval_ = 0;
 	
 	/**
@@ -871,8 +868,6 @@ public class Vehicle extends LaneObject{
 				//curBrakingDistance always needs to be up-to-date but speed normally doesn't change too often...
 				if(curSpeed_ != speedAtLastBrakingDistanceCalculation_){
 					speedAtLastBrakingDistanceCalculation_ = curSpeed_;
-					//curBrakingDistance_ = (int)StrictMath.floor(((timeDistance_/1000)*curSpeed_) + curSpeed_ * curSpeed_ / (2 * brakingRate_)); <-- new version, commented out because of performance issues (vehicles are to near together when blocking occurs)
-					//System.out.println(curBrakingDistance_);
 					curBrakingDistance_ = (int)StrictMath.floor(0.5d + curSpeed_ + curSpeed_ * curSpeed_ / (2 * brakingRate_));
 					if(curBrakingDistance_ < 500) curBrakingDistance_ = 500;
 				}
@@ -975,7 +970,6 @@ public class Vehicle extends LaneObject{
 					if(checkLaneFree(curLane_ - 1)){
 						newLane_ = curLane_ - 1;
 						changedLane = true;
-						//if(moveOutOfTheWay_) newLane_= 0;
 						laneChangeCountdown = LANE_CHANGE_INTERVAL;
 						moveOutOfTheWay_ = false;
 						drivingOnTheSide_ = false;
@@ -1116,8 +1110,6 @@ public class Vehicle extends LaneObject{
 					speedFluctuationCountdown_ += SPEED_NO_FLUCTUATION_CHECKINTERVAL;
 					fluctuation_ = 0;
 				}
-				//currentSpeedFluctuation_ = ownRandom_.nextInt(SPEED_FLUCTUATION_MAX) + 1;
-				//if(Renderer.getInstance().getMarkedVehicle() != null && Renderer.getInstance().getMarkedVehicle().equals(this)) System.out.println("Geschwindigkeit: " + currentSpeedFluctuation_);
 			}
 			else speedFluctuationCountdown_ -= timePerStep;
 			
@@ -1129,67 +1121,6 @@ public class Vehicle extends LaneObject{
 						EEBLmessageIsCreated_ = false;
 					}
 				}
-				
-				//else if(emergencyBrakingCountdown_ < emergencyBrakingDuration_){
-					
-					/*
-					if(!EEBLmessageIsCreated_){
-						EEBLmessageIsCreated_ = true;
-						//lastMessageCreated = 0;
-						// find the destination for the message. Will be sent to the next junction behind us!
-						boolean tmpDirection2 = curDirection_;
-						Street tmpStreet2 = curStreet_;
-						Street[] crossingStreets;
-						Node tmpNode;
-						int k, l = 0, destX = -1, destY = -1;
-						do{
-							++l;
-							if(tmpDirection2){
-								tmpNode = tmpStreet2.getStartNode();
-							} else {
-								tmpNode = tmpStreet2.getEndNode();
-							}
-							if(tmpNode.getJunction() != null){
-								destX = tmpNode.getX();
-								destY = tmpNode.getY();
-								break;
-							}
-							crossingStreets = tmpNode.getCrossingStreets();
-							// find next street behind of us
-							if(crossingStreets.length != 2){	// end of a street or some special case. don't forward any further
-								destX = tmpNode.getX();
-								destY = tmpNode.getY();
-								break;
-							}
-							for(k = 0; k < crossingStreets.length; ++k){
-								if(crossingStreets[k] != tmpStreet2){
-									tmpStreet2 = crossingStreets[k];
-									if(tmpStreet2.getStartNode() == tmpNode) tmpDirection2 = false;
-									else tmpDirection2 = true;
-									break;
-								}
-							}
-						} while(tmpStreet2 != curStreet_ && l < 10000);	//hard limit of 10000 nodes to maximally go back or if again arriving at source street (=>circle!)
-						// found destination...now insert into messagequeue
-						if(destX != -1 && destY != -1){
-							int direction = -1;
-							if(!curDirection_) direction = 1;
-							int time = Renderer.getInstance().getTimePassed();
-							PenaltyMessage message = new PenaltyMessage(this.getX(), this.getY(), destX, destY, PENALTY_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, false, ID_, this,  "HUANG_EEBL", false, true);
-							long dx = message.getDestinationX_() - curX_;
-							long dy = message.getDestinationY_() - curY_;
-							if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
-								message.setFloodingMode(true);	// enable flooding mode if within distance!
-							}								
-							knownMessages_.addMessage(message, true, true);
-
-							++eeblMessagesCreated_;
-						}	
-						*/
-						//emergencyBraking_ = true;
-					//}
-					
-				//}
 				
 			
 			if(isWiFiEnabled() && communicationEnabled_){
@@ -1230,14 +1161,11 @@ public class Vehicle extends LaneObject{
 				// ================================= 
 				// Step 7: Check if this vehicle is currently in a traffic jam and should create a message.
 				// ================================= 
-				//lastMessageCreated += timePerStep;
 				lastRHCNMessageCreated += timePerStep;
 				lastPCNMessageCreated += timePerStep;
 				lastPCNFORWARDMessageCreated += timePerStep;
 				lastEVAMessageCreated += timePerStep;
-				//lastEVAFORWARDMessageCreated += timePerStep;
-				//lastEEBLMessageCreated += timePerStep;
-				//lastFAKEMessageCreated += timePerStep;
+
 				if(newSpeed_ == 0){
 					stopTime_ += timePerStep;
 					
@@ -1443,7 +1371,6 @@ public class Vehicle extends LaneObject{
 						// found destination...now insert into messagequeue
 						if(destX != -1 && destY != -1){
 							int direction = -1;
-							//if(!curDirection_) direction = 1;
 							int time = Renderer.getInstance().getTimePassed();
 							if(messageType.equals("HUANG_EVA_FORWARD")){
 								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this,  messageType, false, true);
@@ -1457,34 +1384,17 @@ public class Vehicle extends LaneObject{
 				
 							}
 							else if(messageType.equals("HUANG_PCN")){
-								//if(stopTime_ < 2000){
-									//int messageX = 0;
-									//int messageY = 0;
-									//send message in front and only if vehicle has a street to drive left!
-									/*
-									if((routeStreets_.length - routePosition_) > 1){
-										if(routeDirections_[(routePosition_+1)]){
-											messageX = routeStreets_[(routePosition_+1)].getEndNode().getX();
-											messageY = routeStreets_[(routePosition_+1)].getEndNode().getY();
-										}
-										else{
-											messageX = routeStreets_[(routePosition_+1)].getStartNode().getX();
-											messageY = routeStreets_[(routePosition_+1)].getStartNode().getY();
-										}
-										*/
-	
-										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
+				
+								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
-										long dx = message.getDestinationX_() - curX_;
-										long dy = message.getDestinationY_() - curY_;
-										if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
-											message.setFloodingMode(true);	// enable flooding mode if within distance!
-										}
-										knownMessages_.addMessage(message, false, true);
-									//}
-								//}
+								long dx = message.getDestinationX_() - curX_;
+								long dy = message.getDestinationY_() - curY_;
+								if((long)PENALTY_MESSAGE_RADIUS * PENALTY_MESSAGE_RADIUS >= (dx*dx + dy*dy)){
+									message.setFloodingMode(true);	// enable flooding mode if within distance!
+								}
+								knownMessages_.addMessage(message, false, true);
+
 							}
-							//else if(messageType.equals("PCN_FORWARD")){}
 							else{
 								PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, ID_, this, messageType, false, true);
 
@@ -1496,7 +1406,6 @@ public class Vehicle extends LaneObject{
 							    knownMessages_.addMessage(message, false, true);
 
 							}
-					//		System.out.println(time + ":fake message created: " + messageType);
 						}		
 						++fakeMessagesCreated_;
 					
@@ -1506,143 +1415,7 @@ public class Vehicle extends LaneObject{
 			}
 		}			
 	}
-/*
-	public void test(int timePerStep){
-		if(knownMessages_.hasNewMessages()) {
-			messageSendCounter_++;
-			knownMessages_.processMessages();
-		}
-	
-		/*
-		knownPenaltiesTimeoutCountdown_ -= timePerStep;
-		if(knownPenaltiesTimeoutCountdown_ < 1){
-			if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
-			knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-		}
 
-		if(beaconsEnabled_){
-			beaconCountdown_ -= timePerStep;
-
-			// recheck known vehicles for outdated entries.
-			if(knownVehiclesTimeoutCountdown_ < 1){
-				knownVehiclesList_.checkOutdatedVehicles();
-				idsProcessorList_.checkOutdatedProcessors();
-				knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
-			} else knownVehiclesTimeoutCountdown_ -= timePerStep;
-			
-			// recheck known RSUs for outdated entries.
-			if(knownRSUsTimeoutCountdown_ < 1){
-				knownRSUsList_.checkOutdatedRSUs();
-				knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
-			} else knownRSUsTimeoutCountdown_ -= timePerStep;
-			
-		}
-		
-	}
-	
-	public void testa(int timePerStep){
-		communicationCountdown_ -= timePerStep;
-		if(communicationCountdown_ < 1) knownMessages_.checkOutdatedMessages(true);
-
-		/*
-		knownPenaltiesTimeoutCountdown_ -= timePerStep;
-		if(knownPenaltiesTimeoutCountdown_ < 1){
-			if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
-			knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-		}
-
-		if(beaconsEnabled_){
-			beaconCountdown_ -= timePerStep;
-
-			// recheck known vehicles for outdated entries.
-			if(knownVehiclesTimeoutCountdown_ < 1){
-				knownVehiclesList_.checkOutdatedVehicles();
-				idsProcessorList_.checkOutdatedProcessors();
-				knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
-			} else knownVehiclesTimeoutCountdown_ -= timePerStep;
-			
-			// recheck known RSUs for outdated entries.
-			if(knownRSUsTimeoutCountdown_ < 1){
-				knownRSUsList_.checkOutdatedRSUs();
-				knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
-			} else knownRSUsTimeoutCountdown_ -= timePerStep;
-			
-		}
-		
-	}
-	
-	public void test2(int timePerStep){
-		/*
-		if(knownMessages_.hasNewMessages()) {
-			messageSendCounter_++;
-			knownMessages_.processMessages();
-		}
-		communicationCountdown_ -= timePerStep;
-		if(communicationCountdown_ < 1) knownMessages_.checkOutdatedMessages(true);
-
-		
-		knownPenaltiesTimeoutCountdown_ -= timePerStep;
-		if(knownPenaltiesTimeoutCountdown_ < 1){
-			if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
-			knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-		}
-/*
-		if(beaconsEnabled_){
-			beaconCountdown_ -= timePerStep;
-
-			// recheck known vehicles for outdated entries.
-			if(knownVehiclesTimeoutCountdown_ < 1){
-				knownVehiclesList_.checkOutdatedVehicles();
-				idsProcessorList_.checkOutdatedProcessors();
-				knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
-			} else knownVehiclesTimeoutCountdown_ -= timePerStep;
-			
-			// recheck known RSUs for outdated entries.
-			if(knownRSUsTimeoutCountdown_ < 1){
-				knownRSUsList_.checkOutdatedRSUs();
-				knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
-			} else knownRSUsTimeoutCountdown_ -= timePerStep;
-			
-		}
-		
-	}
-	
-	public void test3(int timePerStep){
-		/*
-		if(knownMessages_.hasNewMessages()) {
-			messageSendCounter_++;
-			knownMessages_.processMessages();
-		}
-		communicationCountdown_ -= timePerStep;
-		if(communicationCountdown_ < 1) knownMessages_.checkOutdatedMessages(true);
-
-		
-		knownPenaltiesTimeoutCountdown_ -= timePerStep;
-		if(knownPenaltiesTimeoutCountdown_ < 1){
-			if(knownPenalties_.getSize() > 0) knownPenalties_.checkValidUntil();
-			knownPenaltiesTimeoutCountdown_ += KNOWN_PENALTIES_TIMEOUT_CHECKINTERVAL;
-		}
-
-		if(beaconsEnabled_){
-			beaconCountdown_ -= timePerStep;
-
-			// recheck known vehicles for outdated entries.
-			if(knownVehiclesTimeoutCountdown_ < 1){
-				knownVehiclesList_.checkOutdatedVehicles();
-				idsProcessorList_.checkOutdatedProcessors();
-				knownVehiclesTimeoutCountdown_ += KNOWN_VEHICLES_TIMEOUT_CHECKINTERVAL;
-			} else knownVehiclesTimeoutCountdown_ -= timePerStep;
-			
-			// recheck known RSUs for outdated entries.
-			if(knownRSUsTimeoutCountdown_ < 1){
-				knownRSUsList_.checkOutdatedRSUs();
-				knownRSUsTimeoutCountdown_ += KNOWN_RSUS_TIMEOUT_CHECKINTERVAL;
-			} else knownRSUsTimeoutCountdown_ -= timePerStep;
-			
-		}
-		
-	}
-	*/
 	//Still in development, commented code is needed!
 	/**
 	 * helper class to develope politness factor
@@ -2077,7 +1850,6 @@ public class Vehicle extends LaneObject{
 			if(next_.getCurLane() == lane){	// next one is on the same lane
 				foundNextVehicle = true;
 				if((curDirection_ && next_.getCurPosition()-curPosition_ < curBrakingDistance_) || (!curDirection_ && curPosition_-next_.getCurPosition() < curBrakingDistance_)){
-					//if(curSpeed_ > 3600 && knownPenalties_.streetIsBlocked(curStreet_, 3))return 1;
 					if(curSpeed_ > next_.getCurSpeed()-brakingRate_){
 						if(!next_.getClass().equals(BlockingObject.class)){
 							if(emergencyVehicle_){
@@ -2379,8 +2151,7 @@ public class Vehicle extends LaneObject{
 								}
 								else if(((BlockingObject) next_).getPenaltyType_().equals("HUANG_RHCN") &&  curSpeed_ < 360 ) return 0;
 								else{
-									//for(StartBlocking blocks:EventList.getInstance().getCurrentBlockingsArrayList()) if(blocks.getStreet().equals(curStreet_) && blocks.isFirst_() && blocks.getPenaltyType_().equals("HUANG_RHCN")){
-										//blocks.setFirst_(false);
+					
 									passingBlocking_ = true;
 									if(((BlockingObject) next_).getPenaltyType_().equals("HUANG_RHCN"))	{	
 										if(lastRHCNMessageCreated >= MESSAGE_INTERVAL){
@@ -2624,7 +2395,6 @@ public class Vehicle extends LaneObject{
 		// Step 2: Check space behind
 		// ================================= 
 		neededFreeDistance = curBrakingDistance_;
-		//neededFreeDistance = curBrakingDistance_ + 1000;
 		boolean foundPreviousVehicle = false;
 		// check the lane object before us (on our street)
 		if(previous_ != null){
@@ -2711,11 +2481,7 @@ public class Vehicle extends LaneObject{
 	 * </ul>
 	 */
 	public void sendMessages(){
-	
-		//clean up old penalties 		
-		//ArrayList<BlockingObject> tmpO = new ArrayList<BlockingObject>(tmpBlockings);
-		//for(BlockingObject o:tmpO) if(o.removeFromLane(this, Renderer.getInstance().getTimePassed())) tmpBlockings.remove(o);
-				
+			
 		communicationCountdown_ += communicationInterval_;
 		if(beaconsEnabled_ && !isInMixZone_){
 			Message[] messages = knownMessages_.getForwardMessages();
@@ -2769,7 +2535,6 @@ public class Vehicle extends LaneObject{
 					nearestVehicle = knownVehiclesList_.findNearestVehicle(curX_, curY_, messages[i].getDestinationX_(), messages[i].getDestinationY_(), maxCommDistance_);
 					if(nearestVehicle != null){	// only communicate if a nearer vehicle was found!
 						nearestVehicle.receiveMessage(curX_, curY_, messages[i]);
-						//nearestVehicle.setColor(Color.green);
 						knownMessages_.deleteForwardMessage(i, true);
 					}
 				}
@@ -2965,13 +2730,7 @@ public class Vehicle extends LaneObject{
 				logNextBeacons = 2;
 			}
 		}
-		/*
-		if(((Renderer.getInstance().getTimePassed() - slowTimestamp) > 60000) && !vehicleCounted){
-			vehicleCounted = true;
-			vehiclesInSlow++;
-		}
-		if(Renderer.getInstance().getTimePassed()%24000 == 0)System.out.println(vehiclesInSlow);
-		*/
+
 		if(slowOn){
 			if(!isInSlow && this.curSpeed_ <= SLOW_SPEED_LIMIT && logNextBeacons == 0){
 				isInSlow = true;
@@ -3097,7 +2856,6 @@ public class Vehicle extends LaneObject{
 									// found destination...now insert into messagequeue
 									if(destX != -1 && destY != -1){
 										int direction = -1;
-										//if(!curDirection_) direction = 1;
 										int time = Renderer.getInstance().getTimePassed();
 										
 										PenaltyMessage message = new PenaltyMessage(curX_, curY_, destX, destY, PENALTY_FAKE_MESSAGE_RADIUS, time + PENALTY_MESSAGE_VALID, curStreet_, curLane_, direction, PENALTY_MESSAGE_VALUE, time + PENALTY_VALID, true, (ID_-1), this,  "EVA_EMERGENCY_ID", true, true);
@@ -3315,7 +3073,9 @@ public class Vehicle extends LaneObject{
 					if(logJunctionFrequency_){
 						//use this to log vehicles passing junctions. To count the different routes and their frequency.
 						Node tmpNode = null;
+						@SuppressWarnings("unused")
 						int street1 = -1;
+						@SuppressWarnings("unused")
 						int street2 = -1;
 	 					if(curDirection_ && routeStreets_[routePosition_].getStartNode().getCrossingStreetsCount() > 2){
 	 						tmpNode = routeStreets_[routePosition_].getStartNode();
@@ -3638,8 +3398,6 @@ public class Vehicle extends LaneObject{
 	 * Resets this vehicle so that it can be reused. It will travel on the same route as last time!
 	 */
 	public void reset(){
-		//ArrayList<BlockingObject> tmpO = new ArrayList<BlockingObject>(tmpBlockings);
-		//for(BlockingObject o:tmpO) tmpBlockings.remove(o);
 		
 		//reset countdowns and other variables
 		ID_ = ownRandom_.nextLong();
@@ -3664,26 +3422,15 @@ public class Vehicle extends LaneObject{
 		communicationCountdown_ = (int)Math.round(curPosition_)%communicationInterval_;
 		mixCheckCountdown_ = (int)Math.round(curPosition_)%MIX_CHECK_INTERVAL;
 		emergencyBrakingCountdown_ = ownRandom_.nextInt(emergencyBrakingInterval_)+1;
-	//	lastMessageCreated = 0;
 		lastRHCNMessageCreated = 0;		
 		lastPCNMessageCreated = 0;
 		lastPCNFORWARDMessageCreated = 0;
 		lastEVAMessageCreated = 0;
-		//lastEVAFORWARDMessageCreated = 0;
-		//lastEEBLMessageCreated = 0;
-		//lastFAKEMessageCreated = 0;
+
 		stopTime_ = 0;
 		passingBlocking_ = false;
 		//don't set them 0, because we wan't the count of all messages created (included the deleted ones)
-		/*
-		pcnMessagesCreated_ = 0;
-		pcnForwardMessagesCreated_ = 0;
-		evaForwardMessagesCreated_ = 0;
-		evaMessagesCreated_ = 0;
-		rhcnMessagesCreated_ = 0;
-		eeblMessagesCreated_ = 0;
-		fakeMessagesCreated_ = 0;
-		*/
+
 		IDsChanged_ = 0;
 		
 		//slow model

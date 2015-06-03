@@ -120,9 +120,7 @@ public final class WorkerThread extends Thread {
 		RSU[][] rsus = new RSU[ourRegionsLength][];
 		RSU[] rsuSubarray;	// it is better to cache lookups in the double-array.
 		RSU rsu;
-		
-		//ArrayList<IDSProcessor> idsReady_ = new ArrayList<IDSProcessor>();
-		
+				
 		Iterator<Integer> changedRegionIterator;
 		int tmp;
 
@@ -173,7 +171,6 @@ public final class WorkerThread extends Thread {
 				} catch (BrokenBarrierException e){	// master wants us to stop!
 					break;
 				} catch (Exception e){
-					//e.printStackTrace();
 				}
 
 				// ================================= 

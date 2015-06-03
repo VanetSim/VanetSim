@@ -40,15 +40,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
 import vanetsim.VanetSimStart;
@@ -66,7 +71,7 @@ import vanetsim.scenario.RSU;
 /**
  * This class contains the control elements for display of statistics and mix zone information
  */
-public final class ReportingControlPanel extends JPanel implements ActionListener, ItemListener{
+public final class ReportingControlPanel extends JPanel implements ActionListener, ItemListener, ListSelectionListener{
 	
 	/** The necessary constant for serializing. */
 	private static final long serialVersionUID = 5121974914528330821L;
@@ -135,7 +140,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 	/** A countdown for the beacon zone actualization */
 	private int beaconInfoCountdown_ = 0;
 	
-	
 	/** JButton to open log cleaner. The log cleaner will search a log file and replace all coordinates with port names (like "1") */
 	private final JButton privacyLogCleaner_;
 	
@@ -144,6 +148,12 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 	
 	/** FileFilter to choose only ".log" files from FileChooser */
 	private FileFilter logFileFilter_;
+	
+	/** A JList displaying all possible scripts **/
+	private JList<String> availableScripts_;
+	
+	/** A DefaultListModel for the available scripts **/
+	private DefaultListModel<String> availableScriptsModel_ = new DefaultListModel<String>();
 
 	/**
 	 * Constructor for this control panel.
@@ -318,6 +328,33 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		accuIDSFiles.addActionListener(this);
 		add(accuIDSFiles,c);
 
+		//log analyser
+		c.gridwidth = 2;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.BOTH;
+		++c.gridy;
+		c.insets = new Insets(25,5,5,5);
+		add(new JLabel("<html><b>" + Messages.getString("ReportingControlPanel.sciptCollection") + "</b></html>"), c);
+		c.insets = new Insets(5,5,0,5);
+		++c.gridy;
+		
+		availableScripts_ = new JList<String>(availableScriptsModel_);
+		// Initialize the list with items
+		availableScriptsModel_.add(0, Messages.getString("ReportingControlPanel.accumulateSpammerFiles"));
+		availableScriptsModel_.add(1, Messages.getString("ReportingControlPanel.accumulateVehicleIDSResults"));
+		availableScriptsModel_.add(2, Messages.getString("ReportingControlPanel.perturbationLog"));
+		availableScriptsModel_.add(3, Messages.getString("ReportingControlPanel.makejobs"));
+		availableScriptsModel_.add(4, Messages.getString("ReportingControlPanel.accumulateKnownVehiclesTimeFiles"));
+		availableScriptsModel_.add(5, Messages.getString("ReportingControlPanel.calculateAngles"));
+			
+		
+		availableScripts_.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		availableScripts_.removeListSelectionListener(this);
+		availableScripts_.addListSelectionListener(this);
+		add(availableScripts_, c);
+		++c.gridy;
+		++c.gridy;
+		
 		
 		//makejobs
 		++c.gridy;
@@ -326,7 +363,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		makejobs.setActionCommand("makejobs");
 		makejobs.setPreferredSize(new Dimension(200,20));
 		makejobs.addActionListener(this);
-		add(makejobs,c);		
 		
 		//createscenarios
 		++c.gridy;
@@ -335,7 +371,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		createScenarios.setActionCommand("createscenarios");
 		createScenarios.setPreferredSize(new Dimension(200,20));
 		createScenarios.addActionListener(this);
-		//add(createScenarios,c);
 		
 		//define FileFilter for fileChooser
 		logFileFilter_ = new FileFilter(){
@@ -652,19 +687,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		else if("accumulateDetail".equals(command)){
 			accumulateDetailedLogFiles();
 		}	
-		else if("makejobs".equals(command)){
-			//accumulateVehicleFluctuation();
-			//accumulateSpammerFiles();
-			//accumulateVehicleIDSResults();
-			//perturbationLog();
-			//logPercentage();
-			//makejobs();
-			//reorderData();
-			//getMax();
-			//accumulateKnownVehiclesTimeFiles();
-			//ResearchSeriesDialog.getInstance().setVisible(true);
-			//calculateAngles();
-		}
 		else if("accumulateIDSFiles".equals(command)){
 			accumulateVehicleIDSResults();
 		}
@@ -946,14 +968,13 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 			}
 		}
 			
+		@SuppressWarnings("unused")
 		double entropie = 0;
 		double degree = 0;
 		for(int n = 0; n < angleCounter.length; n++){
 			degree = ((double)angleCounter[n]/degreeCounter*100);
-			System.out.println(n + " " + degree);
 			if(degree != 0)entropie += (degree*Math.log(degree)); 
 		}
-		System.out.println("Entropie:" + -entropie);
 	}
 	
 	/**
@@ -1563,19 +1584,15 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 						else if(f.getName().contains(filter2)) files2.add(f);
 					}
 					
-					float [] accu1;
 					float [] accu2;
 					
 					if(mode.equals("SP")){
-						accu1 = accumulateSimpleSilentPeriodFiles(files1);
 						accu2 = accumulateSimpleSilentPeriodFiles(files2);
 					}
 					else{
-						//accu1 = accumulateSimpleMixFiles(files1);
 						accu2 = accumulateSimpleMixFiles(files2);
 					}
 					
-					//out.write("" + accu1[0]);
 
 					
 					for(int i = 0; i < accu2.length; i++){
@@ -1584,9 +1601,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 					out.write("\n");
 					
 					out.write("#");
-				//	for(int i = 0; i < accu1.length; i++){
-					//	if(accu1[i] != 0)out.write(" " + accu1[i]);
-				//	}
 					out.write("\n");
 				}				
 
@@ -1717,7 +1731,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 		String filename = file.getName();
 		//get all files with the same beginning and end
 		int index = filename.indexOf("_v");
-	//	String stringStart = filename.substring(filename.indexOf("_"), index);
 		String stringStart = filename.substring(0, index);
 
 		ArrayList<File> files = new ArrayList<File>();
@@ -1743,7 +1756,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 	
 		String filename = file.getName();
 		//get all files with the same beginning and end
-	//	String stringStart = filename.substring(filename.indexOf("_"), index);
 		String stringStart = filename.substring(filename.indexOf("_"), filename.indexOf("_v"));
 
 		ArrayList<File> files = new ArrayList<File>();
@@ -1913,8 +1925,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 	 * Opens log files and calculates data for diagram. More than one file can be opened. If there is more than one version (same scenario with new random vehicles) of the file opening one version is enough. The script will look for version1, version2, version3...
 	 */
 	public void accumulateVehicleFluctuation(){
-		//String firstLineFilter = "UpdateStatsInPercent:";
-		//String firstLineFilter = "PercentageStats:";
 		String firstLineFilter = "**********************************";
 		//begin with creation of new file
 		JFileChooser fc = new JFileChooser();
@@ -2066,8 +2076,6 @@ public final class ReportingControlPanel extends JPanel implements ActionListene
 				            reader = new BufferedReader(new FileReader(theFile));
 				            String line = reader.readLine(); 
 				            boolean started = false;
-				            //int counter = 0;
-
 							
 				            while(line != null){
 				            	if(started){
@@ -2237,7 +2245,6 @@ public void logPercentage(){
 		            while(line != null){		            
 		            	data = line.split(" ");
 	            		
-	            		//System.out.println(Math.round(Double.parseDouble(data[1])*100/(Double.parseDouble(data[1]) + Double.parseDouble(data[2]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[3])*100/(Double.parseDouble(data[3]) + Double.parseDouble(data[4]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[5])*100/(Double.parseDouble(data[5]) + Double.parseDouble(data[6]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[7])*100/(Double.parseDouble(data[7]) + Double.parseDouble(data[8]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[9])*100/(Double.parseDouble(data[9]) + Double.parseDouble(data[10]))*100)/100.0);
 	            		System.out.println("0.00," + Math.round(Double.parseDouble(data[1])*100/(Double.parseDouble(data[1]) + Double.parseDouble(data[2]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[3])*100/(Double.parseDouble(data[3]) + Double.parseDouble(data[4]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[5])*100/(Double.parseDouble(data[5]) + Double.parseDouble(data[6]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[7])*100/(Double.parseDouble(data[7]) + Double.parseDouble(data[8]))*100)/100.0 + "," + Math.round(Double.parseDouble(data[9])*100/(Double.parseDouble(data[9]) + Double.parseDouble(data[10]))*100)/100.0);
 
 		            	line = reader.readLine();
@@ -2293,6 +2300,7 @@ public void logPercentage(){
 	            }
 	            //check if the log is a silent-period or a mix-zone log
 	            out.flush();
+	            out.close();
 			} catch (FileNotFoundException e) {
 			    System.err.println("FileNotFoundException: " + e.getMessage());
 			} catch (IOException e) {
@@ -2347,5 +2355,19 @@ public void getMax(){
 		       
 		}
 		        
+	}
+	/* (non-Javadoc)
+ 	* @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+ 	*/
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+	// TODO Auto-generated method stub
+		if(availableScripts_.getSelectedIndex() == 0) accumulateSpammerFiles();
+		else if(availableScripts_.getSelectedIndex() == 0) accumulateSpammerFiles();
+		else if(availableScripts_.getSelectedIndex() == 1) accumulateVehicleIDSResults();
+		else if(availableScripts_.getSelectedIndex() == 2) perturbationLog();
+		else if(availableScripts_.getSelectedIndex() == 3) makejobs();
+		else if(availableScripts_.getSelectedIndex() == 4) accumulateKnownVehiclesTimeFiles();
+		else if(availableScripts_.getSelectedIndex() == 5) calculateAngles();
 	}
 }
