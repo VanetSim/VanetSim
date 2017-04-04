@@ -1,3 +1,6 @@
+**Important note**
+The VANETsim project is closed. The software is no longer maintained.
+
 VanetSim
 ========
 
